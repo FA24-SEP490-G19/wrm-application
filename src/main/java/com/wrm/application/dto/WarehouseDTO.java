@@ -2,10 +2,6 @@ package com.wrm.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.component.enums.WarehouseStatus;
-import com.wrm.application.model.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.*;
 
 @Data
@@ -24,6 +20,6 @@ public class WarehouseDTO {
 
     private String description;
 
-    @JsonProperty("warehouse_manager")
-    private User warehouseManager;
+    @JsonProperty("warehouse_manager_id")
+    private Long warehouseManagerId;
 }

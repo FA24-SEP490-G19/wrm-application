@@ -31,7 +31,6 @@ public class Warehouse extends BaseModel{
     @Column(name = "description")
     private String description;
 
-    @OneToOne
-    @JoinColumn(name = "warehouse_manager")
-    private User warehouseManager;
+    @Column(name = "warehouse_manager_id")
+    private Long warehouseManagerId;
 }

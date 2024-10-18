@@ -43,7 +43,7 @@ public class UserService implements IUserService {
                 .build();
         Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new DataIntegrityViolationException("Role not found"));
-        newUser.setRoleId(role);
+        newUser.setRole(role);
 
         String password = userDTO.getPassword();
         String encodedPassword = passwordEncoder.encode(password);
@@ -66,5 +66,9 @@ public class UserService implements IUserService {
 
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
+    }
+
+    public User getById(Long id) {
+        return userRepository.findById(id).orElse(null);
     }
 }

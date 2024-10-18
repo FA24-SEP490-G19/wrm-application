@@ -45,7 +45,7 @@ public class User extends BaseModel implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "role", nullable = false)
-    private Role roleId;
+    private Role role;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -54,7 +54,7 @@ public class User extends BaseModel implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        authorityList.add(new SimpleGrantedAuthority(getRoleId().getRole()));
+        authorityList.add(new SimpleGrantedAuthority(getRole().getRoleName()));
         return authorityList;
     }
 

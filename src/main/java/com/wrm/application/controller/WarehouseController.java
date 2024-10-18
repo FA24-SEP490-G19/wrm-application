@@ -1,19 +1,23 @@
 package com.wrm.application.controller;
 
+import com.wrm.application.dto.WarehouseDTO;
+import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
 import com.wrm.application.service.impl.WarehouseService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1/warehouses")
 public class WarehouseController {
     private final WarehouseService warehouseService;
-
-    public WarehouseController(WarehouseService warehouseService) {
-        this.warehouseService = warehouseService;
-    }
 
     @GetMapping("/all")
     public List<Warehouse> getAllWarehouses() {
@@ -21,22 +25,51 @@ public class WarehouseController {
     }
 
     @GetMapping("/{id}")
-    public String getWarehouseById() {
-        return "Warehouse";
+    public ResponseEntity<?> getWarehouseById(@PathVariable Long id) {
+        return ResponseEntity.ok(warehouseService.getWarehouseById(id));
     }
 
     @PostMapping("/create")
-    public String createWarehouse() {
-        return "Warehouse added";
+    public ResponseEntity<?> createWarehouse(@Valid @RequestBody WarehouseDTO warehouseDTO, BindingResult result) {
+        try {
+            if (result.hasErrors()) {
+                List<String> errorMessage = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body("Invalid user data");
+            }
+            Warehouse warehouse = warehouseService.createWarehouse(warehouseDTO);
+            return ResponseEntity.ok(warehouse);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @PutMapping("/{id}")
-    public String updateWarehouse() {
-        return "Warehouse updated";
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody WarehouseDTO warehouseDTO, BindingResult result) {
+        try {
+            if (result.hasErrors()) {
+                List<String> errorMessage = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body("Invalid user data");
+            }
+            Warehouse warehouse = warehouseService.updateWarehouse(id, warehouseDTO);
+            return ResponseEntity.ok(warehouse);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public String deleteWarehouse() {
-        return "Warehouse deleted";
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteWarehouse(@PathVariable Long id) {
+        try {
+            warehouseService.deleteWarehouse(id);
+            return ResponseEntity.ok("Warehouse deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

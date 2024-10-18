@@ -18,23 +18,23 @@ import java.time.LocalDateTime;
 public class BaseModel {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @Column(name = "created_date")
-    private LocalDateTime created_date;
+    private LocalDateTime createdDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @Column(name = "last_modified_date")
-    private LocalDateTime last_modified_date;
+    private LocalDateTime lastModifiedDate;
     @Column(name = "is_deleted")
-    private boolean is_deleted;
+    private boolean isDeleted;
 
     @PrePersist
     protected void onCreated() {
-        this.created_date = LocalDateTime.now();
-        this.last_modified_date = LocalDateTime.now();
-        this.is_deleted = false;
+        this.createdDate = LocalDateTime.now();
+        this.lastModifiedDate = LocalDateTime.now();
+        this.isDeleted = false;
     }
 
     @PreUpdate
     protected void onUpdated() {
-        this.last_modified_date = LocalDateTime.now();
+        this.lastModifiedDate = LocalDateTime.now();
     }
 }
