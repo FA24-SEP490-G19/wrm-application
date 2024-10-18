@@ -34,10 +34,12 @@ public class UserService implements IUserService {
             throw new DataIntegrityViolationException("Email already exists");
         }
         User newUser = User.builder()
-                .userName(userDTO.getUserName())
+                .fullName(userDTO.getFullName())
                 .email(userDTO.getEmail())
                 .password(userDTO.getPassword())
-                .status(userDTO.isStatus())
+                .phoneNumber(userDTO.getPhoneNumber())
+                .address(userDTO.getAddress())
+                .gender(userDTO.getGender())
                 .build();
         Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new DataIntegrityViolationException("Role not found"));

@@ -59,7 +59,6 @@ public class JwtTokenUtil {
         byte[] keyBytes = new byte[32]; // 256-bit key
         random.nextBytes(keyBytes);
         String secretKey = Encoders.BASE64.encode(keyBytes);
-        System.out.println("Generated Secret Key: " + secretKey);
         return secretKey;
     }
 

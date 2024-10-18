@@ -1,5 +1,7 @@
 package com.wrm.application.model;
 
+import com.wrm.application.component.enums.UserGender;
+import com.wrm.application.component.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,8 +24,8 @@ public class User extends BaseModel implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", length = 20, nullable = false)
-    private String userName;
+    @Column(name = "fullname", length = 20, nullable = false)
+    private String fullName;
 
     @Column(name = "email", nullable = false)
     private String email;
@@ -31,12 +33,23 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "password", length = 200, nullable = false)
     private String password;
 
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
+    @Column(name = "address", length = 200)
+    private String address;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    private UserGender gender;
+
     @ManyToOne
     @JoinColumn(name = "role", nullable = false)
     private Role roleId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private boolean status;
+    private UserStatus status;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -47,6 +60,6 @@ public class User extends BaseModel implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return fullName;
     }
 }
