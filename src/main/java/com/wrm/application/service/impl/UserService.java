@@ -67,8 +67,4 @@ public class UserService implements IUserService {
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
     }
-
-    public User getById(Long id) {
-        return userRepository.findById(id).orElse(null);
-    }
 }

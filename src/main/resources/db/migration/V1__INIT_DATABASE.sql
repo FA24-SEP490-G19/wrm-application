@@ -40,10 +40,10 @@ CREATE TABLE `roles`
 );
 
 INSERT INTO `roles` (`role`, `created_date`, `last_modified_date`)
-VALUES ('ROLE_USER', NOW(), NOW()),
-       ('ROLE_ADMIN', NOW(), NOW()),
-       ('ROLE_SALES', NOW(), NOW()),
-       ('ROLE_MANAGER', NOW(), NOW());
+VALUES ('USER', NOW(), NOW()),
+       ('ADMIN', NOW(), NOW()),
+       ('SALES', NOW(), NOW()),
+       ('MANAGER', NOW(), NOW());
 
 INSERT INTO `users` (`fullname`, `password`, `email`, `gender`, `phone_number`, `address`, `role`, `created_date`, `last_modified_date`)
 VALUES ('admin', '$2a$10$75j9yaNBgEYe0vbZxqUUFudnprdWgld.4p161jBDbZXfM.CKW8kbm', 'admin@gmail.com','MALE' ,'0987654321' ,'abcd' ,2, NOW(), NOW());

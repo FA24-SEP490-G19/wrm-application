@@ -7,6 +7,7 @@ import com.wrm.application.service.impl.WarehouseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/warehouses")
+@RequestMapping("${api.prefix}/warehouses")
 public class WarehouseController {
     private final WarehouseService warehouseService;
 
@@ -30,6 +31,7 @@ public class WarehouseController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createWarehouse(@Valid @RequestBody WarehouseDTO warehouseDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
@@ -47,6 +49,7 @@ public class WarehouseController {
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody WarehouseDTO warehouseDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
@@ -64,6 +67,7 @@ public class WarehouseController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteWarehouse(@PathVariable Long id) {
         try {
             warehouseService.deleteWarehouse(id);
