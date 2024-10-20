@@ -1,6 +1,7 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.component.JwtTokenUtil;
+import com.wrm.application.component.enums.UserStatus;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.User;
@@ -40,6 +41,7 @@ public class UserService implements IUserService {
                 .phoneNumber(userDTO.getPhoneNumber())
                 .address(userDTO.getAddress())
                 .gender(userDTO.getGender())
+                .status(UserStatus.ACTIVE)
                 .build();
         Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new DataIntegrityViolationException("Role not found"));
