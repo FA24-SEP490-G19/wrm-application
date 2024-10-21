@@ -1,19 +1,37 @@
-CREATE TABLE `users`
-(
-    `id`                 BIGINT       NOT NULL AUTO_INCREMENT,
-    `fullname`           VARCHAR(150) NOT NULL,
-    `password`           VARCHAR(450) NOT NULL,
-    `email`              VARCHAR(150) NOT NULL,
-    `gender`             VARCHAR(50)  NOT NULL,
-    `phone_number`       VARCHAR(10)  NOT NULL,
-    `address`            VARCHAR(255) NOT NULL,
-    `role`               BIGINT       NOT NULL,
-    `status`             VARCHAR(50)  NULL DEFAULT 'ACTIVE',
-    `is_deleted`         BOOLEAN      NULL DEFAULT FALSE,
-    `created_date`       DATETIME     NOT NULL,
-    `last_modified_date` DATETIME     NOT NULL,
-    PRIMARY KEY (`id`)
+-- CREATE TABLE `users`
+-- (
+--     `id`                 BIGINT       NOT NULL AUTO_INCREMENT,
+--     `fullname`           VARCHAR(150) NOT NULL,
+--     `password`           VARCHAR(450) NOT NULL,
+--     `email`              VARCHAR(150) NOT NULL,
+--     `gender`             VARCHAR(50)  NOT NULL,
+--     `phone_number`       VARCHAR(10)  NOT NULL,
+--     `address`            VARCHAR(255) NOT NULL,
+--     `role`               BIGINT       NOT NULL,
+--     `status`             VARCHAR(50)  NULL DEFAULT 'ACTIVE',
+--     `is_deleted`         BOOLEAN      NULL DEFAULT FALSE,
+--     `created_date`       DATETIME     NOT NULL,
+--     `last_modified_date` DATETIME     NOT NULL,
+--     PRIMARY KEY (`id`)
+-- );
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    role_typeid INT NOT NULL,
+    status_typeid INT NOT NULL,
+    phonenumber VARCHAR(20),
+    address TEXT,
+    gender BOOLEAN,
+    FOREIGN KEY (role_typeid) REFERENCES role_type(role_typeid),
+    FOREIGN KEY (status_typeid) REFERENCES status_type(status_typeid),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
 
 CREATE TABLE `tokens`
 (

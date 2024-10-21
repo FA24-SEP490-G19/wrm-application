@@ -1,6 +1,7 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.component.JwtTokenUtil;
+import com.wrm.application.dto.ChangePasswordDto;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.User;
@@ -62,9 +63,28 @@ public class UserService implements IUserService {
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
             throw new BadCredentialsException("Wrong phone number or password");
         }
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password, existingUser.getAuthorities());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email,
+                password, existingUser.getAuthorities());
 
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
     }
+
+    public boolean changePassword(ChangePasswordDto changePasswordDto) {
+        Optional<User> userOpt = userRepository.findByEmail(changePasswordDto.getEmail());
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (passwordEncoder.matches(changePasswordDto.getOldPassword(), user.getPassword())) {
+                user.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+                userRepository.save(user);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
 }
