@@ -25,6 +25,7 @@ public class Warehouse extends BaseModel{
     @Column(name = "size")
     private float size;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private WarehouseStatus status;
 

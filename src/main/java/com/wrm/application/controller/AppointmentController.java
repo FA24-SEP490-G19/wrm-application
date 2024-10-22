@@ -1,8 +1,8 @@
 package com.wrm.application.controller;
 
-import com.wrm.application.dto.WarehouseDTO;
-import com.wrm.application.model.Warehouse;
-import com.wrm.application.service.impl.WarehouseService;
+import com.wrm.application.dto.AppointmentDTO;
+import com.wrm.application.model.Appointment;
+import com.wrm.application.service.impl.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,23 +15,25 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/warehouses")
-public class WarehouseController {
-    private final WarehouseService warehouseService;
+@RequestMapping("/appointments")
+public class AppointmentController {
+    private final AppointmentService appointmentService;
 
     @GetMapping("")
-    public List<Warehouse> getAllWarehouses() {
-        return warehouseService.getAllWarehouses();
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public List<Appointment> getAllAppointment() {
+        return appointmentService.getAllAppointment();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getWarehouseById(@PathVariable Long id) {
-        return ResponseEntity.ok(warehouseService.getWarehouseById(id));
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<?> getAppointmentById(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createWarehouse(@Valid @RequestBody WarehouseDTO warehouseDTO, BindingResult result) {
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<?> createAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
@@ -40,16 +42,16 @@ public class WarehouseController {
                         .toList();
                 return ResponseEntity.badRequest().body("Invalid user data");
             }
-            Warehouse warehouse = warehouseService.createWarehouse(warehouseDTO);
-            return ResponseEntity.ok(warehouse);
+            Appointment appointment = appointmentService.createAppointment(appointmentDTO);
+            return ResponseEntity.ok(appointment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody WarehouseDTO warehouseDTO, BindingResult result) {
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<?> updateAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
@@ -58,19 +60,19 @@ public class WarehouseController {
                         .toList();
                 return ResponseEntity.badRequest().body("Invalid user data");
             }
-            Warehouse warehouse = warehouseService.updateWarehouse(id, warehouseDTO);
-            return ResponseEntity.ok(warehouse);
+            Appointment appointment = appointmentService.updateAppointment(id, appointmentDTO);
+            return ResponseEntity.ok(appointment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteWarehouse(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
         try {
-            warehouseService.deleteWarehouse(id);
-            return ResponseEntity.ok("Warehouse deleted successfully");
+            appointmentService.deleteAppointment(id);
+            return ResponseEntity.ok("Appointment deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

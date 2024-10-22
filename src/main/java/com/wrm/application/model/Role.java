@@ -16,9 +16,4 @@ public class Role extends BaseModel {
 
     @Column(name = "role", nullable = false)
     private String roleName;
-
-//    public static String ADMIN = "ADMIN";
-//    public static String USER = "USER";
-//    public static String MANAGER = "MANAGER";
-//    public static String SALES = "SALES";
 }

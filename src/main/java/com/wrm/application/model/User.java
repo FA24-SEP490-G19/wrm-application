@@ -60,6 +60,6 @@ public class User extends BaseModel implements UserDetails {
 
     @Override
     public String getUsername() {
-        return fullName;
+        return email;
     }
 }

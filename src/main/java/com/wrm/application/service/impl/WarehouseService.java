@@ -1,5 +1,6 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.component.enums.WarehouseStatus;
 import com.wrm.application.dto.WarehouseDTO;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
@@ -36,6 +37,7 @@ public class WarehouseService implements IWarehouseService {
                 .address(warehouseDTO.getAddress())
                 .size(warehouseDTO.getSize())
                 .description(warehouseDTO.getDescription())
+                .status(WarehouseStatus.ACTIVE)
                 .build();
 
         User warehouseManager = userRepository.findById(warehouseDTO.getWarehouseManagerId())

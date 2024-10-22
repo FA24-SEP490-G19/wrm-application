@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/users")
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
@@ -31,6 +31,9 @@ public class UserController {
                         .map(FieldError::getDefaultMessage)
                         .toList();
                 return ResponseEntity.badRequest().body("Invalid user data");
+            }
+            if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
+                return ResponseEntity.badRequest().body("Password does not match");
             }
             User user = userService.createUser(userDTO);
             return ResponseEntity.ok(user);
