@@ -15,11 +15,11 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/warehouses")
+@RequestMapping("/warehouses")
 public class WarehouseController {
     private final WarehouseService warehouseService;
 
-    @GetMapping("/all")
+    @GetMapping("")
     public List<Warehouse> getAllWarehouses() {
         return warehouseService.getAllWarehouses();
     }

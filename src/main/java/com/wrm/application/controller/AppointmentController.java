@@ -15,22 +15,24 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/appointments")
+@RequestMapping("/appointments")
 public class AppointmentController {
     private final AppointmentService appointmentService;
 
-    @GetMapping("/all")
-    public List<Appointment> getAllAppointments() {
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public List<Appointment> getAllAppointment() {
         return appointmentService.getAllAppointment();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_SALES')")
     public ResponseEntity<?> getAppointmentById(@PathVariable Long id) {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SALES')")
     public ResponseEntity<?> createAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
@@ -48,7 +50,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SALES')")
     public ResponseEntity<?> updateAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
@@ -66,7 +68,7 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SALES')")
     public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
         try {
             appointmentService.deleteAppointment(id);

@@ -1,7 +1,5 @@
 package com.wrm.application.component;
 
-//import com.project.shopapp.exceptions.InvalidParamException;
-
 import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.model.User;
 import io.jsonwebtoken.Claims;
@@ -24,7 +22,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenUtil {
     @Value("${jwt.expiration}")
-    private int expiration; //save to an environment variable
+    private int expiration;
     @Value("${jwt.secretKey}")
     private String secretKey;
 
@@ -35,16 +33,14 @@ public class JwtTokenUtil {
         claims.put("email", user.getEmail());
         try {
             String token = Jwts.builder()
-                    .setClaims(claims) //how to extract claims from this ?
+                    .setClaims(claims)
                     .setSubject(user.getEmail())
                     .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000L))
                     .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                     .compact();
             return token;
         } catch (Exception e) {
-            //you can "inject" Logger, instead System.out.println
             throw new InvalidParamException("Cannot create jwt token, error: " + e.getMessage());
-            //return null;
         }
     }
 
@@ -54,13 +50,13 @@ public class JwtTokenUtil {
         return Keys.hmacShaKeyFor(bytes);
     }
 
-    private String generateSecretKey() {
-        SecureRandom random = new SecureRandom();
-        byte[] keyBytes = new byte[32]; // 256-bit key
-        random.nextBytes(keyBytes);
-        String secretKey = Encoders.BASE64.encode(keyBytes);
-        return secretKey;
-    }
+//    private String generateSecretKey() {
+//        SecureRandom random = new SecureRandom();
+//        byte[] keyBytes = new byte[32]; // 256-bit key
+//        random.nextBytes(keyBytes);
+//        String secretKey = Encoders.BASE64.encode(keyBytes);
+//        return secretKey;
+//    }
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
@@ -75,7 +71,6 @@ public class JwtTokenUtil {
         return claimsResolver.apply(claims);
     }
 
-    //check expiration
     public boolean isTokenExpired(String token) {
         Date expirationDate = this.extractClaim(token, Claims::getExpiration);
         return expirationDate.before(new Date());

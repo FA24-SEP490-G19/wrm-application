@@ -4,6 +4,7 @@ import com.wrm.application.component.enums.AppointmentStatus;
 import com.wrm.application.model.Appointment;
 import com.wrm.application.dto.AppointmentDTO;
 import com.wrm.application.model.User;
+import com.wrm.application.model.Warehouse;
 import com.wrm.application.repository.AppointmentRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.service.IAppointmentService;

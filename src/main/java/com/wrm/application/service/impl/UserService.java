@@ -4,6 +4,7 @@ import com.wrm.application.component.JwtTokenUtil;
 import com.wrm.application.component.enums.UserStatus;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
+import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Role;
 import com.wrm.application.repository.RoleRepository;
@@ -29,9 +30,9 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public User createUser(UserDTO userDTO) {
+    public User createUser(UserDTO userDTO) throws Exception{
         String email = userDTO.getEmail();
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmail(email)){
             throw new DataIntegrityViolationException("Email already exists");
         }
         User newUser = User.builder()
@@ -44,7 +45,10 @@ public class UserService implements IUserService {
                 .status(UserStatus.ACTIVE)
                 .build();
         Role role = roleRepository.findById(1L)
-                .orElseThrow(() -> new DataIntegrityViolationException("Role not found"));
+                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+        if(!role.getRoleName().equals("USER")){
+            throw new PermissionDenyException("Permission deny");
+        }
         newUser.setRole(role);
 
         String password = userDTO.getPassword();
