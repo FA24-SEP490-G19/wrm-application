@@ -31,7 +31,7 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public Appointment createAppointment(AppointmentDTO appointmentDTO) {
+    public Appointment createAppointment(AppointmentDTO appointmentDTO, String remoteUser) {
 
         Appointment newAppointment = Appointment.builder()
                 .customerId(appointmentDTO.getCustomerId())
@@ -40,7 +40,7 @@ public class AppointmentService implements IAppointmentService {
                 .status(AppointmentStatus.PENDING)
                 .build();
 
-        User sales = userRepository.findById(appointmentDTO.getSalesId())
+        User sales = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
         if (sales.getRole().getId() != 3) {
             throw new DataIntegrityViolationException("User is not a salesman");

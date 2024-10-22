@@ -3,6 +3,7 @@ package com.wrm.application.controller;
 import com.wrm.application.dto.AppointmentDTO;
 import com.wrm.application.model.Appointment;
 import com.wrm.application.service.impl.AppointmentService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class AppointmentController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<?> createAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
+    public ResponseEntity<?> createAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result, HttpServletRequest req) {
         try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
@@ -42,7 +43,7 @@ public class AppointmentController {
                         .toList();
                 return ResponseEntity.badRequest().body("Invalid user data");
             }
-            Appointment appointment = appointmentService.createAppointment(appointmentDTO);
+            Appointment appointment = appointmentService.createAppointment(appointmentDTO, req.getRemoteUser());
             return ResponseEntity.ok(appointment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

@@ -1,5 +1,6 @@
 package com.wrm.application.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wrm.application.component.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,6 +28,7 @@ public class Appointment extends BaseModel{
     @Column(name = "warehouse_id", nullable = false)
     private Long warehouseId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @Column(name = "appointment_date", nullable = false)
     private LocalDateTime appointmentDate;
 
