@@ -31,6 +31,7 @@ public class JwtTokenUtil {
         Map<String, Object> claims = new HashMap<>();
         //this.generateSecretKey();
         claims.put("email", user.getEmail());
+        claims.put("userId", user.getId());
         try {
             String token = Jwts.builder()
                     .setClaims(claims)
@@ -85,4 +86,10 @@ public class JwtTokenUtil {
         return (email.equals(userDetails.getUsername()))
                 && !isTokenExpired(token);
     }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("userId", Long.class); 
+    }
+
 }

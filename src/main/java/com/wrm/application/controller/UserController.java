@@ -1,18 +1,19 @@
 package com.wrm.application.controller;
 
+import com.wrm.application.component.JwtTokenUtil;
+import com.wrm.application.dto.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.dto.UserLoginDTO;
+import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.model.User;
 import com.wrm.application.service.impl.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
@@ -51,4 +53,26 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(
+            @RequestHeader("Authorization") String token,
+            @RequestBody @Valid ChangePasswordDTO changePasswordDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            StringBuilder errorMessages = new StringBuilder();
+            result.getAllErrors().forEach(error -> errorMessages.append(error.getDefaultMessage()).append("\n"));
+            return ResponseEntity.badRequest().body(errorMessages.toString());
+        }
+        try {
+            String tokenValue = token.substring(7);
+            Long userId = jwtTokenUtil.getUserIdFromToken(tokenValue);
+            userService.changePassword(userId, changePasswordDTO);
+            return ResponseEntity.ok().body("Password changed successfully");
+        } catch (InvalidParamException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
+    }
+
 }

@@ -2,8 +2,10 @@ package com.wrm.application.service.impl;
 
 import com.wrm.application.component.JwtTokenUtil;
 import com.wrm.application.component.enums.UserStatus;
+import com.wrm.application.dto.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
+import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Role;
@@ -73,4 +75,26 @@ public class UserService implements IUserService {
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
     }
+
+    @Override
+    public void changePassword(Long userId, ChangePasswordDTO changePasswordDTO) throws Exception {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            throw new DataNotFoundException("User not found");
+        }
+        User user = optionalUser.get();
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            throw new InvalidParamException("Old password is incorrect");
+        }
+        if (changePasswordDTO.getOldPassword().equals(changePasswordDTO.getNewPassword())) {
+            throw new InvalidParamException("New password cannot be the same as the old password");
+        }
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new InvalidParamException("New password and confirm password do not match");
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        userRepository.save(user);
+    }
+
+
 }
