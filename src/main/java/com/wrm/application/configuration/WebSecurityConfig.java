@@ -37,6 +37,10 @@ public class WebSecurityConfig {
                                     "/warehouses").permitAll()
                             .requestMatchers(GET,
                                     "/warehouses/**").permitAll()
+                            .requestMatchers(GET,
+                                    "/lots").permitAll()
+                            .requestMatchers(GET,
+                                    "/lots/**").permitAll()
 //                            .requestMatchers(GET,
 //                                    "/appointments").permitAll()
 //                            .requestMatchers(GET,

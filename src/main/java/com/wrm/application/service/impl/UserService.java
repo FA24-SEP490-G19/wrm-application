@@ -77,16 +77,13 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void changePassword(Long userId, ChangePasswordDTO changePasswordDTO) throws Exception {
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new DataNotFoundException("User not found");
-        }
-        User user = optionalUser.get();
+    public void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
         if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
             throw new InvalidParamException("Old password is incorrect");
         }
-        if (changePasswordDTO.getOldPassword().equals(changePasswordDTO.getNewPassword())) {
+        if (changePasswordDTO.getNewPassword().equals(changePasswordDTO.getOldPassword())) {
             throw new InvalidParamException("New password cannot be the same as the old password");
         }
         if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
@@ -96,5 +93,22 @@ public class UserService implements IUserService {
         userRepository.save(user);
     }
 
+    @Override
+    public User getUserByEmail(String email) throws DataNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+    }
 
+    public UserDTO getUserProfile(String email) throws DataNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        return UserDTO.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(user.getStatus())
+                .build();
+    }
 }
