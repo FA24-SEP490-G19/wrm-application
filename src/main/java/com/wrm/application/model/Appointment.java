@@ -1,7 +1,7 @@
 package com.wrm.application.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wrm.application.component.enums.AppointmentStatus;
+import com.wrm.application.constant.enums.AppointmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,16 +19,19 @@ public class Appointment extends BaseModel{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "customer_id", nullable = false)
-    private Long customerId;
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private User customer;
 
-    @Column(name = "sales_id", nullable = false)
-    private Long salesId;
+    @ManyToOne
+    @JoinColumn(name = "sales_id", nullable = false)
+    private User sales;
 
-    @Column(name = "warehouse_id", nullable = false)
-    private Long warehouseId;
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "appointment_date", nullable = false)
     private LocalDateTime appointmentDate;
 

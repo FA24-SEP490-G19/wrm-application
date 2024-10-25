@@ -16,13 +16,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @MappedSuperclass
 public class BaseModel {
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate;
+
     @Column(name = "is_deleted")
     private boolean isDeleted;
 

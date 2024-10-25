@@ -1,7 +1,7 @@
 package com.wrm.application.service.impl;
 
-import com.wrm.application.component.JwtTokenUtil;
-import com.wrm.application.component.enums.UserStatus;
+import com.wrm.application.security.JwtTokenUtil;
+import com.wrm.application.constant.enums.UserStatus;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.PermissionDenyException;
@@ -66,7 +66,7 @@ public class UserService implements IUserService {
         }
         User existingUser = user.get();
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-            throw new BadCredentialsException("Wrong phone number or password");
+            throw new BadCredentialsException("Wrong email or password");
         }
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password, existingUser.getAuthorities());
 
