@@ -35,4 +35,7 @@ public class UserDTO {
     private UserGender gender;
 
     private UserStatus status;
+
+
 }
+

@@ -57,10 +57,10 @@ public class UserController {
         UserDTO userProfile = userService.getUserProfile(email);
         return ResponseEntity.ok(userProfile);
     }
-
-    @ExceptionHandler(DataNotFoundException.class)
-    public ResponseEntity<String> handleDataNotFoundException(DataNotFoundException ex) {
-        // Return a suitable response for the not found exception
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    @PutMapping("/profile")
+    public ResponseEntity<UserDTO> updateUserProfile(Principal principal, @RequestBody UserDTO updatedUserDTO) {
+        String email = principal.getName(); // Retrieve logged-in user's email
+        UserDTO updatedProfile = userService.updateUserProfile(email, updatedUserDTO);
+        return ResponseEntity.ok(updatedProfile);
     }
 }
