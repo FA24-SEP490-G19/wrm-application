@@ -80,7 +80,7 @@ public class WarehouseController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body("Invalid user data");
+                return ResponseEntity.badRequest().body("Invalid warehouse data");
             }
             WarehouseResponse warehouse = warehouseService.updateWarehouse(id, warehouseDTO);
             return ResponseEntity.ok(warehouse);

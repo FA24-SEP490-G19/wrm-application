@@ -66,7 +66,7 @@ public class UserService implements IUserService {
         }
         User existingUser = user.get();
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-            throw new BadCredentialsException("Wrong phone number or password");
+            throw new BadCredentialsException("Wrong email or password");
         }
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password, existingUser.getAuthorities());
 
