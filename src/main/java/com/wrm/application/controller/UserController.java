@@ -3,6 +3,7 @@ package com.wrm.application.controller;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.dto.UserLoginDTO;
 import com.wrm.application.model.User;
+import com.wrm.application.response.user.UserResponse;
 import com.wrm.application.service.impl.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,17 @@ public class UserController {
                 return ResponseEntity.badRequest().body("Password does not match");
             }
             User user = userService.createUser(userDTO);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(UserResponse.builder()
+                    .id(user.getId())
+                    .fullName(user.getFullName())
+                    .email(user.getEmail())
+                    .address(user.getAddress())
+                    .phoneNumber(user.getPhoneNumber())
+                    .gender(user.getGender())
+                    .status(user.getStatus())
+                    .createdDate(user.getCreatedDate())
+                    .lastModifiedDate(user.getLastModifiedDate())
+                    .build());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

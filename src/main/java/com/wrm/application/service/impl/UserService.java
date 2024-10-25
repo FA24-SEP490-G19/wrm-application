@@ -1,7 +1,7 @@
 package com.wrm.application.service.impl;
 
-import com.wrm.application.component.JwtTokenUtil;
-import com.wrm.application.component.enums.UserStatus;
+import com.wrm.application.security.JwtTokenUtil;
+import com.wrm.application.constant.enums.UserStatus;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.PermissionDenyException;
