@@ -1,18 +1,15 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.component.enums.LotStatus;
+import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
-import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.Lot;
-import com.wrm.application.model.Warehouse;
 import com.wrm.application.repository.LotRepository;
-import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.service.ILotService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +28,10 @@ public class LotService implements ILotService {
     }
 
     @Override
-    public Lot updateLotStatus(Long lotId, LotStatus newStatus) throws DataNotFoundException {
+    public Lot updateLotStatus(Long lotId, LotDTO lotDTO) throws DataNotFoundException {
         Lot lot = getLotById(lotId);
-        lot.setStatus(newStatus);
+        LotStatus lotStatus = lotDTO.getStatus();
+        lot.setStatus(lotStatus);
         return lotRepository.save(lot);
     }
 

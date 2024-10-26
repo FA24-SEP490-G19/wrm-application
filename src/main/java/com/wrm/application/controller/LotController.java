@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.FieldError;
 
 import com.wrm.application.model.Lot;
-import com.wrm.application.model.User;
 import com.wrm.application.service.ILotService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ public class LotController {
     private final ILotService lotService;
 
     @GetMapping("")
-    public List<Lot> getAllWarehouses() {
+    public List<Lot> getAllLots() {
         return lotService.getAllLots();
     }
 
@@ -40,9 +39,7 @@ public class LotController {
 
     @PutMapping("/updateStatus/{lotId}")
     @PreAuthorize("hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> updateLotStatus(@PathVariable Long lotId,
-                                             @Valid @RequestBody LotDTO lotDTO,
-                                             BindingResult result) throws DataNotFoundException {
+    public ResponseEntity<?> updateLotStatus(@PathVariable Long lotId, @Valid @RequestBody LotDTO lotDTO, BindingResult result) {
         if (result.hasErrors()) {
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
@@ -50,10 +47,16 @@ public class LotController {
                     .collect(Collectors.toList());
             return ResponseEntity.badRequest().body("Invalid data: " + errorMessage);
         }
-        LotStatus lotStatus = lotDTO.getStatus();
-        Lot updatedLot = lotService.updateLotStatus(lotId, lotStatus);
-        return ResponseEntity.ok(updatedLot);
+        try {
+            Lot updatedLot = lotService.updateLotStatus(lotId, lotDTO);
+            return ResponseEntity.ok(updatedLot);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
+
 }
 
 
