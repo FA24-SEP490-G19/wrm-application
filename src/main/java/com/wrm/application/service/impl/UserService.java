@@ -18,7 +18,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -107,11 +109,56 @@ public class UserService implements IUserService {
         if (updatedUserDTO.getGender() != null) {
             user.setGender(updatedUserDTO.getGender());
         }
-        if (updatedUserDTO.getStatus() != null) {
-            user.setStatus(updatedUserDTO.getStatus());
-        }
+        //if (updatedUserDTO.getStatus() != null) {
+        //    user.setStatus(updatedUserDTO.getStatus());
+    //}
 
         // Save the updated user
+        userRepository.save(user);
+
+        // Convert updated user entity to DTO
+        return UserDTO.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(user.getStatus())
+                .build();
+    }
+    @Override
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> UserDTO.builder()
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+    public UserDTO getUserProfileById(Long id) throws DataNotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        // Convert User entity to UserDTO
+        return UserDTO.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(user.getStatus())
+                .build();
+    }
+    public UserDTO updateUserStatus(Long id, UserStatus status) throws DataNotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        // Update the user's status
+        user.setStatus(status);
         userRepository.save(user);
 
         // Convert updated user entity to DTO
