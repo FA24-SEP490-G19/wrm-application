@@ -13,11 +13,12 @@ import java.util.Optional;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     Optional<Appointment> findById(Long id);
 
+    @Query("SELECT a FROM Appointment a WHERE a.isDeleted = false")
     Page<Appointment> findAll(Pageable pageable);
 
-    @Query("SELECT a FROM Appointment a WHERE a.customer.id = ?1")
+    @Query("SELECT a FROM Appointment a WHERE a.customer.id = ?1 AND a.isDeleted = false")
     Page<Appointment> findByCustomerId(Long id, Pageable pageable);
 
-    @Query("SELECT a FROM Appointment a WHERE a.warehouse.id = ?1")
+    @Query("SELECT a FROM Appointment a WHERE a.warehouse.id = ?1 AND a.isDeleted = false")
     Page<Appointment> findByWarehouseId(Long id, Pageable pageable);
 }

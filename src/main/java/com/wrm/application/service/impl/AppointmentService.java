@@ -43,7 +43,7 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public AppointmentResponse getAppointmentById(Long id) throws Exception{
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Appointment not found"));
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .customerId(appointment.getCustomer().getId())

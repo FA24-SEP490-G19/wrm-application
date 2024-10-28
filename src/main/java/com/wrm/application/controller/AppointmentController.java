@@ -83,7 +83,7 @@ public class AppointmentController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body("Invalid user data");
+                return ResponseEntity.badRequest().body("Invalid appointment data");
             }
             AppointmentResponse appointment = appointmentService.updateAppointment(id, appointmentDTO);
             return ResponseEntity.ok(appointment);

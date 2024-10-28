@@ -1,11 +1,13 @@
-package com.wrm.application.response.appointment;
+package com.wrm.application.response.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrm.application.constant.enums.AppointmentStatus;
+import com.wrm.application.constant.enums.RequestStatus;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.Null;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,24 +18,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @MappedSuperclass
 @Builder
-public class AppointmentResponse {
+public class AdminRequestResponse {
     private Long id;
 
-    @JsonProperty("customer_id")
-    private Long customerId;
+    @JsonProperty("user_id")
+    private Long userId;
 
-    @JsonProperty("sales_id")
-    private Long salesId;
+    private String type;
 
-    @JsonProperty("warehouse_id")
-    private Long warehouseId;
-
-    @JsonProperty("appointment_date")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime appointmentDate;
+    private String description;
 
     @Enumerated(EnumType.STRING)
-    private AppointmentStatus status;
+    private RequestStatus status;
+
+    @JsonProperty("admin_response")
+    private String adminResponse;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonProperty("admin_response_date")
+    private LocalDateTime adminResponseDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonProperty("created_date")
