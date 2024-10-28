@@ -42,6 +42,7 @@ public class WebSecurityConfig {
                             .requestMatchers(GET,
                                     "/lots/**").permitAll()
                             .requestMatchers("/feedback/add").hasRole("USER")
+                            .requestMatchers("/lots/updateStatus/").hasRole("MANAGER")
 //                            .requestMatchers(GET,
 //                                    "/appointments").permitAll()
 //                            .requestMatchers(GET,

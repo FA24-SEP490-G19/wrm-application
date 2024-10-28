@@ -1,11 +1,9 @@
 package com.wrm.application.controller;
 
-import com.wrm.application.component.enums.LotStatus;
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
-import com.wrm.application.service.IUserService;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.wrm.application.exception.PermissionDenyException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.validation.FieldError;
 
 import com.wrm.application.model.Lot;
@@ -39,7 +37,7 @@ public class LotController {
 
     @PutMapping("/updateStatus/{lotId}")
     @PreAuthorize("hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> updateLotStatus(@PathVariable Long lotId, @Valid @RequestBody LotDTO lotDTO, BindingResult result) {
+    public ResponseEntity<?> updateLotStatus(@PathVariable Long lotId, @Valid @RequestBody LotDTO lotDTO, BindingResult result, HttpServletRequest req) {
         if (result.hasErrors()) {
             List<String> errorMessage = result.getFieldErrors()
                     .stream()
@@ -48,14 +46,17 @@ public class LotController {
             return ResponseEntity.badRequest().body("Invalid data: " + errorMessage);
         }
         try {
-            Lot updatedLot = lotService.updateLotStatus(lotId, lotDTO);
+            Lot updatedLot = lotService.updateLotStatus(lotId, lotDTO, req.getRemoteUser());
             return ResponseEntity.ok(updatedLot);
         } catch (DataNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (PermissionDenyException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
 }
 
