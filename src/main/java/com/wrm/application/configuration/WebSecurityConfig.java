@@ -1,6 +1,6 @@
 package com.wrm.application.configuration;
 
-import com.wrm.application.filter.JwtTokenFilter;
+import com.wrm.application.security.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

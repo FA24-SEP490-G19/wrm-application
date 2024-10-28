@@ -1,7 +1,7 @@
 package com.wrm.application.model;
 
-import com.wrm.application.component.enums.UserGender;
-import com.wrm.application.component.enums.UserStatus;
+import com.wrm.application.constant.enums.UserGender;
+import com.wrm.application.constant.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

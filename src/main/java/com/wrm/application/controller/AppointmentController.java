@@ -2,10 +2,15 @@ package com.wrm.application.controller;
 
 import com.wrm.application.dto.AppointmentDTO;
 import com.wrm.application.model.Appointment;
+import com.wrm.application.response.appointment.AppointmentListResponse;
+import com.wrm.application.response.appointment.AppointmentResponse;
 import com.wrm.application.service.impl.AppointmentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -22,13 +27,32 @@ public class AppointmentController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public List<Appointment> getAllAppointment() {
-        return appointmentService.getAllAppointment();
+    public ResponseEntity<AppointmentListResponse> getAllAppointments(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "warehouse_id", required = false) Long warehouseId) {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<AppointmentResponse> appointmentPage;
+        if (warehouseId != null) {
+            appointmentPage = appointmentService.getAppointmentsByWarehouseId(warehouseId, pageRequest);
+        } else {
+            appointmentPage = appointmentService.getAllAppointments(pageRequest);
+        }
+
+        int totalPage = appointmentPage.getTotalPages();
+
+        List<AppointmentResponse> appointments = appointmentPage.getContent();
+        return ResponseEntity.ok(AppointmentListResponse.builder()
+                .appointments(appointments)
+                .totalPages(totalPage)
+                .build());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<?> getAppointmentById(@PathVariable Long id) {
+    public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
 
@@ -43,7 +67,7 @@ public class AppointmentController {
                         .toList();
                 return ResponseEntity.badRequest().body("Invalid user data");
             }
-            Appointment appointment = appointmentService.createAppointment(appointmentDTO, req.getRemoteUser());
+            AppointmentResponse appointment = appointmentService.createAppointment(appointmentDTO, req.getRemoteUser());
             return ResponseEntity.ok(appointment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -61,7 +85,7 @@ public class AppointmentController {
                         .toList();
                 return ResponseEntity.badRequest().body("Invalid user data");
             }
-            Appointment appointment = appointmentService.updateAppointment(id, appointmentDTO);
+            AppointmentResponse appointment = appointmentService.updateAppointment(id, appointmentDTO);
             return ResponseEntity.ok(appointment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -77,5 +101,26 @@ public class AppointmentController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/my-appointments")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<AppointmentListResponse> getMyAppointment(
+            HttpServletRequest req,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit
+    ) {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<AppointmentResponse> appointmentPage = appointmentService.getAppointmentByCustomerId(req.getRemoteUser(), pageRequest);
+
+        int totalPage = appointmentPage.getTotalPages();
+
+        List<AppointmentResponse> appointments = appointmentPage.getContent();
+        return ResponseEntity.ok(AppointmentListResponse.builder()
+                .appointments(appointments)
+                .totalPages(totalPage)
+                .build());
     }
 }
