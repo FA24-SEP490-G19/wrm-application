@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,9 +72,9 @@ public class UserController {
         return userService.getAllUsers();
     }
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserProfileById(@PathVariable Long id) throws DataNotFoundException {
-        UserDTO userDTO = userService.getUserProfileById(id);
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserDTO> getUserProfileByEmail(@PathVariable String email) throws DataNotFoundException {
+        UserDTO userDTO = userService.getUserProfileByEmail(email);
         return ResponseEntity.ok(userDTO);
     }
     @PreAuthorize("hasRole('ADMIN')")
@@ -82,4 +83,44 @@ public class UserController {
         UserDTO userDTO = userService.updateUserStatus(id, status);
         return ResponseEntity.ok(userDTO);
     }
+
+    @PostMapping("/admin/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            // Collect all validation errors and return them in the response
+            List<String> errors = result.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        // Check if passwords match
+        if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
+            return ResponseEntity.badRequest().body("Passwords do not match");
+        }
+
+        try {
+            // Use a User entity creation method in UserService
+            User createdUser = userService.createUserWithRole(userDTO);
+
+            // Convert User entity to UserDTO to return the created user profile
+            UserDTO responseUserDTO = UserDTO.builder()
+                    .fullName(createdUser.getFullName())
+                    .email(createdUser.getEmail())
+                    .phoneNumber(createdUser.getPhoneNumber())
+                    .address(createdUser.getAddress())
+                    .gender(createdUser.getGender())
+                    .status(createdUser.getStatus())
+                    .roleId(createdUser.getRole().getId()) // Get the assigned role ID
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseUserDTO);
+        } catch (Exception e) {
+            // Log exception for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the user");
+        }
+    }
+
 }

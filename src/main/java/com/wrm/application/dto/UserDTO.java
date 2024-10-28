@@ -10,12 +10,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-    @JsonProperty("fullname")
+
+    @NotBlank(message = "Full name is required")
     private String fullName;
 
     @NotBlank(message = "Email is required")
@@ -24,7 +27,8 @@ public class UserDTO {
     @NotBlank(message = "Password is required")
     private String password;
 
-    @JsonProperty("retype_password")
+
+    @NotBlank(message = "Password confirmation is required")
     private String retypePassword;
 
     @JsonProperty("phone_number")
@@ -37,5 +41,7 @@ public class UserDTO {
     private UserStatus status;
 
 
+    @NotNull(message = "Role ID is required")
+    private Long roleId;
 }
 
