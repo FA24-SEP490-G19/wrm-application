@@ -38,11 +38,10 @@ public class WebSecurityConfig {
                             .requestMatchers(GET,
                                     "/warehouses/**").permitAll()
                             .requestMatchers(GET,
-                                    "/lots").permitAll()
+                                    "/lots/{lotId}").permitAll()
                             .requestMatchers(GET,
-                                    "/lots/**").permitAll()
-                            .requestMatchers("/feedback/add").hasRole("USER")
-                            .requestMatchers("/lots/updateStatus/").hasRole("MANAGER")
+                                    "/lots").permitAll()
+
 //                            .requestMatchers(GET,
 //                                    "/appointments").permitAll()
 //                            .requestMatchers(GET,

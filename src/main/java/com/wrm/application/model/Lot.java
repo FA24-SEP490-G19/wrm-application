@@ -1,6 +1,6 @@
 package com.wrm.application.model;
 
-import com.wrm.application.component.enums.LotStatus;
+import com.wrm.application.constant.enums.LotStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +21,7 @@ public class Lot extends BaseModel {
     private String description;
 
     @Column(name = "size", nullable = false)
-    private Float size;
+    private float size;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

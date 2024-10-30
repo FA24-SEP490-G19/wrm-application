@@ -1,4 +1,4 @@
-package com.wrm.application.component.enums;
+package com.wrm.application.constant.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum LotStatus {
     AVAILABLE,
     RESERVED,
-    OCCUPIED,
-    UNDER_MAINTENANCE,
-    SOLD_OUT;
+    OCCUPIED;
 
     @JsonCreator
     public static LotStatus fromValue(String value) {
