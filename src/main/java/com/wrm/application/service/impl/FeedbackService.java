@@ -38,7 +38,6 @@ public class FeedbackService implements IFeedbackService {
         feedback.setWarehouse(warehouse);
         feedback.setRating(feedbackDTO.getRating());
         feedback.setComment(feedbackDTO.getComment());
-        feedback.setReviewDate(feedbackDTO.getReviewDate());
 
         return feedbackRepository.save(feedback);
     }

@@ -31,7 +31,5 @@ public class Feedback extends BaseModel {
     @Column(name = "comment", length = 500)
     private String comment;
 
-    @Column(name = "review_date")
-    private LocalDateTime reviewDate;
 
 }

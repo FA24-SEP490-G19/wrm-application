@@ -29,6 +29,4 @@ public class FeedbackDTO {
     @JsonProperty("comment")
     private String comment;
 
-    @JsonProperty("review_date")
-    private LocalDateTime reviewDate;
 }

@@ -35,8 +35,7 @@ public class LotController {
     @GetMapping("")
     public ResponseEntity<LotListResponse> getAllLots(
             @RequestParam("page") int page,
-            @RequestParam("limit") int limit,
-            @RequestParam(value = "keyword", required = false) String keyword) {
+            @RequestParam("limit") int limit) {
         PageRequest pageRequest = PageRequest.of
                 (page,limit, Sort.by("createdDate").descending());
         Page<LotResponse> lotsPage;

@@ -4,6 +4,8 @@ import com.wrm.application.constant.enums.LotStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "lots")
 @Getter
@@ -27,8 +29,14 @@ public class Lot extends BaseModel {
     @Enumerated(EnumType.STRING)
     private LotStatus status;
 
+    @Column(name = "price")
+    private String price;
+
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
+
+    @OneToMany(mappedBy = "lot")
+    private List<RentalDetails> rentalDetails;
 }
 
