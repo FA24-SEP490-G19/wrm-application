@@ -31,9 +31,7 @@ public class WarehouseService implements IWarehouseService {
                     .size(warehouse.getSize())
                     .description(warehouse.getDescription())
                     .status(warehouse.getStatus())
-                    .warehouseManagerId(warehouse.getWarehouseManager().getId())
-                    .createdDate(warehouse.getCreatedDate())
-                    .lastModifiedDate(warehouse.getLastModifiedDate())
+                    .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
                     .build();
         });
     }
@@ -52,14 +50,34 @@ public class WarehouseService implements IWarehouseService {
                 .size(warehouse.getSize())
                 .description(warehouse.getDescription())
                 .status(warehouse.getStatus())
-                .warehouseManagerId(warehouse.getWarehouseManager().getId())
-                .createdDate(warehouse.getCreatedDate())
-                .lastModifiedDate(warehouse.getLastModifiedDate())
+                .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
                 .build();
     }
 
     @Override
     public WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) {
+
+        if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
+            throw new IllegalArgumentException("Warehouse name cannot be empty");
+        }
+        if (warehouseDTO.getAddress() == null || warehouseDTO.getAddress().isEmpty()) {
+            throw new IllegalArgumentException("Warehouse address cannot be empty");
+        }
+        if (warehouseDTO.getSize() <= 0) {
+            throw new IllegalArgumentException("Warehouse size must be a positive number");
+        }
+        if (warehouseDTO.getDescription() == null || warehouseDTO.getDescription().isEmpty()) {
+            throw new IllegalArgumentException("Warehouse description cannot be empty");
+        }
+
+        User warehouseManager = userRepository.findById(warehouseDTO.getWarehouseManagerId())
+                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+        if (warehouseManager.getRole().getId() != 4) {
+            throw new DataIntegrityViolationException("User is not a warehouse manager");
+        }
+        if (warehouseRepository.existsWarehouseByWarehouseManager(warehouseManager)) {
+            throw new DataIntegrityViolationException("Warehouse manager is already in charge of another warehouse");
+        }
 
         Warehouse newWarehouse = Warehouse.builder()
                 .name(warehouseDTO.getName())
@@ -67,15 +85,9 @@ public class WarehouseService implements IWarehouseService {
                 .size(warehouseDTO.getSize())
                 .description(warehouseDTO.getDescription())
                 .status(WarehouseStatus.ACTIVE)
+                .warehouseManager(warehouseManager)
                 .build();
 
-        User warehouseManager = userRepository.findById(warehouseDTO.getWarehouseManagerId())
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
-        if (warehouseManager.getRole().getId() != 4) {
-            throw new DataIntegrityViolationException("User is not a warehouse manager");
-        }
-
-        newWarehouse.setWarehouseManager(warehouseManager);
         warehouseRepository.save(newWarehouse);
         return WarehouseResponse.builder()
                 .id(newWarehouse.getId())
@@ -84,9 +96,7 @@ public class WarehouseService implements IWarehouseService {
                 .size(newWarehouse.getSize())
                 .description(newWarehouse.getDescription())
                 .status(newWarehouse.getStatus())
-                .warehouseManagerId(newWarehouse.getWarehouseManager().getId())
-                .createdDate(newWarehouse.getCreatedDate())
-                .lastModifiedDate(newWarehouse.getLastModifiedDate())
+                .warehouseManagerName(newWarehouse.getWarehouseManager().getFullName())
                 .build();
     }
 
@@ -94,6 +104,17 @@ public class WarehouseService implements IWarehouseService {
     public WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO) {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+
+        if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
+            throw new IllegalArgumentException("Warehouse name cannot be empty");
+        }
+        if (warehouseDTO.getDescription() == null || warehouseDTO.getDescription().isEmpty()) {
+            throw new IllegalArgumentException("Warehouse description cannot be empty");
+        }
+        if (warehouseDTO.getStatus() == null) {
+            throw new IllegalArgumentException("Warehouse status cannot be null");
+        }
+
         warehouse.setName(warehouseDTO.getName());
         warehouse.setDescription(warehouseDTO.getDescription());
         warehouse.setStatus(warehouseDTO.getStatus());
@@ -105,9 +126,7 @@ public class WarehouseService implements IWarehouseService {
                 .size(warehouse.getSize())
                 .description(warehouse.getDescription())
                 .status(warehouse.getStatus())
-                .warehouseManagerId(warehouse.getWarehouseManager().getId())
-                .createdDate(warehouse.getCreatedDate())
-                .lastModifiedDate(warehouse.getLastModifiedDate())
+                .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
                 .build();
     }
 
@@ -129,12 +148,8 @@ public class WarehouseService implements IWarehouseService {
                     .size(warehouse.getSize())
                     .description(warehouse.getDescription())
                     .status(warehouse.getStatus())
-                    .warehouseManagerId(warehouse.getWarehouseManager().getId())
-                    .createdDate(warehouse.getCreatedDate())
-                    .lastModifiedDate(warehouse.getLastModifiedDate())
+                    .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
                     .build();
-            warehouseResponse.setCreatedDate(warehouse.getCreatedDate());
-            warehouseResponse.setLastModifiedDate(warehouse.getLastModifiedDate());
             return warehouseResponse;
         });
     }

@@ -1,5 +1,6 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.response.user.UserResponse;
 import com.wrm.application.security.JwtTokenUtil;
 import com.wrm.application.constant.enums.UserStatus;
 import com.wrm.application.dto.UserDTO;
@@ -30,7 +31,7 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public User createUser(UserDTO userDTO) throws Exception{
+    public UserResponse createUser(UserDTO userDTO) throws Exception{
         String email = userDTO.getEmail();
         if (userRepository.existsByEmail(email)){
             throw new DataIntegrityViolationException("Email already exists");
@@ -55,7 +56,16 @@ public class UserService implements IUserService {
         String encodedPassword = passwordEncoder.encode(password);
         newUser.setPassword(encodedPassword);
 
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+        return UserResponse.builder()
+                .id(newUser.getId())
+                .fullName(newUser.getFullName())
+                .email(newUser.getEmail())
+                .phoneNumber(newUser.getPhoneNumber())
+                .address(newUser.getAddress())
+                .gender(newUser.getGender())
+                .status(newUser.getStatus())
+                .build();
     }
 
     @Override

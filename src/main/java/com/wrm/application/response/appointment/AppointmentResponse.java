@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 public class AppointmentResponse {
     private Long id;
 
+    @JsonProperty("customer_id")
     private Long customerId;
 
     @JsonProperty("sales_id")
@@ -33,12 +34,4 @@ public class AppointmentResponse {
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonProperty("created_date")
-    private LocalDateTime createdDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonProperty("last_modified_date")
-    private LocalDateTime lastModifiedDate;
 }

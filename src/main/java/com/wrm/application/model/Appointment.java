@@ -24,7 +24,7 @@ public class Appointment extends BaseModel{
     private User customer;
 
     @ManyToOne
-    @JoinColumn(name = "sales_id", nullable = false)
+    @JoinColumn(name = "sales_id")
     private User sales;
 
     @ManyToOne

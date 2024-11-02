@@ -35,12 +35,4 @@ public class UserResponse {
 
     @Enumerated(EnumType.STRING)
     private UserStatus status;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonProperty("created_date")
-    private LocalDateTime createdDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonProperty("last_modified_date")
-    private LocalDateTime lastModifiedDate;
 }
