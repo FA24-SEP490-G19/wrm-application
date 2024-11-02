@@ -10,7 +10,6 @@ import com.wrm.application.model.User;
 import com.wrm.application.repository.LotRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.response.lot.LotResponse;
-import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.ILotService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

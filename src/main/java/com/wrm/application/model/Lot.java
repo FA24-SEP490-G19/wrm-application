@@ -37,6 +37,6 @@ public class Lot extends BaseModel {
     private Warehouse warehouse;
 
     @OneToMany(mappedBy = "lot")
-    private List<RentalDetails> rentalDetails;
+    private List<RentalDetail> rentalDetail;
 }
 

@@ -2,29 +2,17 @@ package com.wrm.application.controller;
 
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
-import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.response.lot.LotListResponse;
 import com.wrm.application.response.lot.LotResponse;
-import com.wrm.application.response.warehouse.WarehouseListResponse;
-import com.wrm.application.response.warehouse.WarehouseResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.validation.FieldError;
-
-import com.wrm.application.model.Lot;
 import com.wrm.application.service.ILotService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/lots")
