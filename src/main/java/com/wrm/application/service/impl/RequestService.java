@@ -37,8 +37,6 @@ public class RequestService implements IRequestService {
                         .type(request.getType().getContent())
                         .description(request.getDescription())
                         .status(request.getStatus())
-                        .createdDate(request.getCreatedDate())
-                        .lastModifiedDate(request.getLastModifiedDate())
                         .build());
     }
 
@@ -52,8 +50,6 @@ public class RequestService implements IRequestService {
                     .type(request.getType().getContent())
                     .description(request.getDescription())
                     .status(request.getStatus())
-                    .createdDate(request.getCreatedDate())
-                    .lastModifiedDate(request.getLastModifiedDate())
                     .build();
         });
     }
@@ -69,13 +65,15 @@ public class RequestService implements IRequestService {
                 .status(request.getStatus())
                 .adminResponse(request.getAdminResponse())
                 .adminResponseDate(request.getAdminResponseDate())
-                .createdDate(request.getCreatedDate())
-                .lastModifiedDate(request.getLastModifiedDate())
                 .build();
     }
 
     @Override
     public RequestResponse createRequest(RequestDTO requestDTO, String remoteUser) {
+        if (requestDTO.getDescription() == null || requestDTO.getDescription().isEmpty()) {
+            throw new IllegalArgumentException("Request description cannot be empty");
+        }
+
         Request request = Request.builder()
                 .description(requestDTO.getDescription())
                 .status(RequestStatus.PENDING)
@@ -95,13 +93,18 @@ public class RequestService implements IRequestService {
                 .type(request.getType().getContent())
                 .description(request.getDescription())
                 .status(request.getStatus())
-                .createdDate(request.getCreatedDate())
-                .lastModifiedDate(request.getLastModifiedDate())
                 .build();
     }
 
     @Override
     public AdminRequestResponse updateRequest(Long id, AdminReplyDTO adminReplyDTO) throws Exception {
+        if (adminReplyDTO.getAdminResponse() == null || adminReplyDTO.getAdminResponse().isEmpty()) {
+            throw new IllegalArgumentException("Admin response cannot be empty");
+        }
+        if (adminReplyDTO.getStatus() == null) {
+            throw new IllegalArgumentException("Request status cannot be null");
+        }
+
         Request request = requestRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Request not found"));
         request.setAdminResponse(adminReplyDTO.getAdminResponse());
@@ -118,8 +121,6 @@ public class RequestService implements IRequestService {
                 .userId(request.getUser().getId())
                 .adminResponse(request.getAdminResponse())
                 .adminResponseDate(request.getAdminResponseDate())
-                .createdDate(request.getCreatedDate())
-                .lastModifiedDate(request.getLastModifiedDate())
                 .build();
     }
 

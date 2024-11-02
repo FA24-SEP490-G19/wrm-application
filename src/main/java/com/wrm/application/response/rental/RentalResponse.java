@@ -1,35 +1,33 @@
-package com.wrm.application.response.warehouse;
+package com.wrm.application.response.rental;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrm.application.constant.enums.WarehouseStatus;
+import com.wrm.application.constant.enums.RentalStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@MappedSuperclass
 @Builder
-public class WarehouseResponse {
+public class RentalResponse {
     private Long id;
 
-    private String name;
+    @JsonProperty("customer_id")
+    private Long customerId;
 
-    private String address;
+    @JsonProperty("warehouse_id")
+    private Long warehouseId;
 
-    private float size;
+    @JsonProperty("sales_id")
+    private Long salesId;
 
     @Enumerated(EnumType.STRING)
-    private WarehouseStatus status;
-
-    private String description;
-
-    @JsonProperty("warehouse_manager_name")
-    private String warehouseManagerName;
+    private RentalStatus status;
 }

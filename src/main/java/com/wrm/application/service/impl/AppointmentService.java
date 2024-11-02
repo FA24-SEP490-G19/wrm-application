@@ -17,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class AppointmentService implements IAppointmentService {
@@ -34,14 +36,12 @@ public class AppointmentService implements IAppointmentService {
                     .warehouseId(appointment.getWarehouse().getId())
                     .appointmentDate(appointment.getAppointmentDate())
                     .status(appointment.getStatus())
-                    .createdDate(appointment.getCreatedDate())
-                    .lastModifiedDate(appointment.getLastModifiedDate())
                     .build();
         });
     }
 
     @Override
-    public AppointmentResponse getAppointmentById(Long id) throws Exception{
+    public AppointmentResponse getAppointmentById(Long id) throws Exception {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Appointment not found"));
         return AppointmentResponse.builder()
@@ -51,8 +51,6 @@ public class AppointmentService implements IAppointmentService {
                 .warehouseId(appointment.getWarehouse().getId())
                 .appointmentDate(appointment.getAppointmentDate())
                 .status(appointment.getStatus())
-                .createdDate(appointment.getCreatedDate())
-                .lastModifiedDate(appointment.getLastModifiedDate())
                 .build();
     }
 
@@ -68,14 +66,24 @@ public class AppointmentService implements IAppointmentService {
                     .warehouseId(appointment.getWarehouse().getId())
                     .appointmentDate(appointment.getAppointmentDate())
                     .status(appointment.getStatus())
-                    .createdDate(appointment.getCreatedDate())
-                    .lastModifiedDate(appointment.getLastModifiedDate())
                     .build();
         });
     }
 
     @Override
     public AppointmentResponse createAppointment(AppointmentDTO appointmentDTO, String remoteUser) {
+        if (appointmentDTO.getAppointmentDate() == null) {
+            throw new IllegalArgumentException("Appointment date cannot be empty");
+        }
+        if (appointmentDTO.getAppointmentDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
+            throw new IllegalArgumentException("Appointment date must be in the future");
+        }
+        if (appointmentDTO.getCustomerId() == null) {
+            throw new IllegalArgumentException("Customer ID cannot be empty");
+        }
+        if (appointmentDTO.getWarehouseId() == null) {
+            throw new IllegalArgumentException("Warehouse ID cannot be empty");
+        }
 
         Appointment newAppointment = Appointment.builder()
                 .appointmentDate(appointmentDTO.getAppointmentDate())
@@ -84,7 +92,7 @@ public class AppointmentService implements IAppointmentService {
 
         User customer = userRepository.findById(appointmentDTO.getCustomerId())
                 .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
-        if(customer.getRole().getId() != 1){
+        if (customer.getRole().getId() != 1) {
             throw new DataIntegrityViolationException("User is not a customer");
         }
         newAppointment.setCustomer(customer);
@@ -108,13 +116,21 @@ public class AppointmentService implements IAppointmentService {
                 .warehouseId(newAppointment.getWarehouse().getId())
                 .appointmentDate(newAppointment.getAppointmentDate())
                 .status(newAppointment.getStatus())
-                .createdDate(newAppointment.getCreatedDate())
-                .lastModifiedDate(newAppointment.getLastModifiedDate())
                 .build();
     }
 
     @Override
     public AppointmentResponse updateAppointment(Long id, AppointmentDTO appointmentDTO) {
+        if (appointmentDTO.getAppointmentDate() == null) {
+            throw new IllegalArgumentException("Appointment date cannot be empty");
+        }
+        if (appointmentDTO.getAppointmentDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
+            throw new IllegalArgumentException("Appointment date must be in the future");
+        }
+        if (appointmentDTO.getStatus() == null) {
+            throw new IllegalArgumentException("Appointment status cannot be empty");
+        }
+
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new DataIntegrityViolationException("Appointment not found"));
         appointment.setAppointmentDate(appointmentDTO.getAppointmentDate());
@@ -128,8 +144,6 @@ public class AppointmentService implements IAppointmentService {
                 .warehouseId(appointment.getWarehouse().getId())
                 .appointmentDate(appointment.getAppointmentDate())
                 .status(appointment.getStatus())
-                .createdDate(appointment.getCreatedDate())
-                .lastModifiedDate(appointment.getLastModifiedDate())
                 .build();
     }
 
@@ -152,9 +166,83 @@ public class AppointmentService implements IAppointmentService {
                     .warehouseId(appointment.getWarehouse().getId())
                     .appointmentDate(appointment.getAppointmentDate())
                     .status(appointment.getStatus())
-                    .createdDate(appointment.getCreatedDate())
-                    .lastModifiedDate(appointment.getLastModifiedDate())
                     .build();
         });
+    }
+
+    @Override
+    public AppointmentResponse createAppointmentByCustomer(AppointmentDTO appointmentDTO, String remoteUser) {
+        if (appointmentDTO.getAppointmentDate() == null) {
+            throw new IllegalArgumentException("Appointment date cannot be empty");
+        }
+        if (appointmentDTO.getAppointmentDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
+            throw new IllegalArgumentException("Appointment date must be in the future");
+        }
+        if (appointmentDTO.getWarehouseId() == null) {
+            throw new IllegalArgumentException("Warehouse ID cannot be empty");
+        }
+
+        Appointment newAppointment = Appointment.builder()
+                .appointmentDate(appointmentDTO.getAppointmentDate())
+                .status(AppointmentStatus.PENDING)
+                .build();
+
+        User customer = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+        if (customer.getRole().getId() != 1) {
+            throw new DataIntegrityViolationException("User is not a customer");
+        }
+        newAppointment.setCustomer(customer);
+
+        Warehouse warehouse = warehouseRepository.findById(appointmentDTO.getWarehouseId())
+                .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+        newAppointment.setWarehouse(warehouse);
+
+        appointmentRepository.save(newAppointment);
+        return AppointmentResponse.builder()
+                .id(newAppointment.getId())
+                .customerId(newAppointment.getCustomer().getId())
+                .warehouseId(newAppointment.getWarehouse().getId())
+                .appointmentDate(newAppointment.getAppointmentDate())
+                .status(newAppointment.getStatus())
+                .build();
+    }
+
+    @Override
+    public Page<AppointmentResponse> getAppointmentBySalesId(String remoteUser, PageRequest pageRequest) {
+        User user = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+        return appointmentRepository.findBySalesId(user.getId(), pageRequest).map(appointment -> {
+            return AppointmentResponse.builder()
+                    .id(appointment.getId())
+                    .customerId(appointment.getCustomer().getId())
+                    .salesId(appointment.getSales().getId())
+                    .warehouseId(appointment.getWarehouse().getId())
+                    .appointmentDate(appointment.getAppointmentDate())
+                    .status(appointment.getStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new DataIntegrityViolationException("Appointment not found"));
+        User sales = userRepository.findById(appointmentDTO.getSalesId())
+                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+        if (sales.getRole().getId() != 3) {
+            throw new DataIntegrityViolationException("User is not a salesman");
+        }
+        appointment.setSales(sales);
+
+        appointmentRepository.save(appointment);
+        return AppointmentResponse.builder()
+                .id(appointment.getId())
+                .customerId(appointment.getCustomer().getId())
+                .salesId(appointment.getSales().getId())
+                .warehouseId(appointment.getWarehouse().getId())
+                .appointmentDate(appointment.getAppointmentDate())
+                .status(appointment.getStatus())
+                .build();
     }
 }

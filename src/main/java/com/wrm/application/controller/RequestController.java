@@ -2,8 +2,6 @@ package com.wrm.application.controller;
 
 import com.wrm.application.dto.RequestDTO;
 import com.wrm.application.dto.AdminReplyDTO;
-import com.wrm.application.response.appointment.AppointmentListResponse;
-import com.wrm.application.response.appointment.AppointmentResponse;
 import com.wrm.application.response.request.AdminRequestListResponse;
 import com.wrm.application.response.request.AdminRequestResponse;
 import com.wrm.application.response.request.RequestListResponse;
@@ -31,9 +29,15 @@ public class RequestController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<AdminRequestListResponse> getAllRequests(
+    public ResponseEntity<?> getAllRequests(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) {
+        if (page < 0) {
+            return ResponseEntity.badRequest().body("Page number cannot be negative");
+        }
+        if (limit <= 0) {
+            return ResponseEntity.badRequest().body("Limit must be greater than zero");
+        }
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("createdDate").descending());
@@ -50,10 +54,16 @@ public class RequestController {
 
     @GetMapping("my-request")
     @PreAuthorize("hasRole('ROLE_SALES') OR hasRole('ROLE_USER') OR hasRole('ROLE_MANAGER')")
-    public ResponseEntity<RequestListResponse> getMyRequests(
+    public ResponseEntity<?> getMyRequests(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             HttpServletRequest req) {
+        if (page < 0) {
+            return ResponseEntity.badRequest().body("Page number cannot be negative");
+        }
+        if (limit <= 0) {
+            return ResponseEntity.badRequest().body("Limit must be greater than zero");
+        }
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("createdDate").descending());

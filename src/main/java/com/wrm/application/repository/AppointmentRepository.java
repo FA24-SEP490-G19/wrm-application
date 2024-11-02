@@ -1,7 +1,6 @@
 package com.wrm.application.repository;
 
 import com.wrm.application.model.Appointment;
-import com.wrm.application.model.Warehouse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,4 +20,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("SELECT a FROM Appointment a WHERE a.warehouse.id = ?1 AND a.isDeleted = false")
     Page<Appointment> findByWarehouseId(Long id, Pageable pageable);
+
+    @Query("SELECT a FROM Appointment a WHERE a.sales.id = ?1 AND a.isDeleted = false")
+    Page<Appointment> findBySalesId(Long id, Pageable pageable);
 }
