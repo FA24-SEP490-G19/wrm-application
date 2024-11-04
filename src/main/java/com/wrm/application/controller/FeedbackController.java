@@ -33,7 +33,6 @@ public class FeedbackController {
         }
     }
 
-
     @GetMapping("/warehouse/{warehouseId}")
     public List<Feedback> getFeedbackByWarehouse(@PathVariable Long warehouseId) {
         return feedbackService.getFeedbackByWarehouse(warehouseId);

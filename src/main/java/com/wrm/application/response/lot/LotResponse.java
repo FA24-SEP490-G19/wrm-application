@@ -27,6 +27,8 @@ public class LotResponse {
 
     private String description;
 
+    private String price;
+
     @Enumerated(EnumType.STRING)
     private LotStatus status;
 

@@ -11,6 +11,7 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
 
     Optional<Lot> findLotById(Long lotId);
 
+
 }
 
 

@@ -1,5 +1,7 @@
 package com.wrm.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
@@ -12,12 +14,13 @@ import java.util.List;
 public class ContractDTO {
     private Long id;
 
-    @JsonProperty("rental_id")
-    private Long rentalId;
-
+    @NotNull(message = "Contract signing date cannot be null")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonProperty("signed_date")
     private LocalDateTime signedDate;
 
+    @NotNull(message = "Contract expiry date cannot be null")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonProperty("expiry_date")
     private LocalDateTime expiryDate;
 
@@ -30,6 +33,5 @@ public class ContractDTO {
     @JsonProperty("last_modified_date")
     private LocalDateTime lastModifiedDate;
 
-    @JsonProperty("contract_img_link")
-    private List<String> contractImageLinks;
+
 }

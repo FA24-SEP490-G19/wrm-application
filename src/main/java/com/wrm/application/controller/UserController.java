@@ -41,18 +41,8 @@ public class UserController {
             if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
                 return ResponseEntity.badRequest().body("Password does not match");
             }
-            User user = userService.createUser(userDTO);
-            return ResponseEntity.ok(UserResponse.builder()
-                    .id(user.getId())
-                    .fullName(user.getFullName())
-                    .email(user.getEmail())
-                    .address(user.getAddress())
-                    .phoneNumber(user.getPhoneNumber())
-                    .gender(user.getGender())
-                    .status(user.getStatus())
-                    .createdDate(user.getCreatedDate())
-                    .lastModifiedDate(user.getLastModifiedDate())
-                    .build());
+            UserResponse user = userService.createUser(userDTO);
+            return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

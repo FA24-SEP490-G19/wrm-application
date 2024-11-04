@@ -1,37 +1,41 @@
 package com.wrm.application.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.wrm.application.constant.enums.RentalStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
+@Entity
+@Table(name = "rentals")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity
-@Table(name = "rentals")
-public class Rental extends BaseModel {
+public class Rental extends BaseModel{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "customer_id", nullable = false)
-    private Long customerId;
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private User customer;
 
-    @Column(name = "sale_id", nullable = false)
-    private Long saleId;
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id", nullable = false)
+    private Warehouse warehouse;
 
-    @Column(name = "warehouse_id", nullable = false)
-    private Long warehouseId;
+    @ManyToOne
+    @JoinColumn(name = "sales_id", nullable = false)
+    private User sales;
 
-    @Column(name = "contract_id", nullable = false)
-    private Long contractId;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private RentalStatus status;
 
-    @OneToOne(mappedBy = "rental")
-    private Contract contract;
-
-    @Column(name = "note")
-    private String note;
-
+    @OneToMany(mappedBy = "rental", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<RentalDetail> rentalDetails;
 }

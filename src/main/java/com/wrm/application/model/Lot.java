@@ -36,7 +36,9 @@ public class Lot extends BaseModel {
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 
-    @OneToMany(mappedBy = "lot")
-    private List<RentalDetail> rentalDetail;
+    @OneToMany(mappedBy = "lot", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RentalDetail> rentalDetails;
+
+
 }
 

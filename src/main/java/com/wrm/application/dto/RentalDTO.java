@@ -1,34 +1,36 @@
 package com.wrm.application.dto;
 
-import lombok.*;
-import jakarta.validation.constraints.*;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wrm.application.constant.enums.RentalStatus;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RentalDTO {
-    private Long id;
 
-    @NotNull(message = "Customer ID is required")
+
+    @JsonProperty("customer_id")
     private Long customerId;
 
-    @NotNull(message = "Sale ID is required")
-    private Long saleId;
-
-    @NotNull(message = "Warehouse ID is required")
+    @JsonProperty("warehouse_id")
     private Long warehouseId;
 
-    @NotNull(message = "Contract ID is required")
-    private Long contractId;
+    @JsonProperty("sales_id")
+    private Long salesId;
 
-    private String note;
+    @Enumerated(EnumType.STRING)
+    private RentalStatus status;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createdDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime lastModifiedDate;
+    @JsonProperty("rental_items")
+    private List<RentalDetailDTO> rentalItems;
 }

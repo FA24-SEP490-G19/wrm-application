@@ -30,14 +30,6 @@ public class WarehouseResponse {
 
     private String description;
 
-    @JsonProperty("warehouse_manager_id")
-    private Long warehouseManagerId;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonProperty("created_date")
-    private LocalDateTime createdDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonProperty("last_modified_date")
-    private LocalDateTime lastModifiedDate;
+    @JsonProperty("warehouse_manager_name")
+    private String warehouseManagerName;
 }

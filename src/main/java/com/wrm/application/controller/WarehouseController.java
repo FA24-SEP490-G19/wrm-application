@@ -1,7 +1,6 @@
 package com.wrm.application.controller;
 
 import com.wrm.application.dto.WarehouseDTO;
-import com.wrm.application.model.Warehouse;
 import com.wrm.application.response.warehouse.WarehouseListResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.impl.WarehouseService;

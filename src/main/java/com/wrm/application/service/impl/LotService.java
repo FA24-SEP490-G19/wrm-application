@@ -30,6 +30,7 @@ public class LotService implements ILotService {
                 .size(lot.getSize())
                 .status(lot.getStatus())
                 .warehouseId(lot.getWarehouse().getId())
+                .price(lot.getPrice())
                 .createdDate(lot.getCreatedDate())
                 .lastModifiedDate(lot.getLastModifiedDate())
                 .build());
@@ -48,6 +49,7 @@ public class LotService implements ILotService {
                 .size(lot.getSize())
                 .status(lot.getStatus())
                 .warehouseId(lot.getWarehouse().getId())
+                .price(lot.getPrice())
                 .createdDate(lot.getCreatedDate())
                 .lastModifiedDate(lot.getLastModifiedDate())
                 .build();
@@ -87,6 +89,7 @@ public class LotService implements ILotService {
                 .size(lot.getSize())
                 .status(lot.getStatus())
                 .warehouseId(lot.getWarehouse().getId())
+                .price(lot.getPrice())
                 .createdDate(lot.getCreatedDate())
                 .lastModifiedDate(lot.getLastModifiedDate())
                 .build();

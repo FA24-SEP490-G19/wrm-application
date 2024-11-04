@@ -1,12 +1,9 @@
 package com.wrm.application.service;
 
 import com.wrm.application.dto.AppointmentDTO;
-import com.wrm.application.model.Appointment;
 import com.wrm.application.response.appointment.AppointmentResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.List;
 
 public interface IAppointmentService {
 
@@ -23,4 +20,10 @@ public interface IAppointmentService {
     void deleteAppointment(Long id);
 
     Page<AppointmentResponse> getAppointmentsByWarehouseId(Long id, PageRequest pageRequest);
+
+    AppointmentResponse createAppointmentByCustomer(AppointmentDTO appointmentDTO, String remoteUser);
+
+    Page<AppointmentResponse> getAppointmentBySalesId(String remoteUser, PageRequest pageRequest);
+
+    AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO);
 }

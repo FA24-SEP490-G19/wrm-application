@@ -12,11 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ContractResponse {
+public class ContractDetailResponse {
     private Long id;
-
-    @JsonProperty("rental_id")
-    private Long rentalId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime signedDate;
@@ -24,35 +21,19 @@ public class ContractResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime expiryDate;
 
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-//    private LocalDateTime createdDate;
-//
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-//    private LocalDateTime lastModifiedDate;
-
     @JsonProperty("contract_images")
     private List<String> contractImageLinks;
 
     private String warehouseName;
     private String warehouseAddress;
-
     private String lotDescription;
-//
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-//    private LocalDateTime rentalStartDate;
-//
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-//    private LocalDateTime rentalEndDate;
-
     private String additionalService;
 
     private String customerFullName;
-    private String customerGender;
     private String customerPhoneNumber;
     private String customerAddress;
 
     private String saleFullName;
-    private String saleGender;
     private String salePhoneNumber;
-    private String saleAddress;
+
 }
