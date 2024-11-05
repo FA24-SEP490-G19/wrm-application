@@ -4,11 +4,15 @@ import com.wrm.application.security.JwtTokenUtil;
 import com.wrm.application.dto.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.dto.UserLoginDTO;
+import com.wrm.application.model.Token;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.model.User;
 import com.wrm.application.response.user.UserResponse;
+import com.wrm.application.service.impl.TokenService;
 import com.wrm.application.service.impl.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final TokenService tokenService;
     private final JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/register")
@@ -52,7 +57,24 @@ public class UserController {
     public ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
         try {
             String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
+            User user = userService.getUserByEmail(userLoginDTO.getEmail());
+            Token jwtToken = tokenService.addToken(user, token);
             return ResponseEntity.ok(token);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.badRequest().body("Invalid token");
+            }
+            String token = authHeader.substring(7);
+            tokenService.revokeToken(token);
+            return ResponseEntity.ok("Logged out successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -77,6 +99,5 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
         }
     }
-
 
 }

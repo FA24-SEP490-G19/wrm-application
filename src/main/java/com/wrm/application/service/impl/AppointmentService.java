@@ -32,7 +32,7 @@ public class AppointmentService implements IAppointmentService {
             return AppointmentResponse.builder()
                     .id(appointment.getId())
                     .customerId(appointment.getCustomer().getId())
-                    .salesId(appointment.getSales().getId())
+                    .salesId(appointment.getSales() != null ? appointment.getSales().getId() : null)
                     .warehouseId(appointment.getWarehouse().getId())
                     .appointmentDate(appointment.getAppointmentDate())
                     .status(appointment.getStatus())
@@ -47,7 +47,7 @@ public class AppointmentService implements IAppointmentService {
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .customerId(appointment.getCustomer().getId())
-                .salesId(appointment.getSales().getId())
+                .salesId(appointment.getSales() != null ? appointment.getSales().getId() : null)
                 .warehouseId(appointment.getWarehouse().getId())
                 .appointmentDate(appointment.getAppointmentDate())
                 .status(appointment.getStatus())
@@ -55,9 +55,9 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public Page<AppointmentResponse> getAppointmentByCustomerId(String remoteUser, PageRequest pageRequest) {
+    public Page<AppointmentResponse> getAppointmentByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
         User user = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         return appointmentRepository.findByCustomerId(user.getId(), pageRequest).map(appointment -> {
             return AppointmentResponse.builder()
                     .id(appointment.getId())
@@ -71,7 +71,7 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public AppointmentResponse createAppointment(AppointmentDTO appointmentDTO, String remoteUser) {
+    public AppointmentResponse createAppointment(AppointmentDTO appointmentDTO, String remoteUser) throws Exception {
         if (appointmentDTO.getAppointmentDate() == null) {
             throw new IllegalArgumentException("Appointment date cannot be empty");
         }
@@ -91,21 +91,21 @@ public class AppointmentService implements IAppointmentService {
                 .build();
 
         User customer = userRepository.findById(appointmentDTO.getCustomerId())
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         if (customer.getRole().getId() != 1) {
             throw new DataIntegrityViolationException("User is not a customer");
         }
         newAppointment.setCustomer(customer);
 
         User sales = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         if (sales.getRole().getId() != 3) {
             throw new DataIntegrityViolationException("User is not a salesman");
         }
         newAppointment.setSales(sales);
 
         Warehouse warehouse = warehouseRepository.findById(appointmentDTO.getWarehouseId())
-                .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
         newAppointment.setWarehouse(warehouse);
 
         appointmentRepository.save(newAppointment);
@@ -120,7 +120,7 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public AppointmentResponse updateAppointment(Long id, AppointmentDTO appointmentDTO) {
+    public AppointmentResponse updateAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception {
         if (appointmentDTO.getAppointmentDate() == null) {
             throw new IllegalArgumentException("Appointment date cannot be empty");
         }
@@ -132,7 +132,7 @@ public class AppointmentService implements IAppointmentService {
         }
 
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new DataIntegrityViolationException("Appointment not found"));
+                .orElseThrow(() -> new DataNotFoundException("Appointment not found"));
         appointment.setAppointmentDate(appointmentDTO.getAppointmentDate());
         appointment.setStatus(appointmentDTO.getStatus());
 
@@ -148,9 +148,9 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public void deleteAppointment(Long id) {
+    public void deleteAppointment(Long id) throws Exception {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
         appointment.setDeleted(true);
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
@@ -171,7 +171,7 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public AppointmentResponse createAppointmentByCustomer(AppointmentDTO appointmentDTO, String remoteUser) {
+    public AppointmentResponse createAppointmentByCustomer(AppointmentDTO appointmentDTO, String remoteUser) throws Exception {
         if (appointmentDTO.getAppointmentDate() == null) {
             throw new IllegalArgumentException("Appointment date cannot be empty");
         }
@@ -188,14 +188,14 @@ public class AppointmentService implements IAppointmentService {
                 .build();
 
         User customer = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         if (customer.getRole().getId() != 1) {
             throw new DataIntegrityViolationException("User is not a customer");
         }
         newAppointment.setCustomer(customer);
 
         Warehouse warehouse = warehouseRepository.findById(appointmentDTO.getWarehouseId())
-                .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
         newAppointment.setWarehouse(warehouse);
 
         appointmentRepository.save(newAppointment);
@@ -209,9 +209,9 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public Page<AppointmentResponse> getAppointmentBySalesId(String remoteUser, PageRequest pageRequest) {
+    public Page<AppointmentResponse> getAppointmentBySalesId(String remoteUser, PageRequest pageRequest) throws Exception {
         User user = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         return appointmentRepository.findBySalesId(user.getId(), pageRequest).map(appointment -> {
             return AppointmentResponse.builder()
                     .id(appointment.getId())
@@ -225,11 +225,11 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO) {
+    public AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new DataIntegrityViolationException("Appointment not found"));
+                .orElseThrow(() -> new DataNotFoundException("Appointment not found"));
         User sales = userRepository.findById(appointmentDTO.getSalesId())
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         if (sales.getRole().getId() != 3) {
             throw new DataIntegrityViolationException("User is not a salesman");
         }

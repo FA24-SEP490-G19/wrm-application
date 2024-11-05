@@ -33,9 +33,9 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public UserResponse createUser(UserDTO userDTO) throws Exception{
+    public UserResponse createUser(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
-        if (userRepository.existsByEmail(email)){
+        if (userRepository.existsByEmail(email)) {
             throw new DataIntegrityViolationException("Email already exists");
         }
         User newUser = User.builder()
@@ -49,7 +49,7 @@ public class UserService implements IUserService {
                 .build();
         Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
-        if(!role.getRoleName().equals("USER")){
+        if (!role.getRoleName().equals("USER")) {
             throw new PermissionDenyException("Permission deny");
         }
         newUser.setRole(role);
@@ -87,6 +87,10 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public User getUserByEmail(String email) throws Exception {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+    }
     public void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
@@ -101,12 +105,6 @@ public class UserService implements IUserService {
         }
         user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
         userRepository.save(user);
-    }
-
-    @Override
-    public User getUserByEmail(String email) throws DataNotFoundException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
     }
 
     public UserDTO getUserProfile(String email) throws DataNotFoundException {

@@ -11,7 +11,8 @@ public interface IUserService {
 
     String login(String email, String password) throws Exception;
 
+    User getUserByEmail(String email) throws Exception;
+
     void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception;
 
-    User getUserByEmail(String email) throws DataNotFoundException;
 }

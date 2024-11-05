@@ -42,9 +42,6 @@ public class FeedbackService implements IFeedbackService {
         return feedbackRepository.save(feedback);
     }
 
-
-
-
     @Override
     public List<Feedback> getFeedbackByWarehouse(Long warehouseId) {
         return feedbackRepository.findByWarehouseId(warehouseId);

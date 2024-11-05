@@ -57,7 +57,7 @@ public class RequestController {
     public ResponseEntity<?> getMyRequests(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
-            HttpServletRequest req) {
+            HttpServletRequest req) throws Exception {
         if (page < 0) {
             return ResponseEntity.badRequest().body("Page number cannot be negative");
         }

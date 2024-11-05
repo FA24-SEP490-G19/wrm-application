@@ -11,11 +11,11 @@ public interface IRequestService {
 
     Page<AdminRequestResponse> getAllRequests(PageRequest pageRequest);
 
-    Page<RequestResponse> getAllMyRequests(String remoteUser, PageRequest pageRequest);
+    Page<RequestResponse> getAllMyRequests(String remoteUser, PageRequest pageRequest) throws Exception;
 
     RequestResponse getRequestById(Long id) throws Exception;
 
-    RequestResponse createRequest(RequestDTO requestDTO, String remoteUser);
+    RequestResponse createRequest(RequestDTO requestDTO, String remoteUser) throws Exception;
 
     AdminRequestResponse updateRequest(Long id, AdminReplyDTO adminReplyDTO) throws Exception;
 

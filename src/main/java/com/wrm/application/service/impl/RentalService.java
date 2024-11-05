@@ -9,6 +9,7 @@ import com.wrm.application.model.*;
 import com.wrm.application.repository.*;
 import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.IRentalService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ public class RentalService implements IRentalService {
     private final AdditionalServiceRepository additionalServiceRepository;
     private final RentalDetailRepository rentalDetailRepository;
     private final LotRepository lotRepository;
+    private final ContractRepository contractRepository;
 
     @Override
     public Page<RentalResponse> getAllRentals(PageRequest pageRequest) {
@@ -58,6 +60,7 @@ public class RentalService implements IRentalService {
     }
 
     @Override
+    @Transactional
     public RentalResponse createRental(RentalDTO rentalDTO, String remoteUser) throws Exception {
         if (rentalDTO.getCustomerId() == null) {
             throw new IllegalArgumentException("Customer ID cannot be empty");
@@ -111,12 +114,13 @@ public class RentalService implements IRentalService {
             if (rentalDetailDTO.getEndDate().isBefore(rentalDetailDTO.getStartDate().plusDays(1))) {
                 throw new IllegalArgumentException("End date must be after start date");
             }
-            RentalDetail rentalDetail = new RentalDetail();
-            rentalDetail.setRental(newRental);
-            rentalDetail.setLotId(rentalDetailDTO.getLotId());
-            rentalDetail.setStartDate(rentalDetailDTO.getStartDate());
-            rentalDetail.setEndDate(rentalDetailDTO.getEndDate());
-            rentalDetail.setStatus(RentalDetailStatus.PENDING);
+
+            RentalDetail rentalDetail = RentalDetail.builder()
+                    .rental(newRental)
+                    .startDate(rentalDetailDTO.getStartDate())
+                    .endDate(rentalDetailDTO.getEndDate())
+                    .status(RentalDetailStatus.PENDING)
+                    .build();
 
             AdditionalService additionalService = additionalServiceRepository.findById(rentalDetailDTO.getAdditionalServiceId())
                     .orElseThrow(() -> new DataNotFoundException("Additional service not found"));
@@ -125,6 +129,11 @@ public class RentalService implements IRentalService {
             Lot lot = lotRepository.findById(rentalDetailDTO.getLotId())
                     .orElseThrow(() -> new DataNotFoundException("Lot not found"));
             rentalDetail.setLot(lot);
+
+            Contract contract = contractRepository.findById(rentalDetailDTO.getContractId())
+                    .orElseThrow(() -> new DataNotFoundException("Contract not found"));
+            rentalDetail.setContract(contract);
+
             rentalDetails.add(rentalDetail);
         }
 
@@ -170,9 +179,9 @@ public class RentalService implements IRentalService {
     }
 
     @Override
-    public Page<RentalResponse> getByCustomerId(Long customerId, PageRequest pageRequest) {
+    public Page<RentalResponse> getByCustomerId(Long customerId, PageRequest pageRequest) throws Exception {
         User customer = userRepository.findById(customerId)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         return rentalRepository.findByCustomerId(customer.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()
                     .id(rental.getId())
@@ -185,9 +194,9 @@ public class RentalService implements IRentalService {
     }
 
     @Override
-    public Page<RentalResponse> getByWarehouseId(Long warehouseId, PageRequest pageRequest) {
+    public Page<RentalResponse> getByWarehouseId(Long warehouseId, PageRequest pageRequest) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
         return rentalRepository.findByWarehouseId(warehouse.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()
                     .id(rental.getId())

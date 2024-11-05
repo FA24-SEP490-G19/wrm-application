@@ -41,9 +41,9 @@ public class RequestService implements IRequestService {
     }
 
     @Override
-    public Page<RequestResponse> getAllMyRequests(String remoteUser, PageRequest pageRequest) {
+    public Page<RequestResponse> getAllMyRequests(String remoteUser, PageRequest pageRequest) throws Exception {
         User user = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         return requestRepository.findAllByUserId(user.getId(), pageRequest).map(request -> {
             return RequestResponse.builder()
                     .id(request.getId())
@@ -69,7 +69,7 @@ public class RequestService implements IRequestService {
     }
 
     @Override
-    public RequestResponse createRequest(RequestDTO requestDTO, String remoteUser) {
+    public RequestResponse createRequest(RequestDTO requestDTO, String remoteUser) throws Exception {
         if (requestDTO.getDescription() == null || requestDTO.getDescription().isEmpty()) {
             throw new IllegalArgumentException("Request description cannot be empty");
         }
@@ -79,11 +79,11 @@ public class RequestService implements IRequestService {
                 .status(RequestStatus.PENDING)
                 .build();
         User user = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         request.setUser(user);
 
         RequestType requestType = requestTypeRepository.findByIdAndRoleId(requestDTO.getTypeId(), user.getRole().getId())
-                .orElseThrow(() -> new DataIntegrityViolationException("Request type not found"));
+                .orElseThrow(() -> new DataNotFoundException("Request type not found"));
         request.setType(requestType);
 
         requestRepository.save(request);
