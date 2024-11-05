@@ -33,7 +33,7 @@ public class RentalController {
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             @RequestParam(value = "warehouse_id", required = false) Long warehouseId,
-            @RequestParam(value = "customer_id", required = false) Long customerId) {
+            @RequestParam(value = "customer_id", required = false) Long customerId) throws Exception {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("createdDate").descending());

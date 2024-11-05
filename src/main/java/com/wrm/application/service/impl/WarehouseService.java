@@ -37,10 +37,10 @@ public class WarehouseService implements IWarehouseService {
     }
 
     @Override
-    public WarehouseResponse getWarehouseById(Long id) throws Exception{
+    public WarehouseResponse getWarehouseById(Long id) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
-        if(warehouse.isDeleted()) {
+        if (warehouse.isDeleted()) {
             throw new DataNotFoundException("Warehouse not found");
         }
         return WarehouseResponse.builder()
@@ -55,7 +55,7 @@ public class WarehouseService implements IWarehouseService {
     }
 
     @Override
-    public WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) {
+    public WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) throws Exception {
 
         if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
             throw new IllegalArgumentException("Warehouse name cannot be empty");
@@ -71,7 +71,7 @@ public class WarehouseService implements IWarehouseService {
         }
 
         User warehouseManager = userRepository.findById(warehouseDTO.getWarehouseManagerId())
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
         if (warehouseManager.getRole().getId() != 4) {
             throw new DataIntegrityViolationException("User is not a warehouse manager");
         }
@@ -101,9 +101,9 @@ public class WarehouseService implements IWarehouseService {
     }
 
     @Override
-    public WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO) {
+    public WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
 
         if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
             throw new IllegalArgumentException("Warehouse name cannot be empty");
@@ -131,9 +131,9 @@ public class WarehouseService implements IWarehouseService {
     }
 
     @Override
-    public void deleteWarehouse(Long id) {
+    public void deleteWarehouse(Long id) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
         warehouse.setDeleted(true);
         warehouseRepository.save(warehouse);
     }

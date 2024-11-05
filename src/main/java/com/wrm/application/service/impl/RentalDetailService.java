@@ -28,7 +28,7 @@ public class RentalDetailService implements IRentalDetailService {
     private final RentalRepository rentalRepository;
 
     @Override
-    public Page<RentalDetailResponse> getByWarehouseId(String remoteUser, PageRequest pageRequest) throws Exception{
+    public Page<RentalDetailResponse> getByWarehouseId(String remoteUser, PageRequest pageRequest) throws Exception {
         User warehouseManager = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
 
@@ -43,6 +43,8 @@ public class RentalDetailService implements IRentalDetailService {
                     .additionalServiceId(rentalDetail.getAdditionalService().getId())
                     .startDate(rentalDetail.getStartDate())
                     .endDate(rentalDetail.getEndDate())
+                    .status(rentalDetail.getStatus())
+                    .contractId(rentalDetail.getContractId())
                     .build();
         });
     }
@@ -61,6 +63,7 @@ public class RentalDetailService implements IRentalDetailService {
                     .startDate(rentalDetail.getStartDate())
                     .endDate(rentalDetail.getEndDate())
                     .status(rentalDetail.getStatus())
+                    .contractId(rentalDetail.getContractId())
                     .build();
         });
     }
@@ -76,6 +79,7 @@ public class RentalDetailService implements IRentalDetailService {
                     .startDate(rentalDetail.getStartDate())
                     .endDate(rentalDetail.getEndDate())
                     .status(rentalDetail.getStatus())
+                    .contractId(rentalDetail.getContractId())
                     .build();
         }).toList();
     }
@@ -99,6 +103,7 @@ public class RentalDetailService implements IRentalDetailService {
                 .startDate(rentalDetail.getStartDate())
                 .endDate(rentalDetail.getEndDate())
                 .status(rentalDetail.getStatus())
+                .contractId(rentalDetail.getContractId())
                 .build();
     }
 

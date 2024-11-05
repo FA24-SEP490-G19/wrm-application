@@ -31,9 +31,9 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public UserResponse createUser(UserDTO userDTO) throws Exception{
+    public UserResponse createUser(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
-        if (userRepository.existsByEmail(email)){
+        if (userRepository.existsByEmail(email)) {
             throw new DataIntegrityViolationException("Email already exists");
         }
         User newUser = User.builder()
@@ -47,7 +47,7 @@ public class UserService implements IUserService {
                 .build();
         Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
-        if(!role.getRoleName().equals("USER")){
+        if (!role.getRoleName().equals("USER")) {
             throw new PermissionDenyException("Permission deny");
         }
         newUser.setRole(role);
@@ -82,5 +82,11 @@ public class UserService implements IUserService {
 
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
+    }
+
+    @Override
+    public User getUserByEmail(String email) throws Exception {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
     }
 }

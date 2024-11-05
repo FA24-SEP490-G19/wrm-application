@@ -1,5 +1,6 @@
 package com.wrm.application.repository;
 
+import com.wrm.application.constant.enums.RentalDetailStatus;
 import com.wrm.application.model.RentalDetail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,4 +18,10 @@ public interface RentalDetailRepository extends JpaRepository<RentalDetail, Long
 
     @Query("SELECT rd FROM RentalDetail rd WHERE rd.rental.id = ?1 AND rd.isDeleted = false")
     List<RentalDetail> findByRentalId(Long rentalId);
+
+    @Query("SELECT rd FROM RentalDetail rd WHERE rd.lotId = ?1 AND rd.isDeleted = false")
+    boolean existsByStatusAndLotId(Long lotId);
+
+    @Query("SELECT rd FROM RentalDetail rd WHERE rd.contractId = ?1 AND rd.isDeleted = false")
+    boolean existsByContractId(Long contractId);
 }

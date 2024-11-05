@@ -11,19 +11,19 @@ public interface IAppointmentService {
 
     AppointmentResponse getAppointmentById(Long id) throws Exception;
 
-    Page<AppointmentResponse> getAppointmentByCustomerId(String remoteUser, PageRequest pageRequest);
+    Page<AppointmentResponse> getAppointmentByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception;
 
-    AppointmentResponse createAppointment(AppointmentDTO appointmentDTO, String remoteUser);
+    AppointmentResponse createAppointment(AppointmentDTO appointmentDTO, String remoteUser) throws Exception;
 
-    AppointmentResponse updateAppointment(Long id, AppointmentDTO appointmentDTO);
+    AppointmentResponse updateAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception;
 
-    void deleteAppointment(Long id);
+    void deleteAppointment(Long id) throws Exception;
 
     Page<AppointmentResponse> getAppointmentsByWarehouseId(Long id, PageRequest pageRequest);
 
-    AppointmentResponse createAppointmentByCustomer(AppointmentDTO appointmentDTO, String remoteUser);
+    AppointmentResponse createAppointmentByCustomer(AppointmentDTO appointmentDTO, String remoteUser) throws Exception;
 
-    Page<AppointmentResponse> getAppointmentBySalesId(String remoteUser, PageRequest pageRequest);
+    Page<AppointmentResponse> getAppointmentBySalesId(String remoteUser, PageRequest pageRequest) throws Exception;
 
-    AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO);
+    AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception;
 }

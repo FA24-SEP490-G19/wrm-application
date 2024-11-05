@@ -8,4 +8,6 @@ public interface IUserService {
     UserResponse createUser(UserDTO userDTO) throws Exception;
 
     String login(String email, String password) throws Exception;
+
+    User getUserByEmail(String email) throws Exception;
 }

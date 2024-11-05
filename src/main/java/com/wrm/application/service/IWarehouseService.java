@@ -10,11 +10,11 @@ public interface IWarehouseService {
 
     WarehouseResponse getWarehouseById(Long id) throws Exception;
 
-    WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO);
+    WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) throws Exception;
 
-    WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO);
+    WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO) throws Exception;
 
-    void deleteWarehouse(Long id);
+    void deleteWarehouse(Long id) throws Exception;
 
     Page<WarehouseResponse> getWarehouseByNameOrAddress(String address, PageRequest pageRequest);
 }

@@ -108,7 +108,7 @@ public class AppointmentController {
             HttpServletRequest req,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
-    ) {
+    ) throws Exception {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("createdDate").descending());
@@ -147,7 +147,7 @@ public class AppointmentController {
             HttpServletRequest req,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
-    ) {
+    ) throws Exception {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("createdDate").descending());
