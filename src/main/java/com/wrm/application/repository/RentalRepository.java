@@ -5,9 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
+import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
+@Repository
 public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("SELECT r FROM Rental r WHERE r.sales.id = ?1 AND r.isDeleted = false")
     Page<Rental> findBySalesId(Long salesId, Pageable pageable);

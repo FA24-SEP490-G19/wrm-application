@@ -14,8 +14,8 @@ import java.util.List;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class RentalDTO {
 
     @JsonProperty("customer_id")

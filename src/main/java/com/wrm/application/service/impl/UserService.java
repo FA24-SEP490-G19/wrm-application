@@ -3,8 +3,10 @@ package com.wrm.application.service.impl;
 import com.wrm.application.response.user.UserResponse;
 import com.wrm.application.security.JwtTokenUtil;
 import com.wrm.application.constant.enums.UserStatus;
+import com.wrm.application.dto.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
+import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Role;
@@ -82,5 +84,41 @@ public class UserService implements IUserService {
 
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
+    }
+
+    @Override
+    public void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            throw new InvalidParamException("Old password is incorrect");
+        }
+        if (changePasswordDTO.getNewPassword().equals(changePasswordDTO.getOldPassword())) {
+            throw new InvalidParamException("New password cannot be the same as the old password");
+        }
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new InvalidParamException("New password and confirm password do not match");
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public User getUserByEmail(String email) throws DataNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+    }
+
+    public UserDTO getUserProfile(String email) throws DataNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        return UserDTO.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(user.getStatus())
+                .build();
     }
 }
