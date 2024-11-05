@@ -1,5 +1,7 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.model.Token;
+import com.wrm.application.repository.TokenRepository;
 import com.wrm.application.response.user.UserResponse;
 import com.wrm.application.security.JwtTokenUtil;
 import com.wrm.application.constant.enums.UserStatus;
@@ -20,7 +22,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -31,6 +35,7 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
+    private final TokenRepository tokenRepository;
 
     @Override
     public UserResponse createUser(UserDTO userDTO) throws Exception {
@@ -118,5 +123,18 @@ public class UserService implements IUserService {
                 .gender(user.getGender())
                 .status(user.getStatus())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(Long userId, String newPassword)
+            throws Exception {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        existingUser.setPassword(encodedPassword);
+        userRepository.save(existingUser);
+        List<Token> tokens = tokenRepository.findByUser(existingUser);
+        tokenRepository.deleteAll(tokens);
     }
 }
