@@ -1,5 +1,6 @@
 package com.wrm.application.controller;
 
+import com.wrm.application.exception.InvalidPasswordException;
 import com.wrm.application.security.JwtTokenUtil;
 import com.wrm.application.dto.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
@@ -17,12 +18,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -80,7 +83,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/change-password")
+    @PutMapping("/change-password")
     public ResponseEntity<String> changePassword(Principal principal,
                                                  @RequestBody @Valid ChangePasswordDTO changePasswordDTO,
                                                  BindingResult result) throws DataNotFoundException {
@@ -97,6 +100,20 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+        }
+    }
+
+    @PutMapping("/reset-password/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> resetPassword(@Valid @PathVariable long userId) throws Exception{
+        try {
+            String newPassword = UUID.randomUUID().toString().substring(0, 5);
+            userService.resetPassword(userId, newPassword);
+            return ResponseEntity.ok(newPassword);
+        } catch (InvalidPasswordException e) {
+            return ResponseEntity.ok(e.getMessage());
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.ok(e.getMessage());
         }
     }
 
