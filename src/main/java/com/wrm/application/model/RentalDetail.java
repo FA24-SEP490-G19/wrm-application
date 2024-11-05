@@ -3,7 +3,6 @@ package com.wrm.application.model;
 import com.wrm.application.constant.enums.RentalDetailStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,12 +26,13 @@ public class RentalDetail extends BaseModel{
     @JoinColumn (name = "lot_id", nullable = false)
     private Lot lot;
 
+
     @ManyToOne
     @JoinColumn(name = "additional_service")
     private AdditionalService additionalService;
 
     @OneToOne
-    @JoinColumn(name = "contract_id", nullable = false)  // Liên kết với Contract
+    @JoinColumn(name = "contract_id", nullable = false) 
     private Contract contract;
 
     @Column(name = "status")
@@ -44,5 +44,4 @@ public class RentalDetail extends BaseModel{
 
     @Column(name = "end_date")
     private LocalDateTime endDate;
-
 }

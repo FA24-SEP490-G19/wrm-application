@@ -18,7 +18,6 @@ import java.util.List;
 @AllArgsConstructor
 public class RentalDTO {
 
-
     @JsonProperty("customer_id")
     private Long customerId;
 

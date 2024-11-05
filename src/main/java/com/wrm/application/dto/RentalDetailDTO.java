@@ -2,13 +2,13 @@ package com.wrm.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.RentalDetailStatus;
+import com.wrm.application.model.AdditionalService;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Data
@@ -28,6 +28,7 @@ public class RentalDetailDTO {
 
     @JsonProperty("contract_id")
     private Long contractId;
+
 
     @Enumerated(EnumType.STRING)
     private RentalDetailStatus status;

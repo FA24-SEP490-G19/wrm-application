@@ -29,7 +29,6 @@ public class RentalService implements IRentalService {
     private final RentalDetailRepository rentalDetailRepository;
     private final LotRepository lotRepository;
 
-
     @Override
     public Page<RentalResponse> getAllRentals(PageRequest pageRequest) {
         return rentalRepository.findAll(pageRequest).map(rental -> {
@@ -114,6 +113,7 @@ public class RentalService implements IRentalService {
             }
             RentalDetail rentalDetail = new RentalDetail();
             rentalDetail.setRental(newRental);
+            rentalDetail.setLotId(rentalDetailDTO.getLotId());
             rentalDetail.setStartDate(rentalDetailDTO.getStartDate());
             rentalDetail.setEndDate(rentalDetailDTO.getEndDate());
             rentalDetail.setStatus(RentalDetailStatus.PENDING);
@@ -125,7 +125,6 @@ public class RentalService implements IRentalService {
             Lot lot = lotRepository.findById(rentalDetailDTO.getLotId())
                     .orElseThrow(() -> new DataNotFoundException("Lot not found"));
             rentalDetail.setLot(lot);
-
             rentalDetails.add(rentalDetail);
         }
 
