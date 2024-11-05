@@ -29,12 +29,8 @@ public class RentalDetailDTO {
     @JsonProperty("contract_id")
     private Long contractId;
 
-
     @Enumerated(EnumType.STRING)
     private RentalDetailStatus status;
-
-    @JsonProperty("contract_id")
-    private Long contractId;
 
     @JsonProperty("start_date")
     private LocalDateTime startDate;

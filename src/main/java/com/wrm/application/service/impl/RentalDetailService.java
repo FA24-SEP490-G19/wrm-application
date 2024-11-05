@@ -44,7 +44,7 @@ public class RentalDetailService implements IRentalDetailService {
                     .startDate(rentalDetail.getStartDate())
                     .endDate(rentalDetail.getEndDate())
                     .status(rentalDetail.getStatus())
-                    .contractId(rentalDetail.getContractId())
+                    .contractId(rentalDetail.getContract().getId())
                     .build();
         });
     }
@@ -63,7 +63,7 @@ public class RentalDetailService implements IRentalDetailService {
                     .startDate(rentalDetail.getStartDate())
                     .endDate(rentalDetail.getEndDate())
                     .status(rentalDetail.getStatus())
-                    .contractId(rentalDetail.getContractId())
+                    .contractId(rentalDetail.getContract().getId())
                     .build();
         });
     }
@@ -79,7 +79,7 @@ public class RentalDetailService implements IRentalDetailService {
                     .startDate(rentalDetail.getStartDate())
                     .endDate(rentalDetail.getEndDate())
                     .status(rentalDetail.getStatus())
-                    .contractId(rentalDetail.getContractId())
+                    .contractId(rentalDetail.getContract().getId())
                     .build();
         }).toList();
     }
@@ -103,7 +103,7 @@ public class RentalDetailService implements IRentalDetailService {
                 .startDate(rentalDetail.getStartDate())
                 .endDate(rentalDetail.getEndDate())
                 .status(rentalDetail.getStatus())
-                .contractId(rentalDetail.getContractId())
+                .contractId(rentalDetail.getContract().getId())
                 .build();
     }
 

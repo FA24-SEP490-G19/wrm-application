@@ -26,7 +26,6 @@ public class RentalDetail extends BaseModel{
     @JoinColumn (name = "lot_id", nullable = false)
     private Lot lot;
 
-
     @ManyToOne
     @JoinColumn(name = "additional_service")
     private AdditionalService additionalService;
@@ -38,9 +37,6 @@ public class RentalDetail extends BaseModel{
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private RentalDetailStatus status;
-
-    @Column(name = "contract_id")
-    private Long contractId;
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;

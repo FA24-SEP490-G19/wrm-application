@@ -20,10 +20,10 @@ public interface RentalDetailRepository extends JpaRepository<RentalDetail, Long
     @Query("SELECT rd FROM RentalDetail rd WHERE rd.rental.id = ?1 AND rd.isDeleted = false")
     List<RentalDetail> findByRentalId(Long rentalId);
 
-    @Query("SELECT rd FROM RentalDetail rd WHERE rd.lotId = ?1 AND rd.isDeleted = false")
+    @Query("SELECT rd FROM RentalDetail rd WHERE rd.lot.id = ?1 AND rd.isDeleted = false")
     boolean existsByStatusAndLotId(Long lotId);
 
-    @Query("SELECT rd FROM RentalDetail rd WHERE rd.contractId = ?1 AND rd.isDeleted = false")
+    @Query("SELECT rd FROM RentalDetail rd WHERE rd.contract.id = ?1 AND rd.isDeleted = false")
     boolean existsByContractId(Long contractId);
 
     @Query("SELECT rd FROM RentalDetail rd WHERE rd.contract.id = :contractId AND rd.isDeleted = false")

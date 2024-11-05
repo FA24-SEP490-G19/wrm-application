@@ -50,7 +50,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
