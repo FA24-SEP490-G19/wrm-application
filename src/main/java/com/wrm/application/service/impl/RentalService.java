@@ -28,6 +28,7 @@ public class RentalService implements IRentalService {
     private final WarehouseRepository warehouseRepository;
     private final AdditionalServiceRepository additionalServiceRepository;
     private final RentalDetailRepository rentalDetailRepository;
+    private final LotRepository lotRepository;
 
     @Override
     public Page<RentalResponse> getAllRentals(PageRequest pageRequest) {
@@ -126,6 +127,9 @@ public class RentalService implements IRentalService {
                     .orElseThrow(() -> new DataNotFoundException("Additional service not found"));
             rentalDetail.setAdditionalService(additionalService);
 
+            Lot lot = lotRepository.findById(rentalDetailDTO.getLotId())
+                    .orElseThrow(() -> new DataNotFoundException("Lot not found"));
+            rentalDetail.setLot(lot);
             rentalDetails.add(rentalDetail);
         }
 

@@ -38,7 +38,7 @@ public class RentalDetailService implements IRentalDetailService {
         return rentalDetailRepository.findByWarehouseId(warehouse.getId(), pageRequest).map(rentalDetail -> {
             return RentalDetailResponse.builder()
                     .id(rentalDetail.getId())
-                    .lotId(rentalDetail.getLotId())
+                    .lotId(rentalDetail.getLot().getId())
                     .warehouseId(warehouse.getId())
                     .additionalServiceId(rentalDetail.getAdditionalService().getId())
                     .startDate(rentalDetail.getStartDate())
@@ -57,7 +57,7 @@ public class RentalDetailService implements IRentalDetailService {
         return rentalDetailRepository.findByCustomerId(customer.getId(), pageRequest).map(rentalDetail -> {
             return RentalDetailResponse.builder()
                     .id(rentalDetail.getId())
-                    .lotId(rentalDetail.getLotId())
+                    .lotId(rentalDetail.getLot().getId())
                     .warehouseId(rentalDetail.getRental().getWarehouse().getId())
                     .additionalServiceId(rentalDetail.getAdditionalService().getId())
                     .startDate(rentalDetail.getStartDate())
@@ -73,7 +73,7 @@ public class RentalDetailService implements IRentalDetailService {
         return rentalDetailRepository.findByRentalId(rentalId).stream().map(rentalDetail -> {
             return RentalDetailResponse.builder()
                     .id(rentalDetail.getId())
-                    .lotId(rentalDetail.getLotId())
+                    .lotId(rentalDetail.getLot().getId())
                     .warehouseId(rentalDetail.getRental().getWarehouse().getId())
                     .additionalServiceId(rentalDetail.getAdditionalService().getId())
                     .startDate(rentalDetail.getStartDate())
@@ -97,7 +97,7 @@ public class RentalDetailService implements IRentalDetailService {
 
         return RentalDetailResponse.builder()
                 .id(rentalDetail.getId())
-                .lotId(rentalDetail.getLotId())
+                .lotId(rentalDetail.getLot().getId())
                 .warehouseId(rentalDetail.getRental().getWarehouse().getId())
                 .additionalServiceId(rentalDetail.getAdditionalService().getId())
                 .startDate(rentalDetail.getStartDate())

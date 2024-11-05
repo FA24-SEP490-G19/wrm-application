@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Data
@@ -26,6 +25,10 @@ public class RentalDetailDTO {
 
     @JsonProperty("additional_service_id")
     private Long additionalServiceId;
+
+    @JsonProperty("contract_id")
+    private Long contractId;
+
 
     @Enumerated(EnumType.STRING)
     private RentalDetailStatus status;
