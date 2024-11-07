@@ -1,6 +1,7 @@
 package com.wrm.application.service;
 
-import com.wrm.application.dto.WarehouseDTO;
+import com.wrm.application.dto.warehouse.WarehouseDTO;
+import com.wrm.application.dto.warehouse.WarehouseUpdateDTO;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +13,7 @@ public interface IWarehouseService {
 
     WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) throws Exception;
 
-    WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO) throws Exception;
+    WarehouseResponse updateWarehouse(Long id, WarehouseUpdateDTO warehouseUpdateDTO) throws Exception;
 
     void deleteWarehouse(Long id) throws Exception;
 

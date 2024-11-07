@@ -5,7 +5,7 @@ import com.wrm.application.repository.TokenRepository;
 import com.wrm.application.response.user.UserResponse;
 import com.wrm.application.security.JwtTokenUtil;
 import com.wrm.application.constant.enums.UserStatus;
-import com.wrm.application.dto.ChangePasswordDTO;
+import com.wrm.application.dto.auth.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;

@@ -1,8 +1,8 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.RequestStatus;
-import com.wrm.application.dto.RequestDTO;
-import com.wrm.application.dto.AdminReplyDTO;
+import com.wrm.application.dto.request.RequestDTO;
+import com.wrm.application.dto.request.AdminReplyDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.Request;
 import com.wrm.application.model.RequestType;
@@ -14,7 +14,6 @@ import com.wrm.application.response.request.AdminRequestResponse;
 import com.wrm.application.response.request.RequestResponse;
 import com.wrm.application.service.IRequestService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

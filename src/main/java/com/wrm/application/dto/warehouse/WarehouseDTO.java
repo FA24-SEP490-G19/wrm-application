@@ -1,4 +1,4 @@
-package com.wrm.application.dto;
+package com.wrm.application.dto.warehouse;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.WarehouseStatus;
@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -36,4 +38,7 @@ public class WarehouseDTO {
     @JsonProperty("warehouse_manager_id")
     @NotNull(message = "Warehouse Manager ID is required")
     private Long warehouseManagerId;
+
+    @Size(max = 5, message = "Maximum of 5 images allowed")
+    private List<String> images;
 }

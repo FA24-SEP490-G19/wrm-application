@@ -1,4 +1,4 @@
-package com.wrm.application.dto;
+package com.wrm.application.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.RequestStatus;

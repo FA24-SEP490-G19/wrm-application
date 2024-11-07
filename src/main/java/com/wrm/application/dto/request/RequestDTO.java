@@ -1,4 +1,4 @@
-package com.wrm.application.dto;
+package com.wrm.application.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.RequestStatus;
@@ -7,8 +7,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
