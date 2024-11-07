@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class Appointment extends BaseModel{
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
