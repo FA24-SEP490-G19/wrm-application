@@ -60,8 +60,8 @@ public class UserController {
     public ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
         try {
             String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
-            User user = userService.getUserByEmail(userLoginDTO.getEmail());
-            Token jwtToken = tokenService.addToken(user, token);
+//            User user = userService.getUserByEmail(userLoginDTO.getEmail());
+//            Token jwtToken = tokenService.addToken(user, token);
             return ResponseEntity.ok(token);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -115,6 +115,12 @@ public class UserController {
         } catch (DataNotFoundException e) {
             return ResponseEntity.ok(e.getMessage());
         }
+    }
+
+    @GetMapping("/ManagerNotHaveWarehouse")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<UserDTO> getManagerHaveNotWarehouse() {
+        return userService.getManagerHaveNotWarehouse();
     }
 
 }
