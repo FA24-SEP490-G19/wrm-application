@@ -74,13 +74,7 @@ public class WarehouseController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody WarehouseDTO warehouseDTO, BindingResult result) {
         try {
-            if (result.hasErrors()) {
-                List<String> errorMessage = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body("Invalid warehouse data");
-            }
+
             WarehouseResponse warehouse = warehouseService.updateWarehouse(id, warehouseDTO);
             return ResponseEntity.ok(warehouse);
         } catch (Exception e) {
