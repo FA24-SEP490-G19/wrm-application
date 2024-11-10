@@ -10,6 +10,7 @@ import com.wrm.application.model.WarehouseImage;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.repository.WarehouseImageRepository;
 import com.wrm.application.repository.WarehouseRepository;
+import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.IWarehouseService;
 import lombok.RequiredArgsConstructor;
@@ -42,28 +43,39 @@ public class WarehouseService implements IWarehouseService {
                     .name(warehouse.getName())
                     .address(warehouse.getAddress())
                     .size(warehouse.getSize())
-                    .description(warehouse.getDescription())
                     .status(warehouse.getStatus())
-                    .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
                     .build();
         });
     }
 
     @Override
-    public WarehouseResponse getWarehouseById(Long id) throws Exception {
+    public WarehouseDetailResponse getWarehouseById(Long id) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
         if (warehouse.isDeleted()) {
             throw new DataNotFoundException("Warehouse not found");
         }
-        return WarehouseResponse.builder()
+        List<WarehouseImage> warehouseImages = warehouseImageRepository.findAllByWarehouseId(id);
+
+        List<String> imageBase64List = new ArrayList<>();
+        for (WarehouseImage warehouseImage : warehouseImages) {
+            Path imagePath = Paths.get(warehouseImage.getImageUrl());
+            byte[] imageBytes = Files.readAllBytes(imagePath);
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+            imageBase64List.add(base64Image);
+        }
+
+        return WarehouseDetailResponse.builder()
                 .id(warehouse.getId())
                 .name(warehouse.getName())
                 .address(warehouse.getAddress())
                 .size(warehouse.getSize())
                 .description(warehouse.getDescription())
                 .status(warehouse.getStatus())
+                .warehouseManagerEmail(warehouse.getWarehouseManager().getEmail())
                 .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
+                .warehouseManagerPhone(warehouse.getWarehouseManager().getPhoneNumber())
+                .images(imageBase64List)
                 .build();
     }
 
@@ -124,9 +136,7 @@ public class WarehouseService implements IWarehouseService {
                 .name(newWarehouse.getName())
                 .address(newWarehouse.getAddress())
                 .size(newWarehouse.getSize())
-                .description(newWarehouse.getDescription())
                 .status(newWarehouse.getStatus())
-                .warehouseManagerName(newWarehouse.getWarehouseManager().getFullName())
                 .build();
     }
 
@@ -168,9 +178,7 @@ public class WarehouseService implements IWarehouseService {
                 .name(warehouse.getName())
                 .address(warehouse.getAddress())
                 .size(warehouse.getSize())
-                .description(warehouse.getDescription())
                 .status(warehouse.getStatus())
-                .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
                 .build();
     }
 
@@ -189,16 +197,14 @@ public class WarehouseService implements IWarehouseService {
     }
 
     @Override
-    public Page<WarehouseResponse> getWarehouseByNameOrAddress(String address, PageRequest pageRequest) {
-        return warehouseRepository.findByNameOrAddress(address, pageRequest).map(warehouse -> {
+    public Page<WarehouseResponse> getWarehouseByKeyword(String keyword, PageRequest pageRequest) {
+        return warehouseRepository.findByKeyword(keyword, pageRequest).map(warehouse -> {
             WarehouseResponse warehouseResponse = WarehouseResponse.builder()
                     .id(warehouse.getId())
                     .name(warehouse.getName())
                     .address(warehouse.getAddress())
                     .size(warehouse.getSize())
-                    .description(warehouse.getDescription())
                     .status(warehouse.getStatus())
-                    .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
                     .build();
             return warehouseResponse;
         });
