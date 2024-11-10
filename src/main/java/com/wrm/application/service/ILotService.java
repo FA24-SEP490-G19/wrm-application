@@ -15,7 +15,13 @@ public interface ILotService {
 
     Page<LotResponse> getAllLots(PageRequest pageRequest);
 
-    LotResponse getLotById(Long id) throws DataNotFoundException;
+    LotResponse getLotById(Long id) throws Exception;
+
+    LotResponse createLot(LotDTO lotDTO) throws Exception;
+
+    LotResponse updateLot(Long lotId, LotDTO lotDTO) throws Exception;
+
+    void deleteLot(Long lotId) throws Exception;
 
     LotResponse updateLotStatus(Long lotId,LotDTO lotDTO, String remoteUser) throws PermissionDenyException, DataNotFoundException, InvalidParamException;
 }
