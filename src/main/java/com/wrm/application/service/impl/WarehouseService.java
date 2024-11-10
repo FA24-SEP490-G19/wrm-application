@@ -169,11 +169,11 @@ public class WarehouseService implements IWarehouseService {
             throw new IllegalArgumentException("Warehouse status cannot be null");
         }
 
-        warehouse.setName(warehouseDTO.getName());
-        warehouse.setDescription(warehouseDTO.getDescription());
-        warehouse.setAddress(warehouseDTO.getAddress());
-        warehouse.setSize(warehouseDTO.getSize());
-        warehouse.setStatus(warehouseDTO.getStatus());
+        warehouse.setName(warehouseUpdateDTO.getName());
+        warehouse.setDescription(warehouseUpdateDTO.getDescription());
+        warehouse.setAddress(warehouseUpdateDTO.getAddress());
+        warehouse.setSize(warehouseUpdateDTO.getSize());
+        warehouse.setStatus(warehouseUpdateDTO.getStatus());
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()
                 .id(warehouse.getId())
