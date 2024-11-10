@@ -32,11 +32,4 @@ public class LotResponse {
     @Enumerated(EnumType.STRING)
     private LotStatus status;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonProperty("created_date")
-    private LocalDateTime createdDate;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonProperty("last_modified_date")
-    private LocalDateTime lastModifiedDate;
 }

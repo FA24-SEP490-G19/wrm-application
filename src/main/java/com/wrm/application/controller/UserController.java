@@ -13,6 +13,7 @@ import com.wrm.application.response.user.UserResponse;
 import com.wrm.application.service.impl.TokenService;
 import com.wrm.application.service.impl.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -141,6 +143,12 @@ public class UserController {
                     .message(e.getMessage())
                     .build());
         }
+    }
+
+    @GetMapping("/ManagerNotHaveWarehouse")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<UserDTO> getManagerHaveNotWarehouse() {
+        return userService.getManagerHaveNotWarehouse();
     }
 
 }

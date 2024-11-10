@@ -22,4 +22,6 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
     Optional<Warehouse> findByManagerId(Long id);
 
     boolean existsWarehouseByWarehouseManager(User user);
+
+    boolean existsByWarehouseManagerId(Long id);
 }
