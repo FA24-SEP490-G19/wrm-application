@@ -1,7 +1,10 @@
 package com.wrm.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrm.application.component.enums.AppointmentStatus;
+import com.wrm.application.constant.enums.AppointmentStatus;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,5 +26,6 @@ public class AppointmentDTO {
     @JsonProperty("appointment_date")
     private LocalDateTime appointmentDate;
 
+    @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 }

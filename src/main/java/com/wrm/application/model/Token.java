@@ -3,10 +3,13 @@ package com.wrm.application.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "tokens")
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Token extends BaseModel {
@@ -21,12 +24,12 @@ public class Token extends BaseModel {
     private String tokenType;
 
     @Column(name = "expiration_date")
-    private String expirationDate;
+    private LocalDateTime expirationDate;
 
     private boolean revoked;
     private boolean expired;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User userID;
+    private User user;
 }

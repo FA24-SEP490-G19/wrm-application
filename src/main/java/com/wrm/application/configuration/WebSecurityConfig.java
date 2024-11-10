@@ -1,6 +1,6 @@
 package com.wrm.application.configuration;
 
-import com.wrm.application.filter.JwtTokenFilter;
+import com.wrm.application.security.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +21,7 @@ import static org.springframework.http.HttpMethod.*;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -37,6 +38,11 @@ public class WebSecurityConfig {
                                     "/warehouses").permitAll()
                             .requestMatchers(GET,
                                     "/warehouses/**").permitAll()
+                            .requestMatchers(GET,
+                                    "/lots/{lotId}").permitAll()
+                            .requestMatchers(GET,
+                                    "/lots").permitAll()
+
 //                            .requestMatchers(GET,
 //                                    "/appointments").permitAll()
 //                            .requestMatchers(GET,

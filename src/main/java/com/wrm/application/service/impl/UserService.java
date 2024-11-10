@@ -1,9 +1,15 @@
 package com.wrm.application.service.impl;
 
-import com.wrm.application.component.JwtTokenUtil;
-import com.wrm.application.component.enums.UserStatus;
+import com.wrm.application.model.Token;
+import com.wrm.application.repository.TokenRepository;
+import com.wrm.application.repository.WarehouseRepository;
+import com.wrm.application.response.user.UserResponse;
+import com.wrm.application.security.JwtTokenUtil;
+import com.wrm.application.constant.enums.UserStatus;
+import com.wrm.application.dto.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
+import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Role;
@@ -17,6 +23,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,11 +37,12 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
-
+    private final TokenRepository tokenRepository;
+    private final WarehouseRepository warehouseRepository;
     @Override
-    public User createUser(UserDTO userDTO) throws Exception{
+    public UserResponse createUser(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
-        if (userRepository.existsByEmail(email)){
+        if (userRepository.existsByEmail(email)) {
             throw new DataIntegrityViolationException("Email already exists");
         }
         User newUser = User.builder()
@@ -48,7 +56,7 @@ public class UserService implements IUserService {
                 .build();
         Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
-        if(!role.getRoleName().equals("USER")){
+        if (!role.getRoleName().equals("USER")) {
             throw new PermissionDenyException("Permission deny");
         }
         newUser.setRole(role);
@@ -57,7 +65,16 @@ public class UserService implements IUserService {
         String encodedPassword = passwordEncoder.encode(password);
         newUser.setPassword(encodedPassword);
 
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+        return UserResponse.builder()
+                .id(newUser.getId())
+                .fullName(newUser.getFullName())
+                .email(newUser.getEmail())
+                .phoneNumber(newUser.getPhoneNumber())
+                .address(newUser.getAddress())
+                .gender(newUser.getGender())
+                .status(newUser.getStatus())
+                .build();
     }
 
     @Override
@@ -68,12 +85,77 @@ public class UserService implements IUserService {
         }
         User existingUser = user.get();
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-            throw new BadCredentialsException("Wrong phone number or password");
+            throw new BadCredentialsException("Wrong email or password");
         }
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password, existingUser.getAuthorities());
 
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
+    }
+
+    @Override
+    public User getUserByEmail(String email) throws Exception {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+    }
+
+    @Override
+    public List<UserDTO> getManagerHaveNotWarehouse() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().getId() == 4) // Filter for manager role
+                .filter(user -> !warehouseRepository.existsByWarehouseManagerId(user.getId())) // Exclude users with a warehouse
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            throw new InvalidParamException("Old password is incorrect");
+        }
+        if (changePasswordDTO.getNewPassword().equals(changePasswordDTO.getOldPassword())) {
+            throw new InvalidParamException("New password cannot be the same as the old password");
+        }
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new InvalidParamException("New password and confirm password do not match");
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    public UserDTO getUserProfile(String email) throws DataNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        return UserDTO.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(user.getStatus())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(Long userId, String newPassword)
+            throws Exception {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        existingUser.setPassword(encodedPassword);
+        userRepository.save(existingUser);
+        List<Token> tokens = tokenRepository.findByUser(existingUser);
+        tokenRepository.deleteAll(tokens);
     }
     public UserDTO getUserProfile(String email) throws DataNotFoundException {
         User user = userRepository.findByEmail(email)

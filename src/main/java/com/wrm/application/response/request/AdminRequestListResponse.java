@@ -1,0 +1,17 @@
+package com.wrm.application.response.request;
+
+import jakarta.persistence.MappedSuperclass;
+import lombok.*;
+
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@MappedSuperclass
+@Builder
+public class AdminRequestListResponse {
+    private List<AdminRequestResponse> requests;
+    private int totalPages;
+}

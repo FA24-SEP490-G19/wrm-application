@@ -1,14 +1,20 @@
 package com.wrm.application.service;
 
 import com.wrm.application.dto.WarehouseDTO;
-import com.wrm.application.model.Warehouse;
-
-import java.util.List;
+import com.wrm.application.response.warehouse.WarehouseResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 public interface IWarehouseService {
-    List<Warehouse> getAllWarehouses();
-    Warehouse getWarehouseById(Long id);
-    Warehouse createWarehouse(WarehouseDTO warehouseDTO);
-    Warehouse updateWarehouse(Long id, WarehouseDTO warehouseDTO);
-    void deleteWarehouse(Long id);
+    Page<WarehouseResponse> getAllWarehouses(PageRequest pageRequest);
+
+    WarehouseResponse getWarehouseById(Long id) throws Exception;
+
+    WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) throws Exception;
+
+    WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO) throws Exception;
+
+    void deleteWarehouse(Long id) throws Exception;
+
+    Page<WarehouseResponse> getWarehouseByNameOrAddress(String address, PageRequest pageRequest);
 }

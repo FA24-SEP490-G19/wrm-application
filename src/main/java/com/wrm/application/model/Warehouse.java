@@ -1,6 +1,6 @@
 package com.wrm.application.model;
 
-import com.wrm.application.component.enums.WarehouseStatus;
+import com.wrm.application.constant.enums.WarehouseStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +32,7 @@ public class Warehouse extends BaseModel{
     @Column(name = "description")
     private String description;
 
-    @Column(name = "warehouse_manager_id")
-    private Long warehouseManagerId;
+    @OneToOne
+    @JoinColumn(name = "warehouse_manager_id")
+    private User warehouseManager;
 }
