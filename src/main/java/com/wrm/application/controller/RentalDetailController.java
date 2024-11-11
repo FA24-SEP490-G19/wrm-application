@@ -113,4 +113,29 @@ public class RentalDetailController {
                     .data(rentalDetailResponse)
                     .build());
     }
+
+    @GetMapping("/history")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ResponseObject> getHistoryByCustomerId(
+            @RequestParam(value = "page") int page,
+            @RequestParam(value = "limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalDetailResponse> rentalDetailPage = rentalDetailService.getHistoryByCustomerId(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalDetailPage.getTotalPages();
+
+        List<RentalDetailResponse> rentalDetails = rentalDetailPage.getContent();
+        RentalDetailListResponse.builder()
+                .rentalDetails(rentalDetails)
+                .totalPages(totalPage)
+                .build();
+        return ResponseEntity.ok().body(ResponseObject.builder()
+                .message("Get rental history by customer successfully")
+                .status(HttpStatus.OK)
+                .data(rentalDetails)
+                .build());
+    }
 }

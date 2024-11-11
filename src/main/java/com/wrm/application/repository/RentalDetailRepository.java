@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RentalDetailRepository extends JpaRepository<RentalDetail, Long> {
-    @Query("SELECT rd FROM RentalDetail rd JOIN Rental r ON rd.rental.id = r.id WHERE r.warehouse.id = ?1 AND rd.isDeleted = false")
+    @Query("SELECT rd FROM RentalDetail rd JOIN Rental r ON rd.rental.id = r.id WHERE r.status = 'APPROVED' AND r.warehouse.id = ?1 AND rd.isDeleted = false")
     Page<RentalDetail> findByWarehouseId(Long warehouseId, Pageable pageable);
 
-    @Query("SELECT rd FROM RentalDetail rd JOIN Rental r ON rd.rental.id = r.id WHERE r.customer.id = ?1 AND rd.isDeleted = false")
+    @Query("SELECT rd FROM RentalDetail rd JOIN Rental r ON rd.rental.id = r.id WHERE rd.status = 'ACTIVE' AND r.customer.id = ?1 AND rd.isDeleted = false")
     Page<RentalDetail> findByCustomerId(Long customerId, Pageable pageable);
 
     @Query("SELECT rd FROM RentalDetail rd WHERE rd.rental.id = ?1 AND rd.isDeleted = false")
@@ -28,5 +28,8 @@ public interface RentalDetailRepository extends JpaRepository<RentalDetail, Long
 
     @Query("SELECT rd FROM RentalDetail rd WHERE rd.contract.id = :contractId AND rd.isDeleted = false")
     Optional<RentalDetail> findByContractId(@Param("contractId") Long contractId);
+
+    @Query("SELECT rd FROM RentalDetail rd JOIN Rental r ON rd.rental.id = r.id WHERE r.customer.id = ?1 AND rd.status = 'COMPLETED' AND rd.isDeleted = false")
+    Page<RentalDetail> findCompletedByCustomerId(Long customerId, Pageable pageable);
 
 }
