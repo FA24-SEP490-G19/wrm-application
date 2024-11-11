@@ -32,7 +32,7 @@ const RegisterPage = () => {
         setIsLoading(true);
 
         try {
-            await register({ fullName:fullName, email, password, phone_number:phoneNumber, gender, address,retypePassword:confirmPassword });
+            await register({ fullname:fullName, email, password, phone_number:phoneNumber, gender, address,retype_password:confirmPassword });
             setSuccess('Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...');
             setTimeout(() => {
                 navigate('/login');
