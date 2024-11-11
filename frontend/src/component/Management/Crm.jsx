@@ -38,16 +38,16 @@ const CRMLayout = ({ children }) => {
                 {/* Logo */}
                 <div className="h-16 border-b border-gray-200 flex items-center justify-between px-4">
                     {!collapsedSidebar && (
-                        <div className="flex items-center">
-                            <img src={logo} className="h-11 w-11 text-indigo-600"/>
+                        <Link to="/home" className="flex items-center">
+                            <img src={logo} className="h-11 w-11 text-indigo-600" alt="Logo"/>
                             <span className="ml-2 font-bold text-xl">Quản lý</span>
-                        </div>
+                        </Link>
                     )}
                     <button
                         onClick={() => setCollapsedSidebar(!collapsedSidebar)}
                         className="p-2 hover:bg-gray-100 rounded-lg"
                     >
-                        <Menu className="h-5 w-5 text-gray-500" />
+                        <Menu className="h-5 w-5 text-gray-500"/>
                     </button>
                 </div>
 
@@ -97,10 +97,6 @@ const CRMLayout = ({ children }) => {
                 <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
 
                     <div className="flex items-end space-x-4">
-                        <button
-                            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
-                            <a href="/home">Home</a>
-                        </button>
                         <button
                             onClick={logOut}
                             className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">

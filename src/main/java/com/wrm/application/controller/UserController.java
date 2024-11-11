@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
-    private final JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
@@ -200,8 +199,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the user");
         }
     }
-
-
 
 
 }

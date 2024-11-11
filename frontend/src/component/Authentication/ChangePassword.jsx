@@ -3,6 +3,7 @@ import {Eye, EyeOff, Lock, Check, X, Building2, Menu, Loader, CheckCircle} from 
 import {changePassword} from "../../service/Authenticate.js";
 import {useAuth} from "../../context/AuthContext.jsx";
 import logo from "../../assets/logo.png";
+import { Link } from 'react-router-dom';
 
 const ChangePassword = () => {
     const [formData, setFormData] = useState({
@@ -88,12 +89,12 @@ const ChangePassword = () => {
             <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
-                        <div className="flex items-center">
-                            <img src={logo} alt="Logo" className="h-11 w-11"/>
+                        <Link to="/home" className="flex items-center">
+                            <img src={logo} alt="Logo" className="h-11 w-11" />
                             <h1 className="ml-2 text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 text-transparent bg-clip-text">
                                 Warehouse Hub
                             </h1>
-                        </div>
+                        </Link>
                         <div className="hidden md:flex space-x-6">
                             <a href="/dashboard"
                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
