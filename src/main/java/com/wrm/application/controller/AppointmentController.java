@@ -25,7 +25,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<AppointmentListResponse> getAllAppointments(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
