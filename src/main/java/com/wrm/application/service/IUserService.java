@@ -17,4 +17,15 @@ public interface IUserService {
     void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception;
 
     void resetPassword(Long userId, String newPassword) throws Exception;
+
+    UserDTO getUserById(Long id) throws Exception;
+
+
+    List<UserDTO> getAllCustomers();
+
+    List<UserDTO> getAllSales();
+
+    List<UserDTO> getAllUser();
+
+    User createUserWithRole(UserDTO userDTO) throws Exception;
 }

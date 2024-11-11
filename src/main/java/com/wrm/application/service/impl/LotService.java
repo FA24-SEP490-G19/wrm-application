@@ -11,6 +11,7 @@ import com.wrm.application.model.Warehouse;
 import com.wrm.application.repository.LotRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.repository.WarehouseRepository;
+import com.wrm.application.response.lot.LotListResponse;
 import com.wrm.application.response.lot.LotResponse;
 import com.wrm.application.service.ILotService;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,8 @@ public class LotService implements ILotService {
                 .price(lot.getPrice())
                 .build();
     }
+
+
 
     @Override
     public LotResponse createLot(LotDTO lotDTO) throws Exception {
@@ -113,7 +116,6 @@ public class LotService implements ILotService {
                 .size(existingLot.getSize())
                 .price(existingLot.getPrice())
                 .status(existingLot.getStatus())
-                .warehouseId(existingLot.getWarehouse().getId())
                 .build();
     }
 
@@ -163,6 +165,7 @@ public class LotService implements ILotService {
                 .price(lot.getPrice())
                 .build();
     }
+
 
 
 

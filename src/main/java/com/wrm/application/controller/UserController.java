@@ -16,6 +16,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -150,5 +153,85 @@ public class UserController {
     public List<UserDTO> getManagerHaveNotWarehouse() {
         return userService.getManagerHaveNotWarehouse();
     }
+
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        try {
+            UserDTO user = userService.getUserById(id);
+            return ResponseEntity.ok(user);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while fetching user data");
+        }
+    }
+
+    @GetMapping("/customers")
+    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllCustomers() {
+        try {
+            List<UserDTO> customers = userService.getAllCustomers();
+            return ResponseEntity.ok(customers);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllUser() {
+        try {
+            List<UserDTO> customers = userService.getAllUser();
+            return ResponseEntity.ok(customers);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/admin/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            // Collect all validation errors and return them in the response
+            List<String> errors = result.getAllErrors().stream()
+                    .map(error -> error.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errors);
+        }
+
+        // Check if passwords match
+        if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
+            return ResponseEntity.badRequest().body("Passwords do not match");
+        }
+
+        try {
+            // Use a User entity creation method in UserService
+            User createdUser = userService.createUserWithRole(userDTO);
+
+            // Convert User entity to UserDTO to return the created user profile
+            UserDTO responseUserDTO = UserDTO.builder()
+                    .fullName(createdUser.getFullName())
+                    .email(createdUser.getEmail())
+                    .phoneNumber(createdUser.getPhoneNumber())
+                    .address(createdUser.getAddress())
+                    .gender(createdUser.getGender())
+                    .status(createdUser.getStatus())
+                    .roleId(createdUser.getRole().getId())
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseUserDTO);
+        } catch (Exception e) {
+            // Log exception for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the user");
+        }
+    }
+
+
+
 
 }
