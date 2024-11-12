@@ -244,20 +244,7 @@ public class UserService implements IUserService {
         return userRepository.save(newUser);
     }
 
-    public UserDTO getUserProfile(String email) throws DataNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
-        // Convert User entity to UserDTO
-        return UserDTO.builder()
 
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .address(user.getAddress())
-                .gender(user.getGender())
-                .status(user.getStatus())
-                .build();
-    }
     public UserDTO updateUserProfile(String email, UserDTO updatedUserDTO) {
         User user = userRepository.findByEmail(email).orElse(null);
 
@@ -340,30 +327,5 @@ public class UserService implements IUserService {
                 .status(user.getStatus())
                 .build();
     }
-
-    public User createUserWithRole(UserDTO userDTO) throws Exception {
-        String email = userDTO.getEmail();
-        if (userRepository.existsByEmail(email)) {
-            throw new DataIntegrityViolationException("Email already exists");
-        }
-
-        User newUser = User.builder()
-                .fullName(userDTO.getFullName())
-                .email(userDTO.getEmail())
-                .password(passwordEncoder.encode(userDTO.getPassword()))
-                .phoneNumber(userDTO.getPhoneNumber())
-                .address(userDTO.getAddress())
-                .gender(userDTO.getGender())
-                .status(UserStatus.ACTIVE)
-                .build();
-
-        // Find role by ID
-        Role role = roleRepository.findById(userDTO.getRoleId())
-                .orElseThrow(() -> new DataNotFoundException("Role not found"));
-        newUser.setRole(role);
-
-        return userRepository.save(newUser);
-    }
-
 
 }
