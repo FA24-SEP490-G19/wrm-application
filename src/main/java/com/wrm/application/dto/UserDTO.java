@@ -52,6 +52,6 @@ public class UserDTO {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-
-
+    @NotNull(message = "Role ID is required")
+    private Long roleId;
 }

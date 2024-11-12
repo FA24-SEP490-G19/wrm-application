@@ -157,6 +157,93 @@ public class UserService implements IUserService {
         List<Token> tokens = tokenRepository.findByUser(existingUser);
         tokenRepository.deleteAll(tokens);
     }
+
+    @Override
+    public UserDTO getUserById(Long id) throws Exception {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        return UserDTO.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .build();
+    }
+
+    @Override
+    public List<UserDTO> getAllCustomers() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().getId() == 1) // Filter for user role
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDTO> getAllSales() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().getId() == 3) // Filter for user role
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDTO> getAllUser() {
+        return userRepository.findAll().stream()
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public User createUserWithRole(UserDTO userDTO) throws Exception {
+        String email = userDTO.getEmail();
+        if (userRepository.existsByEmail(email)) {
+            throw new DataIntegrityViolationException("Email already exists");
+        }
+
+        User newUser = User.builder()
+                .fullName(userDTO.getFullName())
+                .email(userDTO.getEmail())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .phoneNumber(userDTO.getPhoneNumber())
+                .address(userDTO.getAddress())
+                .gender(userDTO.getGender())
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        // Find role by ID
+        Role role = roleRepository.findById(userDTO.getRoleId())
+                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+        newUser.setRole(role);
+
+        return userRepository.save(newUser);
+    }
+
     public UserDTO getUserProfile(String email) throws DataNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
