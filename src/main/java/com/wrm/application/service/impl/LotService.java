@@ -1,14 +1,17 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.LotStatus;
+import com.wrm.application.constant.enums.RentalDetailStatus;
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.Lot;
+import com.wrm.application.model.RentalDetail;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
 import com.wrm.application.repository.LotRepository;
+import com.wrm.application.repository.RentalDetailRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.lot.LotResponse;
@@ -18,12 +21,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class LotService implements ILotService {
     private final LotRepository lotRepository;
     private final UserRepository userRepository;
     private final WarehouseRepository warehouseRepository;
+    private final RentalDetailRepository rentalDetailRepository;
 
     @Override
     public Page<LotResponse> getAllLots(PageRequest pageRequest) {
@@ -125,9 +131,8 @@ public class LotService implements ILotService {
         lotRepository.save(existingLot);
     }
 
-
     @Override
-    public LotResponse updateLotStatus(Long lotId, LotDTO lotDTO, String remoteUser) throws DataNotFoundException, PermissionDenyException, InvalidParamException {
+    public LotResponse updateLotStatus(Long lotId, LotDTO lotDTO, String remoteUser) throws Exception {
         User manager = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("Manager not found"));
 
@@ -138,32 +143,31 @@ public class LotService implements ILotService {
         Lot lot = lotRepository.findLotById(lotId)
                 .orElseThrow(() -> new DataNotFoundException("Lot not found with ID: " + lotId));
 
-        LotStatus currentStatus = lot.getStatus();
-        LotStatus newStatus = lotDTO.getStatus();
+        Warehouse warehouse = warehouseRepository.findById(lot.getWarehouse().getId())
+                .orElseThrow(() -> new DataNotFoundException("Warehouse not found for Lot"));
 
-        if (manager.getRole().getId() == 4) {
-            if (currentStatus == LotStatus.AVAILABLE && newStatus == LotStatus.RESERVED) {
-            } else if (currentStatus == LotStatus.RESERVED && newStatus == LotStatus.OCCUPIED) {
-            } else if (currentStatus == LotStatus.OCCUPIED && newStatus == LotStatus.AVAILABLE) {
-                throw new PermissionDenyException("Cannot change status from OCCUPIED to AVAILABLE until contract ends.");
-            } else {
-                throw new InvalidParamException("Invalid status transition for manager role");
-            }
+        if (!warehouse.getWarehouseManager().getId().equals(manager.getId())) {
+            throw new PermissionDenyException("User is not the manager of this warehouse");
         }
 
+        List<RentalDetail> rentalDetails = rentalDetailRepository.findByLotId(lotId);
+        if (rentalDetails.stream().noneMatch(rd -> rd.getStatus().equals(RentalDetailStatus.ACTIVE.name()))) {
+            throw new IllegalStateException("Cannot update lot status without active rental details.");
+        }
+
+        LotStatus newStatus = LotStatus.valueOf(lotDTO.getStatus().toString());
         lot.setStatus(newStatus);
-        lot = lotRepository.save(lot);
+        lotRepository.save(lot);
 
         return LotResponse.builder()
                 .id(lot.getId())
                 .description(lot.getDescription())
                 .size(lot.getSize())
-                .status(lot.getStatus())
+                .status(LotStatus.valueOf(lot.getStatus().toString()))
                 .warehouseId(lot.getWarehouse().getId())
                 .price(lot.getPrice())
                 .build();
     }
-
 
 
 }

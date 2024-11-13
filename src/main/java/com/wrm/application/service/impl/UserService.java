@@ -107,16 +107,5 @@ public class UserService implements IUserService {
         userRepository.save(user);
     }
 
-    public UserDTO getUserProfile(String email) throws DataNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
-        return UserDTO.builder()
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .address(user.getAddress())
-                .gender(user.getGender())
-                .status(user.getStatus())
-                .build();
-    }
+    
 }

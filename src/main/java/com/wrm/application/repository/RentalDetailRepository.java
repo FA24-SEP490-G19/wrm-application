@@ -29,4 +29,6 @@ public interface RentalDetailRepository extends JpaRepository<RentalDetail, Long
     @Query("SELECT rd FROM RentalDetail rd WHERE rd.contract.id = :contractId AND rd.isDeleted = false")
     Optional<RentalDetail> findByContractId(@Param("contractId") Long contractId);
 
+    @Query("SELECT rd FROM RentalDetail rd WHERE rd.lot.id = :lotId AND rd.isDeleted = false")
+    List<RentalDetail> findByLotId(@Param("lotId") Long lotId);
 }

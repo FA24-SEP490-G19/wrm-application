@@ -23,5 +23,5 @@ public interface ILotService {
 
     void deleteLot(Long lotId) throws Exception;
 
-    LotResponse updateLotStatus(Long lotId,LotDTO lotDTO, String remoteUser) throws PermissionDenyException, DataNotFoundException, InvalidParamException;
+    LotResponse updateLotStatus(Long lotId,LotDTO lotDTO, String remoteUser) throws Exception;
 }
