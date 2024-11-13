@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class Appointment extends BaseModel{
+    //test
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

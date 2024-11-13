@@ -1,9 +1,12 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.model.Token;
+import com.wrm.application.repository.TokenRepository;
+import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.user.UserResponse;
 import com.wrm.application.security.JwtTokenUtil;
 import com.wrm.application.constant.enums.UserStatus;
-import com.wrm.application.dto.ChangePasswordDTO;
+import com.wrm.application.dto.auth.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
@@ -20,8 +23,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -31,7 +37,8 @@ public class UserService implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
-
+    private final TokenRepository tokenRepository;
+    private final WarehouseRepository warehouseRepository;
     @Override
     public UserResponse createUser(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
@@ -91,6 +98,24 @@ public class UserService implements IUserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
     }
+
+    @Override
+    public List<UserDTO> getManagerHaveNotWarehouse() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().getId() == 4) // Filter for manager role
+                .filter(user -> !warehouseRepository.existsByWarehouseManagerId(user.getId())) // Exclude users with a warehouse
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     public void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
@@ -107,5 +132,30 @@ public class UserService implements IUserService {
         userRepository.save(user);
     }
 
-    
+    public UserDTO getUserProfile(String email) throws DataNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        return UserDTO.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(user.getStatus())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(Long userId, String newPassword)
+            throws Exception {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        existingUser.setPassword(encodedPassword);
+        userRepository.save(existingUser);
+        List<Token> tokens = tokenRepository.findByUser(existingUser);
+        tokenRepository.deleteAll(tokens);
+    }
+
 }

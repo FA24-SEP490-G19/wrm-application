@@ -1,20 +1,21 @@
-package com.wrm.application.dto;
+package com.wrm.application.dto.warehouse;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.WarehouseStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WarehouseDTO {
+public class WarehouseUpdateDTO {
 
     @NotBlank(message = "Name is required")
     @Size(max = 100, message = "Name must be less than 100 characters")
@@ -32,8 +33,4 @@ public class WarehouseDTO {
 
     @Size(max = 500, message = "Description must be less than 500 characters")
     private String description;
-
-    @JsonProperty("warehouse_manager_id")
-    @NotNull(message = "Warehouse Manager ID is required")
-    private Long warehouseManagerId;
 }

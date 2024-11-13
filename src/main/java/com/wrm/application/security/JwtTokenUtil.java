@@ -28,18 +28,25 @@ public class JwtTokenUtil {
         //properties => claims
         Map<String, Object> claims = new HashMap<>();
         //this.generateSecretKey();
-        claims.put("email", user.getEmail());
+        String subject = getSubject(user);
+        claims.put("subject", subject);
+        claims.put("userId", user.getId());
+//        claims.put("email", user.getEmail());
+        claims.put("roles", "ROLE_" + user.getRole().getRoleName());
         try {
-            String token = Jwts.builder()
+            return Jwts.builder()
                     .setClaims(claims)
-                    .setSubject(user.getEmail())
+                    .setSubject(subject)
                     .setExpiration(new Date(System.currentTimeMillis() + expiration))
                     .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                     .compact();
-            return token;
         } catch (Exception e) {
             throw new InvalidParamException("Cannot create jwt token, error: " + e.getMessage());
         }
+    }
+
+    private static String getSubject(User user) {
+        return user.getEmail();
     }
 
     private Key getSignInKey() {
@@ -74,12 +81,12 @@ public class JwtTokenUtil {
         return expirationDate.before(new Date());
     }
 
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public String getSubject(String token) {
+        return  extractClaim(token, Claims::getSubject);
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        String email = extractEmail(token);
+        String email = getSubject(token);
         return (email.equals(userDetails.getUsername()))
                 && !isTokenExpired(token);
     }

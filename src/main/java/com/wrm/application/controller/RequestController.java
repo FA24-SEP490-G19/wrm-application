@@ -1,7 +1,8 @@
 package com.wrm.application.controller;
 
-import com.wrm.application.dto.RequestDTO;
-import com.wrm.application.dto.AdminReplyDTO;
+import com.wrm.application.dto.request.RequestDTO;
+import com.wrm.application.dto.request.AdminReplyDTO;
+import com.wrm.application.response.ResponseObject;
 import com.wrm.application.response.request.AdminRequestListResponse;
 import com.wrm.application.response.request.AdminRequestResponse;
 import com.wrm.application.response.request.RequestListResponse;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -29,14 +31,22 @@ public class RequestController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllRequests(
+    public ResponseEntity<ResponseObject> getAllRequests(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) {
         if (page < 0) {
-            return ResponseEntity.badRequest().body("Page number cannot be negative");
+            return ResponseEntity.badRequest().body(ResponseObject.builder()
+                    .message("Page number cannot be negative")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .data(null)
+                    .build());
         }
         if (limit <= 0) {
-            return ResponseEntity.badRequest().body("Limit must be greater than zero");
+            return ResponseEntity.badRequest().body(ResponseObject.builder()
+                    .message("Limit must be greater than zero")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .data(null)
+                    .build());
         }
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
@@ -46,23 +56,36 @@ public class RequestController {
         int totalPage = requestPage.getTotalPages();
 
         List<AdminRequestResponse> requests = requestPage.getContent();
-        return ResponseEntity.ok(AdminRequestListResponse.builder()
+        AdminRequestListResponse.builder()
                 .requests(requests)
                 .totalPages(totalPage)
+                .build();
+        return ResponseEntity.ok().body(ResponseObject.builder()
+                .message("Get all requests successfully")
+                .status(HttpStatus.OK)
+                .data(requests)
                 .build());
     }
 
     @GetMapping("my-request")
     @PreAuthorize("hasRole('ROLE_SALES') OR hasRole('ROLE_USER') OR hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> getMyRequests(
+    public ResponseEntity<ResponseObject> getMyRequests(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             HttpServletRequest req) throws Exception {
         if (page < 0) {
-            return ResponseEntity.badRequest().body("Page number cannot be negative");
+            return ResponseEntity.badRequest().body(ResponseObject.builder()
+                    .message("Page number cannot be negative")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .data(null)
+                    .build());
         }
         if (limit <= 0) {
-            return ResponseEntity.badRequest().body("Limit must be greater than zero");
+            return ResponseEntity.badRequest().body(ResponseObject.builder()
+                    .message("Limit must be greater than zero")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .data(null)
+                    .build());
         }
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
@@ -72,62 +95,86 @@ public class RequestController {
         int totalPage = requestPage.getTotalPages();
 
         List<RequestResponse> requests = requestPage.getContent();
-        return ResponseEntity.ok(RequestListResponse.builder()
+        RequestListResponse.builder()
                 .requests(requests)
                 .totalPages(totalPage)
+                .build();
+        return ResponseEntity.ok().body(ResponseObject.builder()
+                .message("Get all my requests successfully")
+                .status(HttpStatus.OK)
+                .data(requests)
                 .build());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_SALES') OR hasRole('ROLE_USER') OR hasRole('ROLE_MANAGER')")
-    public ResponseEntity<RequestResponse> getRequestById(@PathVariable Long id) throws Exception {
-        return ResponseEntity.ok(requestService.getRequestById(id));
+    public ResponseEntity<ResponseObject> getRequestById(@PathVariable Long id) throws Exception {
+        RequestResponse request = requestService.getRequestById(id);
+        return ResponseEntity.ok().body(ResponseObject.builder()
+                .message("Get request information successfully")
+                .status(HttpStatus.OK)
+                .data(request)
+                .build());
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ROLE_SALES') OR hasRole('ROLE_USER') OR hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> createAppointment(@Valid @RequestBody RequestDTO requestDTO, BindingResult result, HttpServletRequest req) {
-        try {
+    public ResponseEntity<ResponseObject> createAppointment(@Valid @RequestBody RequestDTO requestDTO, BindingResult result, HttpServletRequest req) throws Exception {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body("Invalid user data");
+                return ResponseEntity.badRequest().body(ResponseObject.builder()
+                        .message(errorMessage.toString())
+                        .status(HttpStatus.BAD_REQUEST)
+                        .data(null)
+                        .build());
             }
             RequestResponse request = requestService.createRequest(requestDTO, req.getRemoteUser());
-            return ResponseEntity.ok(request);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+            return ResponseEntity.ok(ResponseObject.builder()
+                    .message("Create request successfully")
+                    .status(HttpStatus.OK)
+                    .data(request)
+                    .build());
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> updateRequest(@PathVariable Long id, @Valid @RequestBody AdminReplyDTO adminReplyDTO, BindingResult result) throws Exception {
-        try {
+    public ResponseEntity<ResponseObject> updateRequest(@PathVariable Long id, @Valid @RequestBody AdminReplyDTO adminReplyDTO, BindingResult result) throws Exception {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body("Invalid appointment data");
+                return ResponseEntity.badRequest().body(ResponseObject.builder()
+                        .message(errorMessage.toString())
+                        .status(HttpStatus.BAD_REQUEST)
+                        .data(null)
+                        .build());
             }
             AdminRequestResponse request = requestService.updateRequest(id, adminReplyDTO);
-            return ResponseEntity.ok(request);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+            return ResponseEntity.ok(ResponseObject.builder()
+                    .message("Update request successfully")
+                    .status(HttpStatus.OK)
+                    .data(request)
+                    .build());
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SALES') OR hasRole('ROLE_USER') OR hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> deleteRequest(@PathVariable Long id) throws Exception {
+    public ResponseEntity<ResponseObject> deleteRequest(@PathVariable Long id) {
         try {
             requestService.deleteRequest(id);
-            return ResponseEntity.ok("Request deleted successfully");
+            return ResponseEntity.ok(ResponseObject.builder()
+                    .message("Delete request successfully")
+                    .status(HttpStatus.OK)
+                    .build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(ResponseObject.builder()
+                    .message(e.getMessage())
+                    .status(HttpStatus.BAD_REQUEST)
+                    .data(null)
+                    .build());
         }
     }
 
