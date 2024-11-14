@@ -1,7 +1,7 @@
 package com.wrm.application.controller;
 
-import com.wrm.application.dto.RequestDTO;
-import com.wrm.application.dto.AdminReplyDTO;
+import com.wrm.application.dto.request.RequestDTO;
+import com.wrm.application.dto.request.AdminReplyDTO;
 import com.wrm.application.response.request.AdminRequestListResponse;
 import com.wrm.application.response.request.AdminRequestResponse;
 import com.wrm.application.response.request.RequestListResponse;
@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -101,6 +102,7 @@ public class RequestController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

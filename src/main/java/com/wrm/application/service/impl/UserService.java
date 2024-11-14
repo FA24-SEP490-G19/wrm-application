@@ -6,7 +6,7 @@ import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.user.UserResponse;
 import com.wrm.application.security.JwtTokenUtil;
 import com.wrm.application.constant.enums.UserStatus;
-import com.wrm.application.dto.ChangePasswordDTO;
+import com.wrm.application.dto.auth.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
@@ -15,6 +15,7 @@ import com.wrm.application.model.User;
 import com.wrm.application.model.Role;
 import com.wrm.application.repository.RoleRepository;
 import com.wrm.application.repository.UserRepository;
+import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -39,6 +41,8 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
     private final WarehouseRepository warehouseRepository;
+    private final IMailService mailService;
+
     @Override
     public UserResponse createUser(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
@@ -147,15 +151,17 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public void resetPassword(Long userId, String newPassword)
-            throws Exception {
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+    public void resetPassword(String email) throws Exception {
+        User existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+        String newPassword = UUID.randomUUID().toString().substring(0, 8);
         String encodedPassword = passwordEncoder.encode(newPassword);
         existingUser.setPassword(encodedPassword);
         userRepository.save(existingUser);
         List<Token> tokens = tokenRepository.findByUser(existingUser);
         tokenRepository.deleteAll(tokens);
+
+        mailService.sendPasswordResetEmail(existingUser.getEmail(), newPassword);
     }
 
     @Override

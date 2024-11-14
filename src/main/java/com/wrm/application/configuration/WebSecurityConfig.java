@@ -31,7 +31,8 @@ public class WebSecurityConfig {
                     requests
                             .requestMatchers(
                                     "/users/register",
-                                    "/users/login"
+                                    "/users/login",
+                                    "/users/reset-password"
                             )
                             .permitAll()
                             .requestMatchers(GET,
@@ -42,11 +43,6 @@ public class WebSecurityConfig {
                                     "/lots/{lotId}").permitAll()
                             .requestMatchers(GET,
                                     "/lots").permitAll()
-
-//                            .requestMatchers(GET,
-//                                    "/appointments").permitAll()
-//                            .requestMatchers(GET,
-//                                    "/appointments/**").permitAll()
                             .anyRequest().authenticated();
                 });
         return http.build();

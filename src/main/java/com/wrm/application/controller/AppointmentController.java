@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -25,7 +26,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<AppointmentListResponse> getAllAppointments(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
@@ -43,7 +44,8 @@ public class AppointmentController {
         int totalPage = appointmentPage.getTotalPages();
 
         List<AppointmentResponse> appointments = appointmentPage.getContent();
-        return ResponseEntity.ok(AppointmentListResponse.builder()
+
+        return ResponseEntity.ok().body(AppointmentListResponse.builder()
                 .appointments(appointments)
                 .totalPages(totalPage)
                 .build());

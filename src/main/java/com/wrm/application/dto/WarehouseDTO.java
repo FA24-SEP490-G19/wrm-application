@@ -10,6 +10,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -36,4 +38,7 @@ public class WarehouseDTO {
     @JsonProperty("warehouse_manager_id")
     @NotNull(message = "Warehouse Manager ID is required")
     private Long warehouseManagerId;
+
+    @Size(max = 5, message = "Maximum of 5 images allowed")
+    private List<String> images;
 }

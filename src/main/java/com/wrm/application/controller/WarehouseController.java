@@ -1,6 +1,7 @@
 package com.wrm.application.controller;
 
 import com.wrm.application.dto.WarehouseDTO;
+import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseListResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.impl.WarehouseService;
@@ -33,7 +34,7 @@ public class WarehouseController {
                 Sort.by("createdDate").descending());
         Page<WarehouseResponse> warehousePage;
         if (keyword != null && !keyword.isEmpty()) {
-            warehousePage = warehouseService.getWarehouseByNameOrAddress(keyword, pageRequest);
+            warehousePage = warehouseService.getWarehouseByKeyword(keyword, pageRequest);
         } else {
             warehousePage = warehouseService.getAllWarehouses(pageRequest);
         }
@@ -48,7 +49,7 @@ public class WarehouseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WarehouseResponse> getWarehouseById(@PathVariable Long id) throws Exception {
+    public ResponseEntity<WarehouseDetailResponse> getWarehouseById(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok(warehouseService.getWarehouseById(id));
     }
 

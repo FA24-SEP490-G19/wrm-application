@@ -1,4 +1,4 @@
-package com.wrm.application.dto;
+package com.wrm.application.dto.auth;
 
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;

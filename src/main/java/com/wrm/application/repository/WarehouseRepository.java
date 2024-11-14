@@ -16,7 +16,7 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
     Page<Warehouse> findAll(Pageable pageable);
 
     @Query("SELECT w FROM Warehouse w WHERE (w.address LIKE %?1% OR w.name LIKE %?1%) AND w.isDeleted = false")
-    Page<Warehouse> findByNameOrAddress(String keyword, Pageable pageable);
+    Page<Warehouse> findByKeyword(String keyword, Pageable pageable);
 
     @Query("SELECT w FROM Warehouse w WHERE w.warehouseManager.id = ?1 AND w.isDeleted = false")
     Optional<Warehouse> findByManagerId(Long id);

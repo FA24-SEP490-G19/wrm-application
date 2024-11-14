@@ -1,17 +1,15 @@
 package com.wrm.application.controller;
 
 import com.wrm.application.dto.RentalDetailDTO;
-import com.wrm.application.model.RentalDetail;
 import com.wrm.application.response.rental.RentalDetailListResponse;
 import com.wrm.application.response.rental.RentalDetailResponse;
-import com.wrm.application.response.rental.RentalListResponse;
-import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.impl.RentalDetailService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -66,6 +64,7 @@ public class RentalDetailController {
                 .build());
     }
 
+
     @GetMapping("/rental/{id}")
     @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<RentalDetailListResponse> getByRentalId(@PathVariable Long id) throws Exception {
@@ -91,5 +90,25 @@ public class RentalDetailController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/history")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<RentalDetailListResponse> getHistoryByCustomerId(
+            @RequestParam(value = "page") int page,
+            @RequestParam(value = "limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalDetailResponse> rentalDetailPage = rentalDetailService.getHistoryByCustomerId(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalDetailPage.getTotalPages();
+
+        List<RentalDetailResponse> rentalDetails = rentalDetailPage.getContent();
+        return ResponseEntity.ok(RentalDetailListResponse.builder()
+                .rentalDetails(rentalDetails)
+                .totalPages(totalPage)
+                .build());
     }
 }
