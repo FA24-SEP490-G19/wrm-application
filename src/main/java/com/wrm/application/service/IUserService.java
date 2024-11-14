@@ -16,7 +16,7 @@ public interface IUserService {
     List<UserDTO> getManagerHaveNotWarehouse();
     void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception;
 
-    void resetPassword(Long userId, String newPassword) throws Exception;
+    void resetPassword(String email) throws Exception;
 
     UserDTO getUserById(Long id) throws Exception;
 

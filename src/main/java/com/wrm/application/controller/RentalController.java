@@ -1,10 +1,6 @@
 package com.wrm.application.controller;
 
-import com.wrm.application.dto.AppointmentDTO;
 import com.wrm.application.dto.RentalDTO;
-import com.wrm.application.response.ResponseObject;
-import com.wrm.application.response.appointment.AppointmentListResponse;
-import com.wrm.application.response.appointment.AppointmentResponse;
 import com.wrm.application.response.rental.RentalListResponse;
 import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.impl.RentalService;
@@ -31,7 +27,7 @@ public class RentalController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> getAllRentals(
+    public ResponseEntity<RentalListResponse> getAllRentals(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             @RequestParam(value = "warehouse_id", required = false) Long warehouseId,
@@ -50,20 +46,15 @@ public class RentalController {
         int totalPage = rentalPage.getTotalPages();
 
         List<RentalResponse> rentals = rentalPage.getContent();
-        RentalListResponse.builder()
+        return ResponseEntity.ok(RentalListResponse.builder()
                 .rentals(rentals)
                 .totalPages(totalPage)
-                .build();
-        return ResponseEntity.ok().body(ResponseObject.builder()
-                .message("Get all rentals successfully")
-                .status(HttpStatus.OK)
-                .data(rentals)
                 .build());
     }
 
     @GetMapping("/sales")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<ResponseObject> getAllBySalesId(
+    public ResponseEntity<RentalListResponse> getAllBySalesId(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             HttpServletRequest req) {
@@ -75,76 +66,56 @@ public class RentalController {
         int totalPage = rentalPage.getTotalPages();
 
         List<RentalResponse> rentals = rentalPage.getContent();
-        RentalListResponse.builder()
+        return ResponseEntity.ok(RentalListResponse.builder()
                 .rentals(rentals)
                 .totalPages(totalPage)
-                .build();
-        return ResponseEntity.ok().body(ResponseObject.builder()
-                .message("Get all rentals successfully")
-                .status(HttpStatus.OK)
-                .data(rentals)
                 .build());
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<ResponseObject> createRental(@Valid @RequestBody RentalDTO rentalDTO, BindingResult result, HttpServletRequest req) throws Exception {
+    public ResponseEntity<?> createRental(@Valid @RequestBody RentalDTO rentalDTO, BindingResult result, HttpServletRequest req) {
+        try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(ResponseObject.builder()
-                        .message(errorMessage.toString())
-                        .status(HttpStatus.BAD_REQUEST)
-                        .data(null)
-                        .build());
+                return ResponseEntity.badRequest().body(errorMessage);
             }
             RentalResponse rental = rentalService.createRental(rentalDTO, req.getRemoteUser());
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .message("Create rental successfully")
-                    .status(HttpStatus.OK)
-                    .data(rental)
-                    .build());
+            return ResponseEntity.ok(rental);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> updateRentalStatus(@PathVariable Long id, @Valid @RequestBody RentalDTO rentalDTO, BindingResult result) throws Exception {
+    public ResponseEntity<?> updateRentalStatus(@PathVariable Long id, @Valid @RequestBody RentalDTO rentalDTO, BindingResult result) {
+        try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(ResponseObject.builder()
-                        .message(errorMessage.toString())
-                        .status(HttpStatus.BAD_REQUEST)
-                        .data(null)
-                        .build());
+                return ResponseEntity.badRequest().body(errorMessage);
             }
             RentalResponse rental = rentalService.updateRentalStatus(id, rentalDTO);
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .message("Update rental status successfully")
-                    .status(HttpStatus.OK)
-                    .data(rental)
-                    .build());
+            return ResponseEntity.ok(rental);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> deleteRental(@PathVariable Long id) {
+    public ResponseEntity<?> deleteRental(@PathVariable Long id) {
         try {
             rentalService.deleteRental(id);
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .message("Delete rental successfully")
-                    .status(HttpStatus.OK)
-                    .build());
+            return ResponseEntity.ok("Delete rental successfully");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseObject.builder()
-                    .message(e.getMessage())
-                    .status(HttpStatus.BAD_REQUEST)
-                    .data(null)
-                    .build());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

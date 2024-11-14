@@ -26,6 +26,17 @@ spring:
     multipart:
       max-request-size: 100MB
       max-file-size: 100MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: datbthe170585@fpt.edu.vn
+    password: huqzcosekirojfub
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 jwt:
   expiration: 2592000
   secretKey: TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=
