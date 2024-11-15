@@ -112,8 +112,7 @@ public class AppointmentService implements IAppointmentService {
 
         appointmentRepository.save(newAppointment);
 
-        String appointmentDetails = mailService.generateAppointmentDetails(newAppointment);
-        mailService.sendAppointmentConfirmationEmail(customer.getEmail(), appointmentDetails);
+        mailService.sendAppointmentConfirmationEmail(customer.getEmail(), newAppointment);
 
         return AppointmentResponse.builder()
                 .id(newAppointment.getId())
@@ -143,6 +142,9 @@ public class AppointmentService implements IAppointmentService {
         appointment.setStatus(appointmentDTO.getStatus());
 
         appointmentRepository.save(appointment);
+
+        mailService.sendAppointmentUpdateNotification(appointment.getCustomer().getEmail(), appointment);
+
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .customerId(appointment.getCustomer().getId())
@@ -242,6 +244,9 @@ public class AppointmentService implements IAppointmentService {
         appointment.setSales(sales);
 
         appointmentRepository.save(appointment);
+
+        mailService.sendTaskAssignmentNotification(sales.getEmail(), appointment);
+
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .customerId(appointment.getCustomer().getId())

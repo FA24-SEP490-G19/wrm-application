@@ -8,6 +8,7 @@ import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.*;
 import com.wrm.application.repository.*;
 import com.wrm.application.response.rental.RentalResponse;
+import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IRentalService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ public class RentalService implements IRentalService {
     private final RentalDetailRepository rentalDetailRepository;
     private final LotRepository lotRepository;
     private final ContractRepository contractRepository;
+    private final IMailService mailService;
 
     @Override
     public Page<RentalResponse> getAllRentals(PageRequest pageRequest) {
@@ -141,6 +143,12 @@ public class RentalService implements IRentalService {
 
         rentalDetailRepository.saveAll(rentalDetails);
 
+
+        User admin = userRepository.findByRoleId(2L)
+                .orElseThrow(() -> new DataNotFoundException("Admin not found"));
+        String adminEmail = admin.getEmail();
+        mailService.sendRentalCreationNotification(adminEmail, newRental);
+
         return RentalResponse.builder()
                 .id(newRental.getId())
                 .customerId(newRental.getCustomer().getId())
@@ -151,6 +159,7 @@ public class RentalService implements IRentalService {
     }
 
     @Override
+    @Transactional
     public RentalResponse updateRentalStatus(Long id, RentalDTO rentalDTO) throws Exception {
         if (rentalDTO.getStatus() == null) {
             throw new IllegalArgumentException("Rental status cannot be empty");
@@ -161,6 +170,14 @@ public class RentalService implements IRentalService {
         rental.setStatus(rentalDTO.getStatus());
 
         rentalRepository.save(rental);
+
+        if (rentalDTO.getStatus() == RentalStatus.APPROVED) {
+            Warehouse warehouse = rental.getWarehouse();
+            User manager = warehouse.getWarehouseManager();
+            String managerEmail = manager.getEmail();
+            mailService.sendRentalStatusUpdateNotification(managerEmail, rental);
+        }
+
         return RentalResponse.builder()
                 .id(rental.getId())
                 .customerId(rental.getCustomer().getId())
