@@ -11,6 +11,7 @@ import com.wrm.application.repository.UserRepository;
 import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.appointment.AppointmentResponse;
 import com.wrm.application.service.IAppointmentService;
+import com.wrm.application.service.IMailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class AppointmentService implements IAppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
     private final WarehouseRepository warehouseRepository;
+    private final IMailService mailService;
 
     @Override
     public Page<AppointmentResponse> getAllAppointments(PageRequest pageRequest) {
@@ -109,6 +111,10 @@ public class AppointmentService implements IAppointmentService {
         newAppointment.setWarehouse(warehouse);
 
         appointmentRepository.save(newAppointment);
+
+        String appointmentDetails = mailService.generateAppointmentDetails(newAppointment);
+        mailService.sendAppointmentConfirmationEmail(customer.getEmail(), appointmentDetails);
+
         return AppointmentResponse.builder()
                 .id(newAppointment.getId())
                 .customerId(newAppointment.getCustomer().getId())

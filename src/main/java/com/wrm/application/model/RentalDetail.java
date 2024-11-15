@@ -1,5 +1,6 @@
 package com.wrm.application.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wrm.application.constant.enums.RentalDetailStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,9 +39,11 @@ public class RentalDetail extends BaseModel{
     @Enumerated(EnumType.STRING)
     private RentalDetailStatus status;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 }
