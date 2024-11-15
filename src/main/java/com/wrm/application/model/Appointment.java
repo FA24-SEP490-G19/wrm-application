@@ -32,7 +32,7 @@ public class Appointment extends BaseModel{
     @JoinColumn(name = "warehouse_id", nullable = false)
     private Warehouse warehouse;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     @Column(name = "appointment_date", nullable = false)
     private LocalDateTime appointmentDate;
 

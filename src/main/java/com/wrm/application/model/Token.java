@@ -1,5 +1,6 @@
 package com.wrm.application.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,6 +24,7 @@ public class Token extends BaseModel {
     @Column(name = "token_type", length = 50)
     private String tokenType;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     @Column(name = "expiration_date")
     private LocalDateTime expirationDate;
 

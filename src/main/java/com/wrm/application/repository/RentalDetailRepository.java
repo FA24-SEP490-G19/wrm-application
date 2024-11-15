@@ -7,6 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,4 +35,6 @@ public interface RentalDetailRepository extends JpaRepository<RentalDetail, Long
     @Query("SELECT rd FROM RentalDetail rd JOIN Rental r ON rd.rental.id = r.id WHERE r.customer.id = ?1 AND rd.status = 'COMPLETED' AND rd.isDeleted = false")
     Page<RentalDetail> findCompletedByCustomerId(Long customerId, Pageable pageable);
 
+    @Query("SELECT rd FROM RentalDetail rd WHERE rd.endDate >= :startOfDay AND rd.endDate < :endOfDay AND rd.status = 'ACTIVE' AND rd.isDeleted = false")
+    List<RentalDetail> findByEndDateRange(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 }
