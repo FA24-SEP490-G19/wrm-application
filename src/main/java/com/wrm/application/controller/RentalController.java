@@ -26,7 +26,7 @@ public class RentalController {
     private final RentalService rentalService;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
     public ResponseEntity<RentalListResponse> getAllRentals(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
@@ -73,7 +73,7 @@ public class RentalController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_SALES')  ")
     public ResponseEntity<?> createRental(@Valid @RequestBody RentalDTO rentalDTO, BindingResult result, HttpServletRequest req) {
         try {
             if (result.hasErrors()) {

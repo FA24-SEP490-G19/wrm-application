@@ -6,11 +6,16 @@ import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.response.contract.ContractDetailResponse;
 import com.wrm.application.response.contract.ContractImagesResponse;
 import com.wrm.application.response.contract.CreateContractResponse;
+import com.wrm.application.response.rental.RentalListResponse;
+import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.IContractService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +35,20 @@ import java.util.stream.Collectors;
 public class ContractController {
     private final IContractService contractService;
 
+    @GetMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getAllContracts() {
+        try {
+            String remoteUser = SecurityContextHolder.getContext().getAuthentication().getName();
+            List<ContractDetailResponse> contracts = contractService.getAllContractDetails(remoteUser);
+            return ResponseEntity.ok(contracts);
+        } catch (DataNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     public ResponseEntity<?> getContractDetailsById(@PathVariable Long id) {
@@ -45,7 +64,7 @@ public class ContractController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_SALES')  ")
     public ResponseEntity<?> createContract(
             @Valid @RequestBody ContractDTO contractDTO,
             BindingResult result) {
@@ -66,7 +85,7 @@ public class ContractController {
     }
 
     @PostMapping("/{contractId}/add-images")
-    @PreAuthorize("hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_SALES') ")
     public ResponseEntity<?> addImagesByContractId(
             @PathVariable Long contractId,
             @RequestBody ContractImageDTO contractImageDTO) {

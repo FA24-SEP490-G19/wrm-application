@@ -50,6 +50,7 @@ public class RequestService implements IRequestService {
                     .id(request.getId())
                     .type(request.getType().getContent())
                     .description(request.getDescription())
+                    .adminResponse(request.getAdminResponse())
                     .status(request.getStatus())
                     .build();
         });

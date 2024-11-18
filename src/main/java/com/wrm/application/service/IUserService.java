@@ -28,4 +28,6 @@ public interface IUserService {
     List<UserDTO> getAllUser();
 
     User createUserWithRole(UserDTO userDTO) throws Exception;
+
+    UserDTO updateUserProfile(String email, UserDTO updatedUserDTO);
 }

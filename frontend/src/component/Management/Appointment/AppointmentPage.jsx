@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Search, Plus, Loader, Edit2, Trash2
+    Search, Plus, Loader, Edit2, Trash2, Brush
 } from 'lucide-react';
 import CRMLayout from "../Crm.jsx";
 import { useToast } from "../../../context/ToastProvider.jsx";
@@ -13,6 +13,8 @@ import {
 } from "../../../service/Appointment.js";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {jwtDecode} from "jwt-decode";
+import axios from "axios";
+import SaleAssignModal from "./SaleAssignModal.jsx";
 
 const AppointmentList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -29,6 +31,8 @@ const AppointmentList = () => {
     const [customersData, setCustomersData] = useState({});
     const [warehousesData, setWarehousesData] = useState({});
     const [loadingRelatedData, setLoadingRelatedData] = useState(false);
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+    const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
     const { customer } = useAuth();
 
     useEffect(() => {
@@ -44,37 +48,49 @@ const AppointmentList = () => {
     const fetchRelatedData = async () => {
         setLoadingRelatedData(true);
         try {
-            const saleIds = [...new Set(items.map(item => item.sales_id))];
-            const customerIds = [...new Set(items.map(item => item.customer_id))];
-            const warehouseIds = [...new Set(items.map(item => item.warehouse_id))];
-
+            // Filter out null or undefined IDs
+            const saleIds = [...new Set(items.map(item => item.sales_id).filter(id => id != null))];
+            const customerIds = [...new Set(items.map(item => item.customer_id).filter(id => id != null))];
+            const warehouseIds = [...new Set(items.map(item => item.warehouse_id).filter(id => id != null))];
 
             // Fetch sales data
-            const salePromises = saleIds.map(id => getUserById(id));
-            const saleResponses = await Promise.all(salePromises);
-            const saleMap = saleResponses.reduce((acc, customer) => {
-                acc[customer.id] = customer;
-                return acc;
-            }, {});
-            setSaleData(saleMap);
+            if (saleIds.length > 0) {
+                const salePromises = saleIds.map(id => getUserById(id));
+                const saleResponses = await Promise.all(salePromises);
+                const saleMap = saleResponses.reduce((acc, sales) => {
+                    if (sales) {  // Check if response exists
+                        acc[sales.id] = sales;
+                    }
+                    return acc;
+                }, {});
+                setSaleData(prev => ({ ...prev, ...saleMap }));
+            }
 
             // Fetch customers data
-            const customerPromises = customerIds.map(id => getUserById(id));
-            const customersResponses = await Promise.all(customerPromises);
-            const customersMap = customersResponses.reduce((acc, customer) => {
-                acc[customer.id] = customer;
-                return acc;
-            }, {});
-            setCustomersData(customersMap);
+            if (customerIds.length > 0) {
+                const customerPromises = customerIds.map(id => getUserById(id));
+                const customersResponses = await Promise.all(customerPromises);
+                const customersMap = customersResponses.reduce((acc, customer) => {
+                    if (customer) {  // Check if response exists
+                        acc[customer.id] = customer;
+                    }
+                    return acc;
+                }, {});
+                setCustomersData(prev => ({ ...prev, ...customersMap }));
+            }
 
             // Fetch warehouses data
-            const warehousePromises = warehouseIds.map(id => getWarehouseById(id));
-            const warehousesResponses = await Promise.all(warehousePromises);
-            const warehousesMap = warehousesResponses.reduce((acc, warehouse) => {
-                acc[warehouse.id] = warehouse;
-                return acc;
-            }, {});
-            setWarehousesData(warehousesMap);
+            if (warehouseIds.length > 0) {
+                const warehousePromises = warehouseIds.map(id => getWarehouseById(id));
+                const warehousesResponses = await Promise.all(warehousePromises);
+                const warehousesMap = warehousesResponses.reduce((acc, warehouse) => {
+                    if (warehouse) {  // Check if response exists
+                        acc[warehouse.id] = warehouse;
+                    }
+                    return acc;
+                }, {});
+                setWarehousesData(prev => ({ ...prev, ...warehousesMap }));
+            }
         } catch (error) {
             console.error('Error fetching related data:', error);
         } finally {
@@ -194,6 +210,33 @@ const AppointmentList = () => {
             </div>
         );
     }
+
+    // Add this function to handle sale assignment
+    const handleAssignSale = async (appointmentId, salesId) => {
+        try {
+            await axios.put(
+                `http://localhost:8080/appointments/assign/${appointmentId}`,
+                { sales_id: salesId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            showToast('Phân công nhân viên sale thành công', 'success');
+            setIsAssignModalOpen(false);
+            fetchItems(); // Refresh the list
+        } catch (error) {
+            showToast('Phân công nhân viên sale thất bại', 'error');
+        }
+    };
+
+// Update the brush icon click handler
+    const handleAssignClick = (appointmentId) => {
+        setSelectedAppointmentId(appointmentId);
+        setIsAssignModalOpen(true);
+    };
 
     return (
         <div className="p-6 space-y-6">
@@ -343,6 +386,21 @@ const AppointmentList = () => {
                                         </div>
                                     </td>
                                 )}
+
+
+                                {customer.role === "ROLE_ADMIN" && (
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div className="flex justify-end space-x-2">
+                                            <button
+                                                onClick={() => handleAssignClick(item.id)}
+                                                className="text-indigo-600 hover:text-indigo-900"
+                                                title="Phân công sale"
+                                            >
+                                                <Brush className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                         </tbody>
@@ -386,6 +444,13 @@ const AppointmentList = () => {
                 mode={modalMode}
                 appointmentData={selectedItem}
                 onSubmit={handleModalSubmit}
+            />
+
+            <SaleAssignModal
+                isOpen={isAssignModalOpen}
+                onClose={() => setIsAssignModalOpen(false)}
+                appointmentId={selectedAppointmentId}
+                onAssign={handleAssignSale}
             />
         </div>
     );

@@ -250,4 +250,41 @@ public class UserService implements IUserService {
         return userRepository.save(newUser);
     }
 
+    public UserDTO updateUserProfile(String email, UserDTO updatedUserDTO) {
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            // Return a default response or handle as per your app's needs
+            return null; // Or throw a custom exception if you prefer
+        }
+        // Update fields only if provided in the DTO
+        if (updatedUserDTO.getFullName() != null) {
+            user.setFullName(updatedUserDTO.getFullName());
+        }
+        if (updatedUserDTO.getPhoneNumber() != null) {
+            user.setPhoneNumber(updatedUserDTO.getPhoneNumber());
+        }
+        if (updatedUserDTO.getAddress() != null) {
+            user.setAddress(updatedUserDTO.getAddress());
+        }
+        if (updatedUserDTO.getGender() != null) {
+            user.setGender(updatedUserDTO.getGender());
+        }
+        //if (updatedUserDTO.getStatus() != null) {
+        //    user.setStatus(updatedUserDTO.getStatus());
+        //}
+
+        // Save the updated user
+        userRepository.save(user);
+
+        // Convert updated user entity to DTO
+        return UserDTO.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(user.getStatus())
+                .build();
+    }
 }

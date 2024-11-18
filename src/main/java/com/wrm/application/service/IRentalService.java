@@ -1,7 +1,9 @@
 package com.wrm.application.service;
 
+import com.wrm.application.dto.ContractDTO;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.response.rental.RentalResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -12,6 +14,8 @@ public interface IRentalService {
     Page<RentalResponse> getBySalesId(String remoteUser, PageRequest pageRequest);
 
     RentalResponse createRental(RentalDTO rentalDTO, String remoteUser) throws Exception;
+
+
 
     RentalResponse updateRentalStatus(Long id, RentalDTO rentalDTO) throws Exception;
 
