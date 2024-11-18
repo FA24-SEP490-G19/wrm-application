@@ -1,7 +1,8 @@
-package com.wrm.application.dto;
+package com.wrm.application.dto.contract;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
@@ -33,5 +34,7 @@ public class ContractDTO {
     @JsonProperty("last_modified_date")
     private LocalDateTime lastModifiedDate;
 
+    @Size(max = 5, message = "Maximum of 5 images allowed")
+    private List<String> images;
 
 }

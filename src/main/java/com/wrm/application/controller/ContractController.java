@@ -1,32 +1,19 @@
 package com.wrm.application.controller;
 
-import com.wrm.application.dto.ContractDTO;
-import com.wrm.application.dto.ContractImageDTO;
+import com.wrm.application.dto.contract.ContractDTO;
+import com.wrm.application.dto.contract.ContractUpdateDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.response.contract.ContractDetailResponse;
-import com.wrm.application.response.contract.ContractImagesResponse;
 import com.wrm.application.response.contract.CreateContractResponse;
-import com.wrm.application.response.rental.RentalListResponse;
-import com.wrm.application.response.rental.RentalResponse;
+import com.wrm.application.response.contract.UpdateContractResponse;
 import com.wrm.application.service.IContractService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.FieldError;
-
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -64,57 +51,43 @@ public class ContractController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_SALES')  ")
-    public ResponseEntity<?> createContract(
-            @Valid @RequestBody ContractDTO contractDTO,
-            BindingResult result) {
-
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(fieldError -> fieldError.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
-
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<?> createContract(@RequestBody ContractDTO contractDTO) {
         try {
             CreateContractResponse response = contractService.createContract(contractDTO);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PostMapping("/{contractId}/add-images")
-    @PreAuthorize("hasRole('ROLE_SALES') ")
-    public ResponseEntity<?> addImagesByContractId(
-            @PathVariable Long contractId,
-            @RequestBody ContractImageDTO contractImageDTO) {
-
-        if (contractImageDTO.getContractImageLinks() == null || contractImageDTO.getContractImageLinks().isEmpty()) {
-            return ResponseEntity.badRequest().body("Image list cannot be empty");
-        }
-
-        try {
-            ContractImagesResponse response = contractService.addImagesByContractId(contractId, contractImageDTO);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create contract");
         }
     }
 
     @PutMapping("/{contractId}/update")
     @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> updateContract(
+    public ResponseEntity<UpdateContractResponse> updateContract(
             @PathVariable Long contractId,
-            @Valid @RequestBody ContractDTO contractDTO) {
-
+            @Valid @RequestBody ContractUpdateDTO contractUpdateDTO) {
         try {
-            CreateContractResponse response = contractService.updateContract(contractId, contractDTO);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            UpdateContractResponse response = contractService.updateContract(contractId, contractUpdateDTO);
+            return ResponseEntity.ok(response);
         } catch (DataNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @DeleteMapping("/{contractId}")
+    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> deleteContract(@PathVariable Long contractId) {
+        try {
+            contractService.deleteContract(contractId);
+            return ResponseEntity.ok("Contract deleted successfully");
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete contract");
         }
     }
 

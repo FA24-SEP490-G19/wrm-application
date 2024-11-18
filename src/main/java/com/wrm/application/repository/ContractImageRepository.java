@@ -13,10 +13,11 @@ import java.util.Optional;
 @Repository
 public interface ContractImageRepository extends JpaRepository<ContractImage, Long> {
 
-
+    @Query("SELECT ci FROM ContractImage ci WHERE ci.contract.id = ?1")
     List<ContractImage> findAllByContractId(Long contractId);
 
     @Modifying
     @Query("DELETE FROM ContractImage ci WHERE ci.contract.id = :contractId")
-    void deleteByContractId(@Param("contractId") Long contractId);
+    void deleteAllByContractId(@Param("contractId") Long contractId);
+
 }

@@ -19,6 +19,6 @@ public class ContractImage extends BaseModel {
     @JoinColumn(name = "contract_id", nullable = false)
     private Contract contract;
 
-    @Column(name = "contract_img_link", length = 250, nullable = false)
+    @Column(name = "contract_img_link", nullable = false)
     private String contractImgLink;
 }

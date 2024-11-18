@@ -287,4 +287,5 @@ public class UserService implements IUserService {
                 .status(user.getStatus())
                 .build();
     }
+
 }
