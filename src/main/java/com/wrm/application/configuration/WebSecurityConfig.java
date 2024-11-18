@@ -31,11 +31,14 @@ public class WebSecurityConfig {
                     requests
                             .requestMatchers(
                                     "/users/register",
-                                    "/users/login"
+                                    "/users/login",
+                                    "/users/reset-password"
                             )
                             .permitAll()
                             .requestMatchers(GET,
                                     "/warehouses").permitAll()
+                            .requestMatchers("/v2/payment-requests").permitAll()  // Explicitly permit payment endpoint
+                            .requestMatchers("/v2/**").permitAll()
                             .requestMatchers(GET,
                                     "/warehouses/**").permitAll()
                             .requestMatchers(GET,

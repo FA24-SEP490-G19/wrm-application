@@ -29,7 +29,7 @@ public class AppointmentResponse {
     private Long warehouseId;
 
     @JsonProperty("appointment_date")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     private LocalDateTime appointmentDate;
 
     @Enumerated(EnumType.STRING)

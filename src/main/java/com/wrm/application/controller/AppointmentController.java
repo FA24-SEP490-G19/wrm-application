@@ -1,7 +1,6 @@
 package com.wrm.application.controller;
 
 import com.wrm.application.dto.AppointmentDTO;
-import com.wrm.application.response.ResponseObject;
 import com.wrm.application.response.appointment.AppointmentListResponse;
 import com.wrm.application.response.appointment.AppointmentResponse;
 import com.wrm.application.service.impl.AppointmentService;
@@ -28,7 +27,7 @@ public class AppointmentController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> getAllAppointments(
+    public ResponseEntity<AppointmentListResponse> getAllAppointments(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
             @RequestParam(value = "warehouse_id", required = false) Long warehouseId) {
@@ -45,94 +44,69 @@ public class AppointmentController {
         int totalPage = appointmentPage.getTotalPages();
 
         List<AppointmentResponse> appointments = appointmentPage.getContent();
-        AppointmentListResponse.builder()
+
+        return ResponseEntity.ok().body(AppointmentListResponse.builder()
                 .appointments(appointments)
                 .totalPages(totalPage)
-                .build();
-        return ResponseEntity.ok().body(ResponseObject.builder()
-                .message("Get appointments successfully")
-                .status(HttpStatus.OK)
-                .data(appointments)
                 .build());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> getAppointmentById(@PathVariable Long id) throws Exception {
-        AppointmentResponse appointment = appointmentService.getAppointmentById(id);
-        return ResponseEntity.ok(ResponseObject.builder()
-                .message("Get appointment's details successfully")
-                .status(HttpStatus.OK)
-                .data(appointment)
-                .build());
+    public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<ResponseObject> createAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result, HttpServletRequest req) throws Exception {
+    public ResponseEntity<?> createAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result, HttpServletRequest req) {
+        try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(ResponseObject.builder()
-                        .message(errorMessage.toString())
-                        .status(HttpStatus.BAD_REQUEST)
-                        .data(null)
-                        .build());
+                return ResponseEntity.badRequest().body(errorMessage);
             }
             AppointmentResponse appointment = appointmentService.createAppointment(appointmentDTO, req.getRemoteUser());
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .message("Create appointment successfully")
-                    .status(HttpStatus.OK)
-                    .data(appointment)
-                    .build());
+            return ResponseEntity.ok(appointment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<ResponseObject> updateAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) throws Exception {
+    public ResponseEntity<?> updateAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
+        try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(ResponseObject.builder()
-                        .message(errorMessage.toString())
-                        .status(HttpStatus.BAD_REQUEST)
-                        .data(null)
-                        .build());
+                return ResponseEntity.badRequest().body(errorMessage);
             }
             AppointmentResponse appointment = appointmentService.updateAppointment(id, appointmentDTO);
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .message("Update appointment successfully")
-                    .status(HttpStatus.OK)
-                    .data(appointment)
-                    .build());
+            return ResponseEntity.ok(appointment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<ResponseObject> deleteAppointment(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
         try {
             appointmentService.deleteAppointment(id);
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .message("Delete appointment successfully")
-                    .status(HttpStatus.OK)
-                    .data(null)
-                    .build());
+            return ResponseEntity.ok("Appointment deleted successfully");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(ResponseObject.builder()
-                    .message(e.getMessage())
-                    .status(HttpStatus.BAD_REQUEST)
-                    .data(null)
-                    .build());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/my-appointments")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<ResponseObject> getMyAppointment(
+    public ResponseEntity<AppointmentListResponse> getMyAppointment(
             HttpServletRequest req,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
@@ -145,42 +119,33 @@ public class AppointmentController {
         int totalPage = appointmentPage.getTotalPages();
 
         List<AppointmentResponse> appointments = appointmentPage.getContent();
-        AppointmentListResponse.builder()
+        return ResponseEntity.ok(AppointmentListResponse.builder()
                 .appointments(appointments)
                 .totalPages(totalPage)
-                .build();
-        return ResponseEntity.ok().body(ResponseObject.builder()
-                .message("Get my appointments successfully")
-                .status(HttpStatus.OK)
-                .data(appointments)
                 .build());
     }
 
     @PostMapping("/customer-create")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<ResponseObject> createAppointmentByCustomer(@Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result, HttpServletRequest req) throws Exception {
+    public ResponseEntity<?> createAppointmentByCustomer(@Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result, HttpServletRequest req) {
+        try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(ResponseObject.builder()
-                        .message(errorMessage.toString())
-                        .status(HttpStatus.BAD_REQUEST)
-                        .data(null)
-                        .build());
+                return ResponseEntity.badRequest().body(errorMessage);
             }
             AppointmentResponse appointment = appointmentService.createAppointmentByCustomer(appointmentDTO, req.getRemoteUser());
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .message("Create appointment successfully")
-                    .status(HttpStatus.OK)
-                    .data(appointment)
-                    .build());
+            return ResponseEntity.ok(appointment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("sales-appointments")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<ResponseObject> getAppointmentsBySales(
+    public ResponseEntity<AppointmentListResponse> getAppointmentsBySales(
             HttpServletRequest req,
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
@@ -193,36 +158,27 @@ public class AppointmentController {
         int totalPage = appointmentPage.getTotalPages();
 
         List<AppointmentResponse> appointments = appointmentPage.getContent();
-        AppointmentListResponse.builder()
+        return ResponseEntity.ok(AppointmentListResponse.builder()
                 .appointments(appointments)
                 .totalPages(totalPage)
-                .build();
-        return ResponseEntity.ok().body(ResponseObject.builder()
-                .message("Get appointments successfully")
-                .status(HttpStatus.OK)
-                .data(appointments)
                 .build());
     }
 
     @PutMapping("/assign/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> assignAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) throws Exception {
+    public ResponseEntity<?> assignAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
+        try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(ResponseObject.builder()
-                        .message(errorMessage.toString())
-                        .status(HttpStatus.BAD_REQUEST)
-                        .data(null)
-                        .build());
+                return ResponseEntity.badRequest().body(errorMessage);
             }
             AppointmentResponse appointment = appointmentService.assignAppointment(id, appointmentDTO);
-            return ResponseEntity.ok(ResponseObject.builder()
-                    .message("Assign appointment successfully")
-                    .status(HttpStatus.OK)
-                    .data(appointment)
-                    .build());
+            return ResponseEntity.ok(appointment);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

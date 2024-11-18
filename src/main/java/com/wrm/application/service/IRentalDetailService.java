@@ -15,4 +15,6 @@ public interface IRentalDetailService {
     List<RentalDetailResponse> getByRentalId(Long rentalId) throws Exception;
 
     RentalDetailResponse updateRentalDetailStatus(Long id, RentalDetailDTO rentalDetailDTO) throws Exception;
+
+    Page<RentalDetailResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception;
 }

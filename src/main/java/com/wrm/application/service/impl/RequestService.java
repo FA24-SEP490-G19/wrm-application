@@ -12,6 +12,7 @@ import com.wrm.application.repository.RequestTypeRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.response.request.AdminRequestResponse;
 import com.wrm.application.response.request.RequestResponse;
+import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class RequestService implements IRequestService {
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
     private final RequestTypeRepository requestTypeRepository;
+    private final IMailService mailService;
 
     @Override
     public Page<AdminRequestResponse> getAllRequests(PageRequest pageRequest) {
@@ -48,6 +50,7 @@ public class RequestService implements IRequestService {
                     .id(request.getId())
                     .type(request.getType().getContent())
                     .description(request.getDescription())
+                    .adminResponse(request.getAdminResponse())
                     .status(request.getStatus())
                     .build();
         });
@@ -87,6 +90,11 @@ public class RequestService implements IRequestService {
 
         requestRepository.save(request);
 
+        User admin = userRepository.findByRoleId(2L)
+                .orElseThrow(() -> new DataNotFoundException("Admin not found"));
+        String adminEmail = admin.getEmail();
+        mailService.sendRequestCreationNotification(adminEmail, request);
+
         return RequestResponse.builder()
                 .id(request.getId())
                 .type(request.getType().getContent())
@@ -111,6 +119,9 @@ public class RequestService implements IRequestService {
         request.setStatus(adminReplyDTO.getStatus());
 
         requestRepository.save(request);
+
+        String userEmail = request.getUser().getEmail();
+        mailService.sendRequestUpdateNotification(userEmail, request);
 
         return AdminRequestResponse.builder()
                 .id(request.getId())

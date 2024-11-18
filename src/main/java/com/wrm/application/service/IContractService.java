@@ -18,5 +18,8 @@ public interface IContractService {
 
     void deleteContract(Long contractId) throws Exception;
 
+
+
+    List<ContractDetailResponse> getAllContractDetails(String remoteUser) throws DataNotFoundException, PermissionDenyException;
 }
 

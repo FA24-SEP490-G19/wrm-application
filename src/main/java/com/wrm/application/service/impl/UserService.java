@@ -15,6 +15,7 @@ import com.wrm.application.model.User;
 import com.wrm.application.model.Role;
 import com.wrm.application.repository.RoleRepository;
 import com.wrm.application.repository.UserRepository;
+import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -39,6 +41,8 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
     private final WarehouseRepository warehouseRepository;
+    private final IMailService mailService;
+
     @Override
     public UserResponse createUser(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
@@ -147,15 +151,141 @@ public class UserService implements IUserService {
 
     @Override
     @Transactional
-    public void resetPassword(Long userId, String newPassword)
-            throws Exception {
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+    public void resetPassword(String email) throws Exception {
+        User existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+        String newPassword = UUID.randomUUID().toString().substring(0, 8);
         String encodedPassword = passwordEncoder.encode(newPassword);
         existingUser.setPassword(encodedPassword);
         userRepository.save(existingUser);
         List<Token> tokens = tokenRepository.findByUser(existingUser);
         tokenRepository.deleteAll(tokens);
+
+        mailService.sendPasswordResetEmail(existingUser.getEmail(), newPassword);
+    }
+
+    @Override
+    public UserDTO getUserById(Long id) throws Exception {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        return UserDTO.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .build();
+    }
+
+    @Override
+    public List<UserDTO> getAllCustomers() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().getId() == 1) // Filter for user role
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDTO> getAllSales() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().getId() == 3) // Filter for user role
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDTO> getAllUser() {
+        return userRepository.findAll().stream()
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public User createUserWithRole(UserDTO userDTO) throws Exception {
+        String email = userDTO.getEmail();
+        if (userRepository.existsByEmail(email)) {
+            throw new DataIntegrityViolationException("Email already exists");
+        }
+
+        User newUser = User.builder()
+                .fullName(userDTO.getFullName())
+                .email(userDTO.getEmail())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .phoneNumber(userDTO.getPhoneNumber())
+                .address(userDTO.getAddress())
+                .gender(userDTO.getGender())
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        // Find role by ID
+        Role role = roleRepository.findById(userDTO.getRoleId())
+                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+        newUser.setRole(role);
+
+        return userRepository.save(newUser);
+    }
+
+    public UserDTO updateUserProfile(String email, UserDTO updatedUserDTO) {
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            // Return a default response or handle as per your app's needs
+            return null; // Or throw a custom exception if you prefer
+        }
+        // Update fields only if provided in the DTO
+        if (updatedUserDTO.getFullName() != null) {
+            user.setFullName(updatedUserDTO.getFullName());
+        }
+        if (updatedUserDTO.getPhoneNumber() != null) {
+            user.setPhoneNumber(updatedUserDTO.getPhoneNumber());
+        }
+        if (updatedUserDTO.getAddress() != null) {
+            user.setAddress(updatedUserDTO.getAddress());
+        }
+        if (updatedUserDTO.getGender() != null) {
+            user.setGender(updatedUserDTO.getGender());
+        }
+        //if (updatedUserDTO.getStatus() != null) {
+        //    user.setStatus(updatedUserDTO.getStatus());
+        //}
+
+        // Save the updated user
+        userRepository.save(user);
+
+        // Convert updated user entity to DTO
+        return UserDTO.builder()
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .gender(user.getGender())
+                .status(user.getStatus())
+                .build();
     }
 
 }
