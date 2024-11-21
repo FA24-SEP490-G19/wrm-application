@@ -2,6 +2,7 @@ package com.wrm.application.controller;
 
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
+import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.response.lot.LotListResponse;
 import com.wrm.application.response.lot.LotResponse;
 import jakarta.validation.Valid;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.FieldError;
@@ -93,29 +96,26 @@ public class LotController {
         }
     }
 
+    @PutMapping("/updateStatus/{lotId}")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<LotResponse> updateLotStatus(
+            @PathVariable Long lotId,
+            @RequestBody LotDTO lotDTO,
+            @AuthenticationPrincipal UserDetails remoteUser) {
 
-//    @PutMapping("/updateStatus/{lotId}")
-//    @PreAuthorize("hasRole('ROLE_MANAGER')")
-//    public ResponseEntity<LotResponse> updateLotStatus(@PathVariable Long lotId, @Valid @RequestBody LotDTO lotDTO, BindingResult result, HttpServletRequest req) {
-//        if (result.hasErrors()) {
-//            List<String> errorMessage = result.getFieldErrors()
-//                    .stream()
-//                    .map(FieldError::getDefaultMessage)
-//                    .collect(Collectors.toList());
-//            return ResponseEntity.badRequest().body("Invalid data: " + errorMessage);
-//        }
-//        try {
-//            Lot updatedLot = lotService.updateLotStatus(lotId, lotDTO, req.getRemoteUser());
-//            return ResponseEntity.ok(updatedLot);
-//        } catch (DataNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        } catch (PermissionDenyException e) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
-
+        try {
+            LotResponse updatedLot = lotService.updateLotStatus(lotId, lotDTO, remoteUser.getUsername());
+            return ResponseEntity.ok(updatedLot);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (PermissionDenyException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
 }
 

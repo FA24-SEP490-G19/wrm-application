@@ -32,9 +32,7 @@ public interface RentalDetailRepository extends JpaRepository<RentalDetail, Long
     @Query("SELECT rd FROM RentalDetail rd WHERE rd.contract.id = :contractId AND rd.isDeleted = false")
     Optional<RentalDetail> findByContractId(@Param("contractId") Long contractId);
 
-    @Query("SELECT rd FROM RentalDetail rd JOIN Rental r ON rd.rental.id = r.id WHERE r.customer.id = ?1 AND rd.status = 'COMPLETED' AND rd.isDeleted = false")
-    Page<RentalDetail> findCompletedByCustomerId(Long customerId, Pageable pageable);
+    @Query("SELECT rd FROM RentalDetail rd WHERE rd.lot.id = :lotId AND rd.isDeleted = false")
+    List<RentalDetail> findByLotId(@Param("lotId") Long lotId);
 
-    @Query("SELECT rd FROM RentalDetail rd WHERE rd.endDate >= :startOfDay AND rd.endDate < :endOfDay AND rd.status = 'ACTIVE' AND rd.isDeleted = false")
-    List<RentalDetail> findByEndDateRange(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 }

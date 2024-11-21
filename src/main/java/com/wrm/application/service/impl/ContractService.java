@@ -1,20 +1,27 @@
 package com.wrm.application.service.impl;
 
-import com.wrm.application.dto.ContractDTO;
-import com.wrm.application.dto.ContractImageDTO;
+import com.wrm.application.dto.contract.ContractDTO;
+import com.wrm.application.dto.contract.ContractUpdateDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.*;
 import com.wrm.application.repository.*;
 import com.wrm.application.response.contract.ContractDetailResponse;
-import com.wrm.application.response.contract.ContractImagesResponse;
 import com.wrm.application.response.contract.CreateContractResponse;
+import com.wrm.application.response.contract.UpdateContractResponse;
 import com.wrm.application.service.IContractService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -29,20 +36,14 @@ public class ContractService implements IContractService {
 
 
     @Override
-    public ContractDetailResponse getContractDetailsByContractId(Long contractId, String remoteUser)
-            throws DataNotFoundException, PermissionDenyException {
-
+    public ContractDetailResponse getContractDetailsByContractId(Long contractId, String remoteUser) throws Exception {
         User currentUser = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("User not found with email: " + remoteUser));
-
         Contract contract = contractRepository.findContractById(contractId)
                 .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
-
         RentalDetail rentalDetail = rentalDetailRepository.findByContractId(contractId)
                 .orElseThrow(() -> new DataNotFoundException("Rental Detail not found with Contract ID: " + contractId));
-
-
-
+      
         Rental rental = rentalDetail.getRental();
         User customer = rental.getCustomer();
         User sales = rental.getSales();
@@ -93,6 +94,21 @@ public class ContractService implements IContractService {
 
         contractRepository.save(newContract);
 
+        List<ContractImage> contractImages = new ArrayList<>();
+        if (contractDTO.getImages() != null) {
+            for (String base64Image : contractDTO.getImages()) {
+                byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+                String fileName = saveImageContractToFileSystem(imageBytes);
+
+                ContractImage contractImage = ContractImage.builder()
+                        .contract(newContract)
+                        .contractImgLink(fileName)
+                        .build();
+                contractImages.add(contractImage);
+            }
+            contractImageRepository.saveAll(contractImages);
+        }
+
         return CreateContractResponse.builder()
                 .id(newContract.getId())
                 .signedDate(newContract.getSignedDate())
@@ -100,50 +116,80 @@ public class ContractService implements IContractService {
                 .build();
     }
 
-    @Override
-    public ContractImagesResponse addImagesByContractId(Long contractId, ContractImageDTO contractImageDTO) throws Exception {
-        if (contractId == null) {
-            throw new IllegalArgumentException("Contract ID cannot be null");
-        }
-        if (contractImageDTO.getContractImageLinks() == null || contractImageDTO.getContractImageLinks().isEmpty()) {
-            throw new IllegalArgumentException("Image list cannot be empty");
+    private String saveImageContractToFileSystem(byte[] imageBytes) throws IOException {
+        if (imageBytes == null || imageBytes.length == 0) {
+            throw new IllegalArgumentException("Image bytes cannot be null or empty");
         }
 
-        Contract contract = contractRepository.findContractById(contractId)
-                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+        if (imageBytes.length > 10 * 1024 * 1024) {
+            throw new IllegalArgumentException("Image size exceeds the maximum limit of 10MB.");
+        }
 
-        List<ContractImage> contractImages = contractImageDTO.getContractImageLinks().stream()
-                .map(link -> ContractImage.builder()
-                        .contract(contract)
-                        .contractImgLink(link)
-                        .build())
-                .collect(Collectors.toList());
-
-        contractImageRepository.saveAll(contractImages);
-
-        return ContractImagesResponse.builder()
-                .contractId(contractId)
-                .imageLinks(contractImageDTO.getContractImageLinks())
-                .build();
+        String fileName = UUID.randomUUID().toString() + ".png";
+        Path path = Paths.get("uploads/images/contract/" + fileName);
+        Files.createDirectories(path.getParent());
+        Files.write(path, imageBytes);
+        return path.toString();
     }
 
     @Override
-    public CreateContractResponse updateContract(Long contractId, ContractDTO contractDTO) throws Exception {
+    public UpdateContractResponse updateContract(Long contractId, ContractUpdateDTO contractUpdateDTO) throws Exception {
         Contract contract = contractRepository.findContractById(contractId)
-                .orElseThrow(() -> new DataNotFoundException("Contract not found"));
+                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+        if (contractUpdateDTO.getSignedDate() != null) {
+            contract.setSignedDate(contractUpdateDTO.getSignedDate());
+        }
+        if (contractUpdateDTO.getExpiryDate() != null) {
+            contract.setExpiryDate(contractUpdateDTO.getExpiryDate());
+        }
+        if (contractUpdateDTO.getImages() != null && !contractUpdateDTO.getImages().isEmpty()) {
+            List<ContractImage> existingImages = contractImageRepository.findAllByContractId(contractId);
+            for (ContractImage img : existingImages) {
+                deleteImageFile(img.getContractImgLink());
+            }
+            contractImageRepository.deleteAllByContractId(contractId);
 
-        contract.setSignedDate(contractDTO.getSignedDate());
-        contract.setExpiryDate(contractDTO.getExpiryDate());
-        contract.setDeleted(contractDTO.getIsDeleted());
+            List<ContractImage> updatedImages = new ArrayList<>();
+            for (String base64Image : contractUpdateDTO.getImages()) {
+                byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+                String fileName = saveImageContractToFileSystem(imageBytes);
+
+                ContractImage contractImage = ContractImage.builder()
+                        .contract(contract)
+                        .contractImgLink(fileName)
+                        .build();
+                updatedImages.add(contractImage);
+            }
+            contractImageRepository.saveAll(updatedImages);
+        }
 
         contractRepository.save(contract);
 
-        return CreateContractResponse.builder()
+        return UpdateContractResponse.builder()
                 .id(contract.getId())
                 .signedDate(contract.getSignedDate())
                 .expiryDate(contract.getExpiryDate())
-                .isDeleted(contract.isDeleted())
                 .build();
+    }
+
+
+    private void deleteImageFile(String filePath) throws IOException {
+        Path path = Paths.get(filePath);
+        Files.deleteIfExists(path);
+    }
+
+    @Override
+    public void deleteContract(Long contractId) throws Exception {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+       
+        List<ContractImage> contractImages = contractImageRepository.findAllByContractId(contractId);
+        for (ContractImage img : contractImages) {
+            deleteImageFile(img.getContractImgLink());
+        }
+        contractImageRepository.deleteAll(contractImages);
+
+        contractRepository.delete(contract);
     }
 
     @Override
@@ -219,6 +265,7 @@ public class ContractService implements IContractService {
                 .collect(Collectors.toList());
     }
 
+      
 
 }
 
