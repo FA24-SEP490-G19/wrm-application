@@ -16,6 +16,7 @@ import {
     deleteItem
 } from "../../../service/WareHouse.js";
 import {useAuth} from "../../../context/AuthContext.jsx";
+import {jwtDecode} from "jwt-decode";
 
 const FeatureList = () => {
     const [selectedStatus, setSelectedStatus] = useState('all');
@@ -28,7 +29,7 @@ const FeatureList = () => {
     const [modalMode, setModalMode] = useState('create');
     const [selectedItem, setSelectedItem] = useState(null);
     const [totalPages, setTotalPages] = useState(0);
-
+    const { customer } = useAuth();
     useEffect(() => {
         fetchItems();
     }, []);
@@ -36,6 +37,15 @@ const FeatureList = () => {
     const fetchItems = async () => {
         try {
             setLoading(true);
+            const token = localStorage.getItem("access_token");
+            const decodedToken = jwtDecode(token);
+
+            setLoading(true);
+            // if (decodedToken.roles !== "ROLE_ADMIN" && decodedToken.roles !== "ROLE_SALES") {
+            //     setError('Không có quyền truy cập');
+            //     showToast('Không có quyền truy cập', 'error');
+            //     return;
+            // }
             const response = await getAllItems();
             // Extract warehouses array and totalPages from the response
             const { warehouses, totalPages } = response.data;
@@ -150,8 +160,9 @@ const FeatureList = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Quản lí kho</h1>
-                    <p className="text-gray-600">dành cho admin</p>
+                    <p className="text-gray-600">Dành cho Admin</p>
                 </div>
+                {customer.role === "ROLE_ADMIN" ? (
                 <div className="flex gap-3">
 
                     <button
@@ -162,6 +173,7 @@ const FeatureList = () => {
                         Thêm mới kho
                     </button>
                 </div>
+                    ) : "" }
             </div>
 
             {/* Filters and Search */}
@@ -192,7 +204,9 @@ const FeatureList = () => {
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Quản lí</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Miêu tả</th>
+                            {customer.role === "ROLE_ADMIN" ? (
                             <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
+                                ) : ""}
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -222,6 +236,8 @@ const FeatureList = () => {
                                     {item.description}
                                 </td>
 
+                                {customer.role === "ROLE_ADMIN" ? (
+
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end space-x-2">
                                         <button
@@ -238,6 +254,9 @@ const FeatureList = () => {
                                         </button>
                                     </div>
                                 </td>
+                                    ) : ""}
+
+
                             </tr>
                         ))}
                         </tbody>

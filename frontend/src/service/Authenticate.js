@@ -38,10 +38,10 @@ export const changePassword = async (info) => {
     }
 }
 
-export const getProfile = async () => {
+export const getProfile = async (email) => {
     try {
         return await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/users/profile`,
+            `${import.meta.env.VITE_API_BASE_URL}/users/email/${email}`,
             getAuthConfig()
         )
     } catch (e) {

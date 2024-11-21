@@ -7,6 +7,9 @@ import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.response.contract.ContractDetailResponse;
 import com.wrm.application.response.contract.ContractImagesResponse;
 import com.wrm.application.response.contract.CreateContractResponse;
+import com.wrm.application.response.rental.RentalResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -21,5 +24,8 @@ public interface IContractService {
 
     CreateContractResponse updateContract(Long contractId, ContractDTO contractDTO) throws Exception;
 
+
+
+    List<ContractDetailResponse> getAllContractDetails(String remoteUser) throws DataNotFoundException, PermissionDenyException;
 }
 

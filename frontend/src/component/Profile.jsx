@@ -9,6 +9,7 @@ import {getProfile, updateProfile} from "../service/Authenticate.js";
 import {Toast} from "./Shared/Toast.jsx";
 import {useToast} from "../context/ToastProvider.jsx";
 import { Link } from 'react-router-dom';
+import logo from "../assets/logo.png";
 
 
 const ProfileCRUD = () => {
@@ -20,7 +21,7 @@ const ProfileCRUD = () => {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
-    const { customer } = useAuth();
+    const { customer,logOut } = useAuth();
 
     const initialFormState = {
         fullName: '',
@@ -34,6 +35,7 @@ const ProfileCRUD = () => {
     const [formData, setFormData] = useState(initialFormState);
     const [originalData, setOriginalData] = useState(initialFormState);
     const [errors, setErrors] = useState({});
+    const email = customer?.username
 
     const genderOptions = [
         { value: 'MALE', label: 'Nam' },
@@ -42,25 +44,28 @@ const ProfileCRUD = () => {
 
     const statusOptions = [
         { value: 'ACTIVE', label: 'Hoạt động' },
-        { value: 'INACTIVE', label: 'Inactive' },
-        { value: 'PENDING', label: 'Pending' }
+        { value: 'INACTIVE', label: 'Không hoạt động' },
+        { value: 'PENDING', label: 'Đang chờ duyệt' }
     ];
 
     useEffect(() => {
-        fetchProfileData();
-    }, []);
-
+        if (email) {
+            fetchProfileData();
+        }
+    }, [email]);
 
     const fetchProfileData = async () => {
+        if (!email) return; // Return early if no email
+
         try {
             setLoading(true);
-            const response = await getProfile();
+            const response = await getProfile(email);
             const profileData = response.data;
 
             const formattedData = {
                 fullName: profileData.fullName || '',
                 email: profileData.email || '',
-                phoneNumber: profileData.phone_number || '',
+                phoneNumber: profileData.phoneNumber || '',
                 address: profileData.address || '',
                 gender: profileData.gender || '',
                 status: profileData.status || ''
@@ -210,23 +215,37 @@ const ProfileCRUD = () => {
             {toast.show && <Toast message={toast.message} type={toast.type} />}
 
             {/* Header */}
+            {/* Header */}
             <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
-                        <Link to="/home" className="flex items-center">
-                            <Building2 className="h-8 w-8 text-indigo-600" />
+                        <div className="flex items-center">
+                            <img src={logo} alt="Logo" className="h-11 w-11"/>
                             <h1 className="ml-2 text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 text-transparent bg-clip-text">
                                 Warehouse Hub
                             </h1>
-                        </Link>
+                        </div>
                         <div className="hidden md:flex space-x-6">
+                            {(customer.role === 'ROLE_ADMIN' || customer.role === 'ROLE_SALES')&& (
+                                <a href="/kho"
+                                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
+                                    DashBoard
+                                </a>
+                            )}
+                            <a href="/reset"
+                               className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
+                                Đổi mật khẩu
+                            </a>
+                            <a href="/profile"
+                               className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full hover:shadow-lg hover:scale-105 transition duration-300">
+                                Xin chào {customer?.username}
+
+                            </a>
                             <button
+                                onClick={logOut}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
-                                <a href="/dashboard">DashBoard</a>
+                                Đăng xuất
                             </button>
-                            <p className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full hover:shadow-lg hover:scale-105 transition duration-300">
-                                <a href="/profile">Xin chào {customer?.username}</a>
-                            </p>
                         </div>
                         <button className="md:hidden">
                             <Menu className="h-6 w-6 text-gray-700" />
@@ -234,7 +253,6 @@ const ProfileCRUD = () => {
                     </div>
                 </div>
             </header>
-
             {/* Main Content */}
             <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
                 {error && (
@@ -259,8 +277,8 @@ const ProfileCRUD = () => {
                                     <User className="h-6 w-6 text-indigo-600" />
                                 </div>
                                 <div className="ml-4">
-                                    <h2 className="text-2xl font-bold text-gray-900">Profile Settings</h2>
-                                    <p className="text-gray-600">Manage your account information</p>
+                                    <h2 className="text-2xl font-bold text-gray-900">Thông tin cá nhân</h2>
+                                    <p className="text-gray-600">Quản lý thông tin của bạn</p>
                                 </div>
                             </div>
                             {!editMode ? (
@@ -269,7 +287,7 @@ const ProfileCRUD = () => {
                                     className="flex items-center px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition duration-300"
                                 >
                                     <Edit2 className="w-4 h-4 mr-2" />
-                                    Edit Profile
+                                    Sửa thông tin
                                 </button>
                             ) : (
                                 <button
@@ -289,7 +307,7 @@ const ProfileCRUD = () => {
                             {/* Full Name */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Full Name
+                                    Tên đầy đủ
                                 </label>
                                 {renderField('Full Name', 'fullName', formData.fullName)}
                                 {errors.fullName && (
@@ -324,7 +342,7 @@ const ProfileCRUD = () => {
                             {/* Phone Number */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Phone Number
+                                    Số điện thoại
                                 </label>
                                 {renderField('Phone Number', 'phoneNumber', formData.phoneNumber, 'tel')}
                             </div>
@@ -332,7 +350,7 @@ const ProfileCRUD = () => {
                             {/* Address */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Address
+                                    Địa chỉ
                                 </label>
                                 {renderField('Address', 'address', formData.address)}
                             </div>
@@ -340,7 +358,7 @@ const ProfileCRUD = () => {
                             {/* Gender */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Gender
+                                    Giới tính
                                 </label>
                                 {renderField('Gender', 'gender', formData.gender, 'select', genderOptions)}
                             </div>
@@ -348,7 +366,7 @@ const ProfileCRUD = () => {
                             {/* Status */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Status
+                                    Trạng thái
                                 </label>
                                 {renderField('Status', 'status', formData.status, 'select', statusOptions)}
                             </div>
@@ -362,7 +380,7 @@ const ProfileCRUD = () => {
                                     className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition duration-300"
                                 >
                                     <Save className="w-4 h-4 mr-2" />
-                                    Save Changes
+                                    Lưu thay đổi
                                 </button>
                             </div>
                         )}

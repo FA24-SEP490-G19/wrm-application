@@ -19,10 +19,16 @@ const CRMLayout = ({ children }) => {
 
     const navigation = [
         // { name: 'Dashboard', icon: Home, path: '/dashboard', roles: ['ROLE_ADMIN', 'MANAGER'] },
-        { name: 'Quản lí người dùng', icon: Users, path: '/user', roles: ['ROLE_ADMIN'] },
-        { name: 'Quản lí kho', icon: DollarSign, path: '/kho', roles: ['ROLE_SALES', 'ROLE_ADMIN'] },
+        { name: 'Quản lí kho', icon: DollarSign, path: '/kho', roles: ['ROLE_SALES', 'ROLE_ADMIN',"ROLE_USER","ROLE_MANAGER"] },
         { name: 'Quản lí cuộc hẹn', icon: Calendar, path: '/appointment', roles: ['ROLE_ADMIN','ROLE_SALES'] },
-        { name: 'Quản lí lot', icon: Package, path: '/lot', roles: ['ROLE_ADMIN'] }
+        { name: 'Quản lí lot', icon: Package, path: '/lot', roles: ['ROLE_ADMIN',"ROLE_MANAGER"] },
+        { name: 'Thời gian cho thuê', icon: Package, path: '/contract', roles: ['ROLE_ADMIN','ROLE_SALES','ROLE_USER'] },
+        { name: 'Quản lí cho thuê', icon: Package, path: '/rental', roles: ['ROLE_ADMIN','ROLE_SALES'] },
+        { name: 'Quản lí yêu cầu', icon: Package, path: '/request', roles: ['ROLE_ADMIN','ROLE_SALES',"ROLE_MANAGER"] },
+        { name: 'Quản lí người dùng', icon: Users, path: '/user', roles: ['ROLE_ADMIN'] },
+
+
+
     ];
 
     const filteredNavigation = navigation.filter(

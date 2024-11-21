@@ -14,7 +14,11 @@ import WarehousePage from "./component/Management/Warehouse/WarehousePage.jsx";
 import ProtectedRoute from "./component/Shared/ProtectedRoute.jsx";
 import AppointmentPage from "./component/Management/Appointment/AppointmentPage.jsx";
 import LotsPage from "./component/Management/Lot/LotsPage.jsx";
-import WarehouseDetail from "./component/WareHouseDetail.jsx"; // Assuming you have a Dashboard component
+import WarehouseDetail from "./component/WareHouseDetail.jsx";
+import ContractModal from "./component/Management/Contract/ContractModal.jsx";
+import {ContractPage} from "./component/Management/Contract/ContractPage.jsx";
+import RentalPage from "./component/Rental/RentalPage.jsx";
+import RequestPage from "./component/Management/Request/RequestPage.jsx";
 
 function App() {
     return (
@@ -33,6 +37,9 @@ function App() {
             <Route path="/kho" element={<ProtectedRoute><WarehousePage /> </ProtectedRoute>} />
             <Route path="/appointment" element={<ProtectedRoute><AppointmentPage /> </ProtectedRoute>} />
                 <Route path="/lot" element={<ProtectedRoute><LotsPage /> </ProtectedRoute>} />
+            <Route path="/contract" element={<ProtectedRoute><ContractPage/> </ProtectedRoute>} />
+            <Route path="/rental" element={<ProtectedRoute><RentalPage/> </ProtectedRoute>} />
+            <Route path="/request" element={<ProtectedRoute><RequestPage/> </ProtectedRoute>} />
 
                 <Route path="/" element={<Navigate to="/landing" replace />} />
         </Routes>

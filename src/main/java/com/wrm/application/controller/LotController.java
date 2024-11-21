@@ -50,7 +50,7 @@ public class LotController {
 
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_WAREHOUSE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> createLot(@Valid @RequestBody LotDTO lotDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
@@ -67,7 +67,7 @@ public class LotController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_WAREHOUSE_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> updateLot(@PathVariable Long id, @Valid @RequestBody LotDTO lotDTO, BindingResult result) {
         try {
 

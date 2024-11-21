@@ -96,7 +96,7 @@ const ChangePassword = () => {
                             </h1>
                         </Link>
                         <div className="hidden md:flex space-x-6">
-                            <a href="/dashboard"
+                            <a href="/kho"
                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
                                 DashBoard
                             </a>

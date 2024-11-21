@@ -1,4 +1,4 @@
-// pages/LotsPage.jsx
+// pages/ContractPage.jsx
 import React, { useState, useEffect } from 'react';
 import {
     Search, Plus, Download, Loader2, Edit2, Trash2, SquareStack
@@ -10,6 +10,7 @@ import {getAllLots, createLot, deleteLot, updateLot} from '../../../service/lot.
 import {getUserById, getWarehouseById} from "../../../service/Appointment.js";
 import {getAllItems} from "../../../service/WareHouse.js";
 import {getAllCustomers} from "../../../service/Authenticate.js";
+import {useAuth} from "../../../context/AuthContext.jsx";
 
 const LotList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +36,7 @@ const LotList = () => {
     }, [lots]);
 
 
+    const { customer } = useAuth();
 
     const fetchRelatedData = async () => {
         setLoadingRelatedData(true);
@@ -173,6 +175,7 @@ const LotList = () => {
                     <h1 className="text-2xl font-bold text-gray-900">Quản lý lô hàng</h1>
                     <p className="text-gray-600">Quản lý các lô hàng trong kho</p>
                 </div>
+                {customer.role === "ROLE_ADMIN" || customer.role === "ROLE_MANAGER" ? (
                 <div className="flex gap-3">
                     <button
                         onClick={handleAddLot}
@@ -182,6 +185,7 @@ const LotList = () => {
                         Thêm lô hàng
                     </button>
                 </div>
+                    ) : ""}
             </div>
 
             {/* Search */}
@@ -210,7 +214,10 @@ const LotList = () => {
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kích thước (m²)</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Giá</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
-                            <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
+                            {customer.role === "ROLE_ADMIN" || customer.role === "ROLE_MANAGER" ? (
+
+                                <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
+                                ) :""}
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -249,8 +256,11 @@ const LotList = () => {
                                             {statusConfig[lot.status]?.label || lot.status}
                                         </span>
                                 </td>
-                                <td className="px-6 py-4 text-right">
+
+
+                                    <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end space-x-2">
+                                        {customer.role === "ROLE_ADMIN" || customer.role === "ROLE_MANAGER" ? (
                                         <button
                                             onClick={() => handleEditLot(lot)}
                                             className="p-1 text-blue-600 hover:text-blue-800"
@@ -258,6 +268,8 @@ const LotList = () => {
                                         >
                                             <Edit2 className="w-5 h-5"/>
                                         </button>
+                                            ) : "" }
+                                        {customer.role === "ROLE_ADMIN"  ? (
                                         <button
                                             onClick={() => handleDeleteLot(lot.id)}
                                             className="p-1 text-red-600 hover:text-red-800"
@@ -265,8 +277,10 @@ const LotList = () => {
                                         >
                                             <Trash2 className="w-5 h-5"/>
                                         </button>
+                                            ) : ""}
                                     </div>
                                 </td>
+
                             </tr>
                         ))}
                         </tbody>

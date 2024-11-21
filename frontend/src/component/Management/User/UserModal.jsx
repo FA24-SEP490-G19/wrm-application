@@ -1,5 +1,5 @@
 
-// components/Users/Modal/LotModal.jsx
+// components/Users/Modal/ContractModal.jsx
 import React, { useState, useEffect } from 'react';
 import { X, Eye, EyeOff } from 'lucide-react';
 

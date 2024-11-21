@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -24,6 +25,8 @@ public class ContractService implements IContractService {
     private final RentalDetailRepository rentalDetailRepository;
     private final ContractImageRepository contractImageRepository;
     private final UserRepository userRepository;
+
+
 
     @Override
     public ContractDetailResponse getContractDetailsByContractId(Long contractId, String remoteUser)
@@ -37,6 +40,8 @@ public class ContractService implements IContractService {
 
         RentalDetail rentalDetail = rentalDetailRepository.findByContractId(contractId)
                 .orElseThrow(() -> new DataNotFoundException("Rental Detail not found with Contract ID: " + contractId));
+
+
 
         Rental rental = rentalDetail.getRental();
         User customer = rental.getCustomer();
@@ -141,7 +146,78 @@ public class ContractService implements IContractService {
                 .build();
     }
 
+    @Override
+    public List<ContractDetailResponse> getAllContractDetails(String remoteUser) throws DataNotFoundException, PermissionDenyException {
+        User currentUser = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + remoteUser));
 
+        List<Contract> contracts = contractRepository.findAll();
+
+        return contracts.stream()
+                .map(contract -> {
+                    ContractDetailResponse.ContractDetailResponseBuilder responseBuilder = ContractDetailResponse.builder()
+                            .id(contract.getId())
+                            .signedDate(contract.getSignedDate())
+                            .expiryDate(contract.getExpiryDate());
+
+                    // Get contract images
+                    List<String> contractImageLinks = contractImageRepository
+                            .findAllByContractId(contract.getId())
+                            .stream()
+                            .map(ContractImage::getContractImgLink)
+                            .collect(Collectors.toList());
+                    responseBuilder.contractImageLinks(contractImageLinks);
+
+                    // Try to get rental details if they exist
+                    Optional<RentalDetail> optionalRentalDetail = rentalDetailRepository.findByContractId(contract.getId());
+
+                    if (optionalRentalDetail.isPresent()) {
+                        RentalDetail rentalDetail = optionalRentalDetail.get();
+                        Rental rental = rentalDetail.getRental();
+                        User customer = rental.getCustomer();
+                        User sales = rental.getSales();
+                        Warehouse warehouse = rental.getWarehouse();
+                        Lot lot = rentalDetail.getLot();
+
+                        responseBuilder
+                                .warehouseName(warehouse.getName())
+                                .warehouseAddress(warehouse.getAddress())
+                                .lotDescription(lot.getDescription())
+                                .additionalService(rentalDetail.getAdditionalService().getName());
+
+                        // Add sensitive information only for ADMIN and SALES roles
+                        if ("ADMIN".equals(currentUser.getRole().getRoleName()) ||
+                                "SALES".equals(currentUser.getRole().getRoleName())) {
+                            responseBuilder
+                                    .customerFullName(customer.getFullName())
+                                    .customerPhoneNumber(customer.getPhoneNumber())
+                                    .customerAddress(customer.getAddress())
+                                    .saleFullName(sales.getFullName())
+                                    .salePhoneNumber(sales.getPhoneNumber());
+                        }
+                    } else {
+                        // Set default values when RentalDetail is not found
+                        responseBuilder
+                                .warehouseName("N/A")
+                                .warehouseAddress("N/A")
+                                .lotDescription("N/A")
+                                .additionalService("N/A");
+
+                        if ("ADMIN".equals(currentUser.getRole().getRoleName()) ||
+                                "SALES".equals(currentUser.getRole().getRoleName())) {
+                            responseBuilder
+                                    .customerFullName("N/A")
+                                    .customerPhoneNumber("N/A")
+                                    .customerAddress("N/A")
+                                    .saleFullName("N/A")
+                                    .salePhoneNumber("N/A");
+                        }
+                    }
+
+                    return responseBuilder.build();
+                })
+                .collect(Collectors.toList());
+    }
 
 
 }
