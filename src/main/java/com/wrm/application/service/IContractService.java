@@ -8,6 +8,8 @@ import com.wrm.application.response.contract.ContractDetailResponse;
 import com.wrm.application.response.contract.CreateContractResponse;
 import com.wrm.application.response.contract.UpdateContractResponse;
 
+import java.util.List;
+
 public interface IContractService {
 
     ContractDetailResponse getContractDetailsByContractId(Long contractId, String remoteUser) throws Exception;
@@ -17,8 +19,6 @@ public interface IContractService {
     UpdateContractResponse updateContract(Long contractId, ContractUpdateDTO contractUpdateDTO) throws Exception;
 
     void deleteContract(Long contractId) throws Exception;
-
-
 
     List<ContractDetailResponse> getAllContractDetails(String remoteUser) throws DataNotFoundException, PermissionDenyException;
 }

@@ -47,8 +47,8 @@ public class UserController {
     public ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
         try {
             String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
-//            User user = userService.getUserByEmail(userLoginDTO.getEmail());
-//            Token jwtToken = tokenService.addToken(user, token);
+            User user = userService.getUserByEmail(userLoginDTO.getEmail());
+            tokenService.addToken(user, token);
             return ResponseEntity.ok(token);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -202,7 +202,7 @@ public class UserController {
     }
 
     @GetMapping("/email/{email}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<User> getUserProfileByEmail(@PathVariable String email) throws Exception {
         User userDTO = userService.getUserByEmail(email);
         return ResponseEntity.ok(userDTO);

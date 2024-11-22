@@ -38,7 +38,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
             final String authHeader = request.getHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Unauthorized");
                 return;
             }
             final String token = authHeader.substring(7);
@@ -58,6 +59,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 }
             }
             filterChain.doFilter(request, response);
+        } catch (IOException | ServletException e) {
+            throw e; //
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
         }
@@ -70,11 +73,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/users/login", "POST"),
                 Pair.of("/users/reset-password", "PUT"),
                 Pair.of("/lots", "GET"),
-                Pair.of("/lots/{lotId}", "GET")
+                Pair.of("/v2/payment-requests", "POST")
         );
-        for (Pair<String, String> bypassToken : bypassTokens) {
-            if (request.getServletPath().contains(bypassToken.getFirst()) &&
-                    request.getMethod().equals(bypassToken.getSecond())) {
+
+        String requestPath = request.getServletPath();
+        String requestMethod = request.getMethod();
+        for (Pair<String, String> token : bypassTokens) {
+            String path = token.getFirst();
+            String method = token.getSecond();
+            // Check if the request path and method match any pair in the bypassTokens list
+            if (requestPath.matches(path.replace("**", ".*"))
+                    && requestMethod.equalsIgnoreCase(method)) {
                 return true;
             }
         }
