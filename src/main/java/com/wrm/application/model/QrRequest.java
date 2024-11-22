@@ -1,11 +1,12 @@
 package com.wrm.application.model;
+
 public class QrRequest {
     private Long orderCode;
     private Integer amount;
     private String description;
     private String cancelUrl;
     private String returnUrl;
-    private Integer expiredAt ;
+    private Integer expiredAt;
 
     public QrRequest(Long orderCode, Integer amount, String description, String cancelUrl, String returnUrl) {
         this.orderCode = orderCode;
