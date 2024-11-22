@@ -99,11 +99,10 @@ const WarehouseRental = () => {
                             </h1>
                         </div>
                         <div className="hidden md:flex space-x-6">
-                            {customer.role === 'ROLE_ADMIN' || 'ROLE_MANAGER' || 'ROLE_SALES' ? (
-                                <a href="/kho"
-                                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
-                                    DashBoard
-                                </a>) : ""}
+                            <a href="/kho"
+                               className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
+                                DashBoard
+                            </a>
 
 
                             <a href="/reset"
