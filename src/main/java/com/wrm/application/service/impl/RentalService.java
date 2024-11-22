@@ -2,7 +2,7 @@ package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.RentalDetailStatus;
 import com.wrm.application.constant.enums.RentalStatus;
-import com.wrm.application.dto.ContractDTO;
+import com.wrm.application.dto.contract.ContractDTO;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.dto.RentalDetailDTO;
 import com.wrm.application.exception.DataNotFoundException;
@@ -118,24 +118,34 @@ public class RentalService implements IRentalService {
                 throw new IllegalArgumentException("End date must be after start date");
             }
 
+            Contract contract = contractRepository.findById(rentalDetailDTO.getContractId())
+                    .orElseThrow(() -> new DataNotFoundException("Contract not found"));
+            if (!rentalDetailDTO.getStartDate().toLocalDate().equals(contract.getSignedDate().toLocalDate()) ||
+                    !rentalDetailDTO.getEndDate().toLocalDate().equals(contract.getExpiryDate().toLocalDate())) {
+                throw new DataIntegrityViolationException("Rental dates must match the contract dates");
+            }
+
+            AdditionalService additionalService = additionalServiceRepository.findById(rentalDetailDTO.getAdditionalServiceId())
+                    .orElseThrow(() -> new DataNotFoundException("Additional service not found"));
+
+            Lot lot = lotRepository.findById(rentalDetailDTO.getLotId())
+                    .orElseThrow(() -> new DataNotFoundException("Lot not found"));
+            if (!lot.getWarehouse().getId().equals(rentalDTO.getWarehouseId())) {
+                throw new DataIntegrityViolationException("Lot does not belong to the specified warehouse");
+            }
+            if(rentalDetailRepository.existsByLotId(rentalDetailDTO.getLotId())){
+                throw new DataIntegrityViolationException("Lot already used");
+            }
+
             RentalDetail rentalDetail = RentalDetail.builder()
                     .rental(newRental)
                     .startDate(rentalDetailDTO.getStartDate())
                     .endDate(rentalDetailDTO.getEndDate())
                     .status(RentalDetailStatus.PENDING)
+                    .contract(contract)
+                    .additionalService(additionalService)
+                    .lot(lot)
                     .build();
-
-            AdditionalService additionalService = additionalServiceRepository.findById(rentalDetailDTO.getAdditionalServiceId())
-                    .orElseThrow(() -> new DataNotFoundException("Additional service not found"));
-            rentalDetail.setAdditionalService(additionalService);
-
-            Lot lot = lotRepository.findById(rentalDetailDTO.getLotId())
-                    .orElseThrow(() -> new DataNotFoundException("Lot not found"));
-            rentalDetail.setLot(lot);
-
-            Contract contract = contractRepository.findById(rentalDetailDTO.getContractId())
-                    .orElseThrow(() -> new DataNotFoundException("Contract not found"));
-            rentalDetail.setContract(contract);
 
             rentalDetails.add(rentalDetail);
         }

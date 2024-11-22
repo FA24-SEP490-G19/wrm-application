@@ -1,6 +1,6 @@
 package com.wrm.application.service;
 
-import com.wrm.application.dto.ContractDTO;
+import com.wrm.application.dto.contract.ContractDTO;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.response.rental.RentalResponse;
 import jakarta.transaction.Transactional;

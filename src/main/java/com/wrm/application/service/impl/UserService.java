@@ -1,5 +1,6 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.constant.enums.UserGender;
 import com.wrm.application.model.Token;
 import com.wrm.application.repository.TokenRepository;
 import com.wrm.application.repository.WarehouseRepository;
@@ -46,8 +47,24 @@ public class UserService implements IUserService {
     @Override
     public UserResponse createUser(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
+        if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new InvalidParamException("Invalid email format");
+        }
         if (userRepository.existsByEmail(email)) {
             throw new DataIntegrityViolationException("Email already exists");
+        }
+        if (userDTO.getPassword() == null || userDTO.getPassword().length() < 8 ||
+                !userDTO.getPassword().matches(".*\\d.*") || !userDTO.getPassword().matches(".*[!@#$%^&*].*")) {
+            throw new InvalidParamException("Password must be at least 8 characters long and contain at least one number and one special character");
+        }
+        if (userDTO.getPhoneNumber() == null || !userDTO.getPhoneNumber().matches("^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])[0-9]{7}$")) {
+            throw new InvalidParamException("Invalid phone number format");
+        }
+        if (userDTO.getFullName() == null || userDTO.getFullName().isEmpty()) {
+            throw new InvalidParamException("Full name cannot be empty");
+        }
+        if (userDTO.getAddress() == null || userDTO.getAddress().isEmpty() || userDTO.getAddress().length() > 255) {
+            throw new InvalidParamException("Address cannot be empty and must be less than 255 characters");
         }
         User newUser = User.builder()
                 .fullName(userDTO.getFullName())
