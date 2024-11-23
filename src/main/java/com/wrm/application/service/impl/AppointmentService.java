@@ -11,6 +11,7 @@ import com.wrm.application.repository.UserRepository;
 import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.appointment.AppointmentResponse;
 import com.wrm.application.service.IAppointmentService;
+import com.wrm.application.service.IMailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ public class AppointmentService implements IAppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
     private final WarehouseRepository warehouseRepository;
+    private final IMailService mailService;
 
     @Override
     public Page<AppointmentResponse> getAllAppointments(PageRequest pageRequest) {
@@ -109,6 +111,9 @@ public class AppointmentService implements IAppointmentService {
         newAppointment.setWarehouse(warehouse);
 
         appointmentRepository.save(newAppointment);
+
+        mailService.sendAppointmentConfirmationEmail(customer.getEmail(), newAppointment);
+
         return AppointmentResponse.builder()
                 .id(newAppointment.getId())
                 .customerId(newAppointment.getCustomer().getId())
@@ -137,6 +142,9 @@ public class AppointmentService implements IAppointmentService {
         appointment.setStatus(appointmentDTO.getStatus());
 
         appointmentRepository.save(appointment);
+
+        mailService.sendAppointmentUpdateNotification(appointment.getCustomer().getEmail(), appointment);
+
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .customerId(appointment.getCustomer().getId())
@@ -236,6 +244,9 @@ public class AppointmentService implements IAppointmentService {
         appointment.setSales(sales);
 
         appointmentRepository.save(appointment);
+
+        mailService.sendTaskAssignmentNotification(sales.getEmail(), appointment);
+
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .customerId(appointment.getCustomer().getId())

@@ -1,8 +1,7 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.WarehouseStatus;
-import com.wrm.application.dto.warehouse.WarehouseDTO;
-import com.wrm.application.dto.warehouse.WarehouseUpdateDTO;
+import com.wrm.application.dto.WarehouseDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
@@ -156,25 +155,25 @@ public class WarehouseService implements IWarehouseService {
     }
 
     @Override
-    public WarehouseResponse updateWarehouse(Long id, WarehouseUpdateDTO warehouseUpdateDTO) throws Exception {
+    public WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
 
-        if (warehouseUpdateDTO.getName() == null || warehouseUpdateDTO.getName().isEmpty()) {
+        if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
             throw new IllegalArgumentException("Warehouse name cannot be empty");
         }
-        if (warehouseUpdateDTO.getDescription() == null || warehouseUpdateDTO.getDescription().isEmpty()) {
+        if (warehouseDTO.getDescription() == null || warehouseDTO.getDescription().isEmpty()) {
             throw new IllegalArgumentException("Warehouse description cannot be empty");
         }
-        if (warehouseUpdateDTO.getStatus() == null) {
+        if (warehouseDTO.getStatus() == null) {
             throw new IllegalArgumentException("Warehouse status cannot be null");
         }
 
-        warehouse.setName(warehouseUpdateDTO.getName());
-        warehouse.setDescription(warehouseUpdateDTO.getDescription());
-        warehouse.setAddress(warehouseUpdateDTO.getAddress());
-        warehouse.setSize(warehouseUpdateDTO.getSize());
-        warehouse.setStatus(warehouseUpdateDTO.getStatus());
+        warehouse.setName(warehouseDTO.getName());
+        warehouse.setDescription(warehouseDTO.getDescription());
+        warehouse.setAddress(warehouseDTO.getAddress());
+        warehouse.setSize(warehouseDTO.getSize());
+        warehouse.setStatus(warehouseDTO.getStatus());
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()
                 .id(warehouse.getId())

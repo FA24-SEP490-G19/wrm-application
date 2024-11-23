@@ -107,5 +107,21 @@ public class RentalDetailService implements IRentalDetailService {
                 .build();
     }
 
+    public Page<RentalDetailResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
+        User customer = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
 
+        return rentalDetailRepository.findCompletedByCustomerId(customer.getId(), pageRequest).map(rentalDetail -> {
+            return RentalDetailResponse.builder()
+                    .id(rentalDetail.getId())
+                    .lotId(rentalDetail.getLot().getId())
+                    .warehouseId(rentalDetail.getRental().getWarehouse().getId())
+                    .additionalServiceId(rentalDetail.getAdditionalService().getId())
+                    .startDate(rentalDetail.getStartDate())
+                    .endDate(rentalDetail.getEndDate())
+                    .status(rentalDetail.getStatus())
+                    .contractId(rentalDetail.getContract().getId())
+                    .build();
+        });
+    }
 }

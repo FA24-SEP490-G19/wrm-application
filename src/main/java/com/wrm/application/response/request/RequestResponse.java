@@ -29,7 +29,7 @@ public class RequestResponse {
     @JsonProperty("admin_response")
     private String adminResponse;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     @JsonProperty("admin_response_date")
     private LocalDateTime adminResponseDate;
 }

@@ -1,5 +1,6 @@
 package com.wrm.application.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wrm.application.constant.enums.RequestStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,6 +36,7 @@ public class Request extends BaseModel{
     @Column(name = "admin_response")
     private String adminResponse;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     @Column(name = "admin_response_date")
     private LocalDateTime adminResponseDate;
 }
