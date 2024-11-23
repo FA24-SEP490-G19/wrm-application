@@ -20,5 +20,5 @@ public interface IWarehouseService {
 
     Page<WarehouseResponse> getWarehouseByKeyword(String address, PageRequest pageRequest);
 
-
+    Page<WarehouseResponse> getWarehouseByCriteria(String keyword, Float minSize, Float maxSize, String status, PageRequest pageRequest);
 }

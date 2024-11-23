@@ -31,13 +31,16 @@ public class WarehouseController {
     public ResponseEntity<ResponseObject> getAllWarehouses(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
-            @RequestParam(value = "keyword", required = false) String keyword) {
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "minSize", required = false) Float minSize,
+            @RequestParam(value = "maxSize", required = false) Float maxSize,
+            @RequestParam(value = "status", required = false) String status) {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("createdDate").descending());
         Page<WarehouseResponse> warehousePage;
-        if (keyword != null && !keyword.isEmpty()) {
-            warehousePage = warehouseService.getWarehouseByKeyword(keyword, pageRequest);
+        if ((keyword != null && !keyword.isEmpty()) || minSize != null || maxSize != null || (status != null && !status.isEmpty())){
+            warehousePage = warehouseService.getWarehouseByCriteria(keyword, minSize, maxSize, status, pageRequest);
         } else {
             warehousePage = warehouseService.getAllWarehouses(pageRequest);
         }

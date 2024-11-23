@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -210,5 +211,40 @@ public class WarehouseService implements IWarehouseService {
                     .build();
             return warehouseResponse;
         });
+    }
+
+    public Page<WarehouseResponse> getWarehouseByCriteria(String keyword, Float minSize, Float maxSize, String status, PageRequest pageRequest) {
+        Specification<Warehouse> spec = Specification.where(null);
+
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.or(
+                            criteriaBuilder.like(root.get("name"), "%" + keyword + "%"),
+                            criteriaBuilder.like(root.get("address"), "%" + keyword + "%")
+                    )
+            );
+        }
+
+        if (minSize != null && maxSize != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.between(root.get("size"), minSize, maxSize)
+            );
+        }
+
+        if (status != null && !status.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("status"), status)
+            );
+        }
+
+        Page<Warehouse> warehouses = warehouseRepository.findAll(spec, pageRequest);
+
+        return warehouses.map(warehouse -> WarehouseResponse.builder()
+                .id(warehouse.getId())
+                .name(warehouse.getName())
+                .address(warehouse.getAddress())
+                .size(warehouse.getSize())
+                .status(warehouse.getStatus())
+                .build());
     }
 }
