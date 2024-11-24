@@ -5,10 +5,11 @@ import {
     BarChart2, MessageSquare, Calendar, Settings,
     Home, UserPlus, FileText, Bell, ChevronDown,
     Layout, Package, CheckCircle, Phone, Mail,
-    Plus, Filter, MoreHorizontal, ArrowRight, X
+    Plus, Filter, MoreHorizontal, ArrowRight, X, ArrowLeft
 } from 'lucide-react';
 import {useAuth} from "../../context/AuthContext.jsx";
 import logo from "../../assets/logo.png";
+import {useNavigate} from "react-router-dom";
 
 // Layout Component
 const CRMLayout = ({ children }) => {
@@ -16,6 +17,7 @@ const CRMLayout = ({ children }) => {
     const location = useLocation();
     const { logOut } = useAuth();
     const { customer } = useAuth();
+    const navigate = useNavigate();
 
     const navigation = [
         // { name: 'Dashboard', icon: Home, path: '/dashboard', roles: ['ROLE_ADMIN', 'MANAGER'] },
@@ -24,9 +26,10 @@ const CRMLayout = ({ children }) => {
         { name: 'Quản lí lot', icon: Package, path: '/lot', roles: ['ROLE_ADMIN',"ROLE_MANAGER"] },
         { name: 'Thời gian cho thuê', icon: Package, path: '/contract', roles: ['ROLE_ADMIN','ROLE_SALES','ROLE_USER'] },
         { name: 'Quản lí cho thuê', icon: Package, path: '/rental', roles: ['ROLE_ADMIN','ROLE_SALES'] },
+        { name: 'Chi tiết cho thuê', icon: Package, path: '/rental_detail', roles: ['ROLE_MANAGER'] },
         { name: 'Quản lí yêu cầu', icon: Package, path: '/request', roles: ['ROLE_ADMIN','ROLE_SALES',"ROLE_MANAGER"] },
+        { name: 'Quản lí phản hồi', icon: Package, path: '/feedback', roles: ['ROLE_ADMIN'] },
         { name: 'Quản lí người dùng', icon: Users, path: '/user', roles: ['ROLE_ADMIN'] },
-
 
 
     ];
@@ -101,13 +104,39 @@ const CRMLayout = ({ children }) => {
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Bar */}
                 <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-
-                    <div className="flex items-end space-x-4">
+                    <div className="text-left flex items-center space-x-2">
+                        {/* Optional content on the left */}
                         <button
-                            onClick={logOut}
-                            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
-                            Đăng xuất
+                            onClick={() => navigate('/home')}
+                            className="flex items-center text-gray-600 hover:text-indigo-600 transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5 mr-2"/>
+                            Quay về trang home
                         </button>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                        <div>
+                            <button
+                                onClick={() => navigate('/profileNotUser')}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
+                                👨‍💼Thông tin cá nhân
+                            </button>
+                        </div>
+                        <div>
+                            <button
+                                onClick={() => navigate('/resetForNotUser')}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
+                                🔄️Đổi mật khẩu
+                            </button>
+                        </div>
+                        <div>
+                            <button
+                                onClick={logOut}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-900 transition">
+                                🔙Đăng xuất
+                            </button>
+                        </div>
+
                     </div>
                 </header>
 
@@ -120,4 +149,4 @@ const CRMLayout = ({ children }) => {
     );
 };
 
-export  default  CRMLayout;
+export default CRMLayout;

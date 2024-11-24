@@ -18,7 +18,13 @@ const CustomerList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedUser, setSelectedUser] = useState(null);
+// Add pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5; // Number of items per page
 
+    // Calculate pagination values
+    const lastItemIndex = currentPage * itemsPerPage;
+    const firstItemIndex = lastItemIndex - itemsPerPage;
     useEffect(() => {
         fetchCustomers();
     }, []);
@@ -30,12 +36,46 @@ const CustomerList = () => {
             setCustomers(response.data);
             setError(null);
         } catch (err) {
-            setError('Không thể tải danh sách người dùng');
-            showToast?.('Không thể tải danh sách người dùng', 'error');
+            setError(err.response.data);
+            showToast?.(err.response.data);
             console.error('Lỗi khi tải danh sách người dùng:', err);
         } finally {
             setLoading(false);
         }
+    };
+
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisiblePages = 5; // Maximum number of visible page buttons
+
+        if (totalPages <= maxVisiblePages) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) {
+                    pages.push(i);
+                }
+                pages.push('...');
+                pages.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1);
+                pages.push('...');
+                for (let i = totalPages - 3; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                pages.push(1);
+                pages.push('...');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pages.push(i);
+                }
+                pages.push('...');
+                pages.push(totalPages);
+            }
+        }
+        return pages;
     };
 
     const statusColors = {
@@ -67,7 +107,7 @@ const CustomerList = () => {
                 showToast('Xóa người dùng thành công', 'success');
                 fetchCustomers();
             } catch (error) {
-                showToast('Xóa người dùng thất bại', 'error');
+                showToast(err.response.data);
             }
         }
     };
@@ -84,7 +124,7 @@ const CustomerList = () => {
             setIsModalOpen(false);
             fetchCustomers();
         } catch (error) {
-            showToast(`Thao tác thất bại: ${error.message}`, 'error');
+            showToast(err.response.data);
         }
     };
 
@@ -97,7 +137,8 @@ const CustomerList = () => {
 
         return matchesSearch && matchesStatus;
     });
-
+    const currentItems = filteredCustomers.slice(firstItemIndex, lastItemIndex);
+    const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -159,7 +200,7 @@ const CustomerList = () => {
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                        {filteredCustomers.map((customer) => (
+                        {currentItems.map((customer) => (
                             <tr key={customer.email} className="hover:bg-gray-50">
                                 <td className="px-6 py-4">
                                     <div>
@@ -215,16 +256,54 @@ const CustomerList = () => {
                 </div>
 
                 <div className="px-6 py-4 border-t border-gray-200">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
-                            Hiển thị {filteredCustomers.length} người dùng
+                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredCustomers.length)}
+                            trong tổng số {filteredCustomers.length} người dùng
                         </div>
-                        <div className="flex gap-2">
-                            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                Trang trước
+
+                        <div className="flex items-center gap-2">
+                            {/* Previous button */}
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                                    ${currentPage === 1
+                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                            >
+                                Trước
                             </button>
-                            <button className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                Trang sau
+
+                            {/* Page numbers */}
+                            <div className="hidden sm:flex items-center gap-2">
+                                {getPageNumbers().map((page, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => page !== '...' && setCurrentPage(page)}
+                                        disabled={page === '...'}
+                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                                            ${page === currentPage
+                                            ? 'bg-indigo-600 text-white'
+                                            : page === '...'
+                                                ? 'text-gray-400 cursor-default'
+                                                : 'hover:bg-gray-50 text-gray-700'}`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Next button */}
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                                    ${currentPage === totalPages
+                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                            >
+                                Sau
                             </button>
                         </div>
                     </div>
@@ -244,7 +323,7 @@ const CustomerList = () => {
 
 const CustomersPage = () => (
     <CRMLayout>
-        <CustomerList />
+        <CustomerList/>
     </CRMLayout>
 );
 

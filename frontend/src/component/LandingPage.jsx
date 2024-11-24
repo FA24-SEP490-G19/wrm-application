@@ -126,9 +126,7 @@ const WarehouseLandingPage = () => {
                                         </li>
                                     ))}
                                 </ul>
-                                <button className="w-full bg-yellow-400 text-blue-900 px-6 py-3 rounded-full font-semibold hover:bg-yellow-300 transition duration-300 transform hover:scale-105">
-                                    Chọn gói
-                                </button>
+
                             </div>
                         ))}
                     </div>
@@ -137,11 +135,7 @@ const WarehouseLandingPage = () => {
                 <section className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl p-12 text-center shadow-xl animate-on-scroll mb-24">
                     <h2 className="text-4xl font-bold text-white mb-6">Sẵn sàng tối ưu hóa việc lưu trữ?</h2>
                     <p className="text-xl text-gray-100 mb-10">Liên hệ ngay để nhận tư vấn miễn phí!</p>
-                    <a href="#"
-                       className="inline-flex items-center bg-white text-purple-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-purple-600 hover:text-white transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                        Đặt lịch tư vấn
-                        <ChevronRight className="ml-2" size={20}/>
-                    </a>
+
                 </section>
             </main>
 

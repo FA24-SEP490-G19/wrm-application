@@ -140,6 +140,7 @@ public class UserService implements IUserService {
     public void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+
         if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
             throw new InvalidParamException("Old password is incorrect");
         }
@@ -275,6 +276,9 @@ public class UserService implements IUserService {
             return null; // Or throw a custom exception if you prefer
         }
         // Update fields only if provided in the DTO
+        if (updatedUserDTO.getEmail() != null) {
+            user.setEmail(updatedUserDTO.getEmail());
+        }
         if (updatedUserDTO.getFullName() != null) {
             user.setFullName(updatedUserDTO.getFullName());
         }

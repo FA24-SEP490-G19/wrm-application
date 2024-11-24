@@ -38,14 +38,9 @@ const RegisterPage = () => {
                 navigate('/login');
             }, 3000);
         } catch (err) {
-            if (err.response) {
-                setError(err.response.data.message || 'Đăng ký thất bại');
-            } else if (err.request) {
-                setError('Máy chủ không có phản hồi, vui lòng thử lại');
-            } else {
-                setError('Có lỗi xảy ra, vui lòng thử lại');
-            }
-            console.error('Registration error:', err);
+
+            setError(err.response.data);
+
         } finally {
             setIsLoading(false);
         }

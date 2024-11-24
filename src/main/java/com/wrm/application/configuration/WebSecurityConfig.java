@@ -37,9 +37,11 @@ public class WebSecurityConfig {
                             .permitAll()
                             .requestMatchers(GET,
                                     "/warehouses").permitAll()
-                            .requestMatchers("/v2/payment-requests").permitAll()  // Explicitly permit payment endpoint
+                            .requestMatchers(POST, "/warehouses/payment-requests").permitAll()
                             .requestMatchers(GET,
                                     "/warehouses/**").permitAll()
+                            .requestMatchers(POST,
+                            "/warehouses/**").permitAll()
                             .requestMatchers(GET,
                                     "/lots/{lotId}").permitAll()
                             .requestMatchers(GET,

@@ -20,6 +20,12 @@ public class FeedbackController {
 
     private final IFeedbackService feedbackService;
 
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<Feedback> getAllFeedBack() {
+        return feedbackService.getAllFeedBack();
+    }
+
     @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> addFeedback(@RequestBody FeedbackDTO feedbackDTO, HttpServletRequest req) {
@@ -38,8 +44,10 @@ public class FeedbackController {
         return feedbackService.getFeedbackByWarehouse(warehouseId);
     }
 
-    @GetMapping("/customer/{customerId}")
-    public List<Feedback> getFeedbackByCustomer(@PathVariable Long customerId) {
-        return feedbackService.getFeedbackByCustomer(customerId);
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping("/customer")
+    public List<Feedback> getFeedbackByCustomer(HttpServletRequest req) {
+        return feedbackService.getFeedbackByCustomer(req.getRemoteUser());
     }
 }

@@ -2,7 +2,6 @@ package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.RentalDetailStatus;
 import com.wrm.application.constant.enums.RentalStatus;
-import com.wrm.application.dto.contract.ContractDTO;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.dto.RentalDetailDTO;
 import com.wrm.application.exception.DataNotFoundException;
@@ -206,9 +205,11 @@ public class RentalService implements IRentalService {
         rentalRepository.save(rental);
     }
 
+
+
     @Override
-    public Page<RentalResponse> getByCustomerId(Long customerId, PageRequest pageRequest) throws Exception {
-        User customer = userRepository.findById(customerId)
+    public Page<RentalResponse> getByCustomerId(String customerId, PageRequest pageRequest) throws Exception {
+        User customer = userRepository.findByEmail(customerId)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
         return rentalRepository.findByCustomerId(customer.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()

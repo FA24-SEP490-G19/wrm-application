@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.payos.type.CheckoutResponseData;
 
 @RestController
-@RequestMapping("/v2")  // This is the correct way
+@RequestMapping("/warehouses")  // This is the correct way
 public class PaymentController {
     private final PayOSPaymentService payOSPaymentService;
 

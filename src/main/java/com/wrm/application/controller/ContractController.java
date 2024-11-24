@@ -25,7 +25,7 @@ public class ContractController {
     private final IContractService contractService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getAllContracts() {
         try {
             String remoteUser = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -39,7 +39,7 @@ public class ContractController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> getContractDetailsById(@PathVariable Long id) {
         try {
             String remoteUser = SecurityContextHolder.getContext().getAuthentication().getName();

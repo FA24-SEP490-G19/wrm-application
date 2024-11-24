@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.PaymentData;
+
 @Service
 public class PayOSPaymentService {
     public CheckoutResponseData createPaymentRequest(QrRequest qrRequest) throws Exception {
@@ -14,8 +15,6 @@ public class PayOSPaymentService {
                 .amount(qrRequest.getAmount())
                 .description(qrRequest.getDescription())
                 .cancelUrl(qrRequest.getCancelUrl())
-                .returnUrl(qrRequest.getCancelUrl())
-                .expiredAt(qrRequest.getExpiredAt())
                 .build();
 
         return payOS.createPaymentLink(paymentData) ;

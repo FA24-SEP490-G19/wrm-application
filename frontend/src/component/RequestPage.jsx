@@ -35,12 +35,11 @@ const RequestList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedRequest, setSelectedRequest] = useState(null);
+    const [totalPages, setTotalPages] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
     const { customer } = useAuth();
     const isAdmin = customer.role === "ROLE_ADMIN";
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 6;
-    const lastItemIndex = currentPage * itemsPerPage;
-    const firstItemIndex = lastItemIndex - itemsPerPage;
+
     useEffect(() => {
         fetchRequests();
     }, [currentPage, isAdmin]);
@@ -49,16 +48,17 @@ const RequestList = () => {
         try {
             setLoading(true);
             const response = isAdmin ?
-                await getAllRequests() :
-                await getMyRequests();
+                await getAllRequests(currentPage, 10) :
+                await getMyRequests(currentPage, 10);
 
             setRequests(response.requests || []);
+            setTotalPages(response.totalPages);
             setError(null);
         } catch (err) {
-            setError(err.response.data);
-            showToast(err.response.data);
+            setError('Không thể tải danh sách yêu cầu');
+            showToast('Tải danh sách yêu cầu thất bại', 'error');
             setRequests([]);
-
+            setTotalPages(0);
         } finally {
             setLoading(false);
         }
@@ -68,39 +68,6 @@ const RequestList = () => {
         setModalMode('create');
         setSelectedRequest(null);
         setIsModalOpen(true);
-    };
-    const getPageNumbers = () => {
-        const pages = [];
-        const maxVisiblePages = 5; // Maximum number of visible page buttons
-
-        if (totalPages <= maxVisiblePages) {
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i);
-            }
-        } else {
-            if (currentPage <= 3) {
-                for (let i = 1; i <= 4; i++) {
-                    pages.push(i);
-                }
-                pages.push('...');
-                pages.push(totalPages);
-            } else if (currentPage >= totalPages - 2) {
-                pages.push(1);
-                pages.push('...');
-                for (let i = totalPages - 3; i <= totalPages; i++) {
-                    pages.push(i);
-                }
-            } else {
-                pages.push(1);
-                pages.push('...');
-                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-                    pages.push(i);
-                }
-                pages.push('...');
-                pages.push(totalPages);
-            }
-        }
-        return pages;
     };
 
     const handleEditRequest = (request) => {
@@ -182,9 +149,6 @@ const RequestList = () => {
                 );
     });
 
-    const currentItems = filteredRequests.slice(firstItemIndex, lastItemIndex);
-    const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -255,8 +219,7 @@ const RequestList = () => {
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                        {currentItems
-                            .map((request) => (
+                        {filteredRequests.map((request) => (
                             <tr key={request.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {request.id}
@@ -323,60 +286,29 @@ const RequestList = () => {
                     </table>
                 </div>
 
-                <div className="bg-white px-4 py-3 border-t border-gray-200">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="text-sm text-gray-500">
-                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredRequests.length)}
-                            trong tổng số {filteredRequests.length} yêu cầu
+                <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                    <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-700">
+                            Hiển thị {requests.length} yêu cầu
                         </div>
-
-                        <div className="flex items-center gap-2">
-                            {/* Previous button */}
+                        <div className="flex space-x-2">
                             <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
-                    ${currentPage === 1
-                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                                onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                                disabled={currentPage === 0}
+                                className={`px-4 py-2 border rounded-md text-sm font-medium
+                                    ${currentPage === 0
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                             >
                                 Trước
                             </button>
-
-                            {/* Page numbers */}
-                            <div className="hidden sm:flex items-center gap-2">
-                                {getPageNumbers().map((page, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => page !== '...' && setCurrentPage(page)}
-                                        disabled={page === '...'}
-                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                            ${page === currentPage
-                                            ? 'bg-indigo-600 text-white'
-                                            : page === '...'
-                                                ? 'text-gray-400 cursor-default'
-                                                : 'hover:bg-gray-50 text-gray-700'}`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Mobile current page indicator */}
-                            <span className="sm:hidden text-sm text-gray-700">
-                Trang {currentPage} / {Math.ceil(filteredRequests.length / itemsPerPage)}
-            </span>
-
-                            {/* Next button */}
                             <button
-                                onClick={() => setCurrentPage(prev =>
-                                    Math.min(prev + 1, Math.ceil(filteredRequests.length / itemsPerPage))
-                                )}
-                                disabled={currentPage === Math.ceil(filteredRequests.length / itemsPerPage)}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
-                    ${currentPage === Math.ceil(filteredRequests.length / itemsPerPage)
-                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                disabled={currentPage >= totalPages - 1}
+                                className={`px-4 py-2 border rounded-md text-sm font-medium
+                                    ${currentPage >= totalPages - 1
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                             >
                                 Sau
                             </button>

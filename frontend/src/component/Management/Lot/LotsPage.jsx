@@ -21,14 +21,18 @@ const LotList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedLot, setSelectedLot] = useState(null);
-    const [totalPages, setTotalPages] = useState(0);
     const [customersData, setCustomersData] = useState({});
     const [warehousesData, setWarehousesData] = useState({});
     const [loadingRelatedData, setLoadingRelatedData] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5; // Number of items per page
+
+    // Calculate pagination values
+    const lastItemIndex = currentPage * itemsPerPage;
+    const firstItemIndex = lastItemIndex - itemsPerPage;
     useEffect(() => {
         fetchLots();
-        fetchRelatedData() ;
-    }, []);
+    }, [currentPage]); // Add currentPage as dependency
     useEffect(() => {
         if (lots.length > 0) {
             fetchRelatedData();
@@ -37,6 +41,39 @@ const LotList = () => {
 
 
     const { customer } = useAuth();
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisiblePages = 5; // Maximum number of visible page buttons
+
+        if (totalPages <= maxVisiblePages) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) {
+                    pages.push(i);
+                }
+                pages.push('...');
+                pages.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1);
+                pages.push('...');
+                for (let i = totalPages - 3; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                pages.push(1);
+                pages.push('...');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pages.push(i);
+                }
+                pages.push('...');
+                pages.push(totalPages);
+            }
+        }
+        return pages;
+    };
 
     const fetchRelatedData = async () => {
         setLoadingRelatedData(true);
@@ -62,11 +99,10 @@ const LotList = () => {
             setLoading(true);
             const response = await getAllLots();
             setLots(response.data.lots);
-            setTotalPages(response.data.totalPages);
             setError(null);
         } catch (err) {
-            setError('Không thể tải dữ liệu lô hàng');
-            showToast?.('Không thể tải dữ liệu lô hàng', 'error');
+            setError(err.response.data);
+            showToast?.(err.response.data);
         } finally {
             setLoading(false);
         }
@@ -137,7 +173,8 @@ const LotList = () => {
             LOT_STATUS_CONFIG[lot.status]?.label.toLowerCase().includes(searchLower)
         );
     });
-
+    const currentItems = filteredLots.slice(firstItemIndex, lastItemIndex);
+    const totalPages = Math.ceil(filteredLots.length / itemsPerPage);
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -221,7 +258,7 @@ const LotList = () => {
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                        {filteredLots.map((lot) => (
+                        {currentItems.map((lot) => (
                             <tr key={lot.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4">
                                     <div className="font-medium text-gray-900">{lot.description}</div>
@@ -289,9 +326,57 @@ const LotList = () => {
 
                 {/* Pagination */}
                 <div className="px-6 py-4 border-t border-gray-200">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
-                            Hiển thị {filteredLots.length} lô hàng
+                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredLots.length)}
+                            trong tổng số {filteredLots.length} lô hàng
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {/* Previous button */}
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                    ${currentPage === 1
+                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                            >
+                                Trước
+                            </button>
+
+                            {/* Page numbers */}
+                            <div className="hidden sm:flex items-center gap-2">
+                                {getPageNumbers().map((page, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => page !== '...' && setCurrentPage(page)}
+                                        disabled={page === '...'}
+                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                            ${page === currentPage
+                                            ? 'bg-indigo-600 text-white'
+                                            : page === '...'
+                                                ? 'text-gray-400 cursor-default'
+                                                : 'hover:bg-gray-50 text-gray-700'}`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Next button */}
+                            <button
+                                onClick={() => setCurrentPage(prev =>
+                                    Math.min(prev + 1, Math.ceil(filteredLots.length / itemsPerPage))
+                                )}
+                                disabled={currentPage === Math.ceil(filteredLots.length / itemsPerPage)}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                    ${currentPage === Math.ceil(filteredLots.length / itemsPerPage)
+                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                            >
+                                Sau
+                            </button>
                         </div>
                     </div>
                 </div>

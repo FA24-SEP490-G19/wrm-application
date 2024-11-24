@@ -8,6 +8,7 @@ import com.wrm.application.repository.FeedbackRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.service.IFeedbackService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -47,8 +48,15 @@ public class FeedbackService implements IFeedbackService {
         return feedbackRepository.findByWarehouseId(warehouseId);
     }
 
+
+
     @Override
-    public List<Feedback> getFeedbackByCustomer(Long customerId) {
-        return feedbackRepository.findByCustomerId(customerId);
+    public List<Feedback> getAllFeedBack() {
+        return feedbackRepository.findAll();   }
+
+    @Override
+    public List<Feedback> getFeedbackByCustomer(String req) {
+        User user = userRepository.findByEmail(req).orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+        return feedbackRepository.findByCustomerId(user.getId());
     }
 }

@@ -25,8 +25,6 @@ const AppointmentList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedItem, setSelectedItem] = useState(null);
-    const [totalPages, setTotalPages] = useState(0);
-    const [currentPage, setCurrentPage] = useState(0);
     const [saleData, setSaleData] = useState({});
     const [customersData, setCustomersData] = useState({});
     const [warehousesData, setWarehousesData] = useState({});
@@ -34,7 +32,13 @@ const AppointmentList = () => {
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
     const { customer } = useAuth();
+    // Add pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5; // Number of items per page
 
+    // Calculate pagination values
+    const lastItemIndex = currentPage * itemsPerPage;
+    const firstItemIndex = lastItemIndex - itemsPerPage;
     useEffect(() => {
         fetchItems();
     }, [currentPage]);
@@ -44,7 +48,39 @@ const AppointmentList = () => {
             fetchRelatedData();
         }
     }, [items]);
+    const getPageNumbers = () => {
+        const pages = [];
+        const maxVisiblePages = 5; // Maximum number of visible page buttons
 
+        if (totalPages <= maxVisiblePages) {
+            for (let i = 1; i <= totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 4; i++) {
+                    pages.push(i);
+                }
+                pages.push('...');
+                pages.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1);
+                pages.push('...');
+                for (let i = totalPages - 3; i <= totalPages; i++) {
+                    pages.push(i);
+                }
+            } else {
+                pages.push(1);
+                pages.push('...');
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pages.push(i);
+                }
+                pages.push('...');
+                pages.push(totalPages);
+            }
+        }
+        return pages;
+    };
     const fetchRelatedData = async () => {
         setLoadingRelatedData(true);
         try {
@@ -101,7 +137,7 @@ const AppointmentList = () => {
 
     const fetchItems = async () => {
         try {
-            let response ;
+            let response;
             const token = localStorage.getItem("access_token");
             const decodedToken = jwtDecode(token);
 
@@ -111,19 +147,20 @@ const AppointmentList = () => {
                 showToast('Không có quyền truy cập', 'error');
                 return;
             }
-            if(decodedToken.roles === "ROLE_ADMIN") {
-                 response = await getAllItems(currentPage);
-            }else{
-                 response = await getAppointmentBySale(currentPage);
 
+            // Update API calls to include pagination parameters
+            if(decodedToken.roles === "ROLE_ADMIN") {
+                response = await getAllItems(currentPage - 1, itemsPerPage); // Adjust page index for backend
+            } else {
+                response = await getAppointmentBySale(currentPage - 1, itemsPerPage);
             }
-            const { appointments, totalPages } = response.data;
+
+            const { appointments, totalPages: totalPagesFromServer, totalItems } = response.data;
             setItems(appointments || []);
-            setTotalPages(totalPages);
             setError(null);
         } catch (err) {
-            setError('Không thể tải danh sách cuộc hẹn');
-            showToast('Tải danh sách cuộc hẹn thất bại', 'error');
+            setError(err.response.data);
+            showToast(err.response.data);
             setItems([]);
             setTotalPages(0);
         } finally {
@@ -203,6 +240,8 @@ const AppointmentList = () => {
                 );
     });
 
+    const currentItems = filteredItems.slice(firstItemIndex, lastItemIndex);
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -301,7 +340,7 @@ const AppointmentList = () => {
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredItems.map((item) => (
+                        {currentItems.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {item.id}
@@ -407,29 +446,53 @@ const AppointmentList = () => {
                     </table>
                 </div>
 
-                <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-                    <div className="flex justify-between items-center">
-                        <div className="text-sm text-gray-700">
-                            Hiển thị {items.length} cuộc hẹn
+                <div className="px-6 py-4 border-t border-gray-200">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="text-sm text-gray-500">
+                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, items.length)}
+                            trong tổng số {items.length} cuộc hẹn
                         </div>
-                        <div className="flex space-x-2">
+
+                        <div className="flex items-center gap-2">
+                            {/* Previous button */}
                             <button
-                                onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-                                disabled={currentPage === 0}
-                                className={`px-4 py-2 border rounded-md text-sm font-medium
-                                    ${currentPage === 0
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                    ${currentPage === 1
+                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                             >
                                 Trước
                             </button>
+
+                            {/* Page numbers */}
+                            <div className="hidden sm:flex items-center gap-2">
+                                {getPageNumbers().map((page, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => page !== '...' && setCurrentPage(page)}
+                                        disabled={page === '...'}
+                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                            ${page === currentPage
+                                            ? 'bg-indigo-600 text-white'
+                                            : page === '...'
+                                                ? 'text-gray-400 cursor-default'
+                                                : 'hover:bg-gray-50 text-gray-700'}`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Next button */}
                             <button
-                                onClick={() => setCurrentPage(prev => prev + 1)}
-                                disabled={currentPage >= totalPages - 1}
-                                className={`px-4 py-2 border rounded-md text-sm font-medium
-                                    ${currentPage >= totalPages - 1
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                    ${currentPage === totalPages
+                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
                             >
                                 Sau
                             </button>
@@ -458,7 +521,7 @@ const AppointmentList = () => {
 
 const AppointmentPage = () => (
     <CRMLayout>
-        <AppointmentList />
+        <AppointmentList/>
     </CRMLayout>
 );
 

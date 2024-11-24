@@ -62,7 +62,8 @@ public class ContractService implements IContractService {
                 .lotDescription(lot.getDescription())
                 .additionalService(rentalDetail.getAdditionalService().getName());
 
-        if ("ADMIN".equals(currentUser.getRole().getRoleName()) || "SALES".equals(currentUser.getRole().getRoleName())) {
+        if ("ADMIN".equals(currentUser.getRole().getRoleName()) || "SALES".equals(currentUser.getRole().getRoleName()) ||
+                "MANAGER".equals(currentUser.getRole().getRoleName())) {
             responseBuilder
                     .customerFullName(customer.getFullName())
                     .customerPhoneNumber(customer.getPhoneNumber())
