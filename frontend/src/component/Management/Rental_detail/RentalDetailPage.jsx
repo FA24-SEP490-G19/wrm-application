@@ -161,8 +161,8 @@ const RentalDetailList = () => {
 
     const statusTranslations = {
         'PENDING': 'Đang chờ',
-        'COMPLETED': 'Đã duyệt',
-        'ACTIVE': 'Hoàn thành'
+        'COMPLETED': 'Đã thuê xong',
+        'ACTIVE': 'Đang thuê'
     };
 
     const filteredRentals = rentalDetail.filter(rentalDetail => {
@@ -235,7 +235,7 @@ const RentalDetailList = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Ngày sửa đổi
                             </th>
-                            {customer.role === "ROLE_ADMIN" ? (
+                            {customer.role === "ROLE_ADMIN" || customer.role === "ROLE_MANAGER"  ? (
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Thao tác
                                 </th>
@@ -330,17 +330,12 @@ const RentalDetailList = () => {
                                         {customer.role === "ROLE_MANAGER" && rental.status === 'PENDING' && (
                                             <>
                                                 <button
-                                                    onClick={() => handleStatusChange(rental.id, 'COMPLETED')}
+                                                    onClick={() => handleStatusChange(rental.id, 'ACTIVE')}
                                                     className="text-green-600 hover:text-green-900"
                                                 >
                                                     Duyệt
                                                 </button>
-                                                <button
-                                                    onClick={() => handleStatusChange(rental.id, 'ACTIVE')}
-                                                    className="text-red-600 hover:text-red-900"
-                                                >
-                                                    Từ chối
-                                                </button>
+
                                             </>
                                         )}
 

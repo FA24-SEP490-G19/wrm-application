@@ -153,6 +153,8 @@ const WarehouseRental = () => {
 
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center space-x-4">
+
+
                             {customer?.role !== "ROLE_USER" && (
                                 <a
                                     href="/kho"

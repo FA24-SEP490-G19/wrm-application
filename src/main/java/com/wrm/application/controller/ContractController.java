@@ -25,7 +25,7 @@ public class ContractController {
     private final IContractService contractService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
     public ResponseEntity<?> getAllContracts() {
         try {
             String remoteUser = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -37,6 +37,23 @@ public class ContractController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    @GetMapping("/sales")
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<?> getAllContractsBySale() {
+        try {
+            String remoteUser = SecurityContextHolder.getContext().getAuthentication().getName();
+            List<ContractDetailResponse> contracts = contractService.getAllContractDetails(remoteUser);
+            return ResponseEntity.ok(contracts);
+        } catch (DataNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER') or hasRole('ROLE_MANAGER')")

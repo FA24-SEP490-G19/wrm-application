@@ -111,7 +111,7 @@ public class RentalController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') ")
     public ResponseEntity<?> updateRentalStatus(@PathVariable Long id, @Valid @RequestBody RentalDTO rentalDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {

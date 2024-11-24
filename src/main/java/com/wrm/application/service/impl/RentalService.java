@@ -119,10 +119,10 @@ public class RentalService implements IRentalService {
 
             Contract contract = contractRepository.findById(rentalDetailDTO.getContractId())
                     .orElseThrow(() -> new DataNotFoundException("Contract not found"));
-            if (!rentalDetailDTO.getStartDate().toLocalDate().equals(contract.getSignedDate().toLocalDate()) ||
-                    !rentalDetailDTO.getEndDate().toLocalDate().equals(contract.getExpiryDate().toLocalDate())) {
-                throw new DataIntegrityViolationException("Rental dates must match the contract dates");
-            }
+//            if (!rentalDetailDTO.getStartDate().toLocalDate().equals(contract.getSignedDate().toLocalDate()) ||
+//                    !rentalDetailDTO.getEndDate().toLocalDate().equals(contract.getExpiryDate().toLocalDate())) {
+//                throw new DataIntegrityViolationException("Rental dates must match the contract dates");
+//            }
 
             AdditionalService additionalService = additionalServiceRepository.findById(rentalDetailDTO.getAdditionalServiceId())
                     .orElseThrow(() -> new DataNotFoundException("Additional service not found"));
@@ -138,8 +138,8 @@ public class RentalService implements IRentalService {
 
             RentalDetail rentalDetail = RentalDetail.builder()
                     .rental(newRental)
-                    .startDate(rentalDetailDTO.getStartDate())
-                    .endDate(rentalDetailDTO.getEndDate())
+                    .startDate(contract.getSignedDate())
+                    .endDate(contract.getExpiryDate())
                     .status(RentalDetailStatus.PENDING)
                     .contract(contract)
                     .additionalService(additionalService)

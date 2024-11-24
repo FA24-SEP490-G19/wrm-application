@@ -61,7 +61,7 @@ const WarehouseLandingPage = () => {
                     <p className="text-xl text-gray-100 mb-12 max-w-2xl mx-auto">
                         KhoLưuTrữVN mang đến dịch vụ cho thuê kho bãi hiện đại, an toàn và linh hoạt.
                     </p>
-                    <a href="/register"
+                    <a href="/home"
                        className="inline-flex items-center bg-white text-blue-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-600 hover:text-white transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                         Khám phá ngay
                         <ChevronRight className="ml-2" size={20}/>
