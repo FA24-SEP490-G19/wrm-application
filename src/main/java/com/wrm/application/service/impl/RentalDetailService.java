@@ -2,7 +2,6 @@ package com.wrm.application.service.impl;
 
 import com.wrm.application.dto.RentalDetailDTO;
 import com.wrm.application.exception.DataNotFoundException;
-import com.wrm.application.model.Rental;
 import com.wrm.application.model.RentalDetail;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
