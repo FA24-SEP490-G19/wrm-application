@@ -35,4 +35,7 @@ public class Warehouse extends BaseModel{
     @OneToOne
     @JoinColumn(name = "warehouse_manager_id")
     private User warehouseManager;
+
+    @Column(name = "thumbnail")
+    private String thumbnail;
 }

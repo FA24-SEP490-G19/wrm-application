@@ -41,4 +41,7 @@ public class WarehouseDTO {
 
     @Size(max = 5, message = "Maximum of 5 images allowed")
     private List<String> images;
+
+    @JsonProperty("thumbnail")
+    private String thumbnail;
 }

@@ -12,6 +12,7 @@ import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.IWarehouseService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -79,6 +80,7 @@ public class WarehouseService implements IWarehouseService {
     }
 
     @Override
+    @Transactional
     public WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) throws Exception {
 
         if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
@@ -103,6 +105,12 @@ public class WarehouseService implements IWarehouseService {
             throw new DataIntegrityViolationException("Warehouse manager is already in charge of another warehouse");
         }
 
+        String thumbnailFileName = null;
+        if (warehouseDTO.getThumbnail() != null && !warehouseDTO.getThumbnail().isEmpty()) {
+            byte[] thumbnailBytes = Base64.getDecoder().decode(warehouseDTO.getThumbnail());
+            thumbnailFileName = saveImageToFileSystem(thumbnailBytes); // Lưu ảnh và lấy đường dẫn
+        }
+
         Warehouse newWarehouse = Warehouse.builder()
                 .name(warehouseDTO.getName())
                 .address(warehouseDTO.getAddress())
@@ -110,6 +118,7 @@ public class WarehouseService implements IWarehouseService {
                 .description(warehouseDTO.getDescription())
                 .status(WarehouseStatus.ACTIVE)
                 .warehouseManager(warehouseManager)
+                .thumbnail(thumbnailFileName)
                 .build();
 
         warehouseRepository.save(newWarehouse);
