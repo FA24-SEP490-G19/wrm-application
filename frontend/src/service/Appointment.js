@@ -52,6 +52,18 @@ export const deleteItem = async (id) => {
     }
 };
 
+export const getMyAppointment = async () => {
+    try {
+        const response = await axios.get(
+            `http://localhost:8080/appointments/my-appointments?page=0&limit=15`,
+            getAuthConfig()
+        );
+        return response.data;
+    } catch (e) {
+        throw e;
+    }
+};
+
 export const getUserById = async (id) => {
     try {
         const response = await axios.get(

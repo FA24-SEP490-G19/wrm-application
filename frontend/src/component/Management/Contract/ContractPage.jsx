@@ -60,9 +60,9 @@ const ContractList = () => {
             setError(null);
         } catch (err) {
             console.error('Error fetching contracts:', err);
-            setError('Không thể tải dữ liệu hợp đồng');
+            setError(err.response.data);
             setContracts([]);
-            showToast?.('Không thể tải dữ liệu hợp đồng', 'error');
+            showToast?.(err.response.data);
         } finally {
             setLoading(false);
         }

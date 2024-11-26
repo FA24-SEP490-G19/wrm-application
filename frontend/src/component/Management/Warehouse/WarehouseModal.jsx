@@ -1,6 +1,6 @@
 // AppointmentModal.jsx
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Upload, X as XIcon,Plus} from 'lucide-react';
 import {ManagerNotHaveWarehouse} from "../../../service/WareHouse.js";
 
 const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
@@ -10,14 +10,20 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         size: '',
         status: 'ACTIVE',
         description: '',
-        warehouse_manager_id: ''
+        warehouse_manager_id: '',
+        images: [] // Add images array to store base64 strings
     };
 
     const [formData, setFormData] = useState(initialFormState);
     const [errors, setErrors] = useState({});
     const [managers, setManagers] = useState([]); // State for managers
     const [loadingManagers, setLoadingManagers] = useState(false); // Loading state
-
+    const [imageFiles, setImageFiles] = useState([]); // Store image preview data
+    const [imageError, setImageError] = useState('');
+    const statusOptions = [
+        { value: 'ACTIVE', label: 'Hoạt động' },
+        { value: 'INACTIVE', label: 'Không hoạt động' }
+    ];
     // Existing useEffect for form data...
 
     // New useEffect to fetch managers
@@ -44,13 +50,42 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         fetchManagers();
     }, [isOpen, mode,warehouseData]);
 
+    const handleImageURLAdd = () => {
+        const url = prompt('Nhập URL hình ảnh:');
+        if (url) {
+            // Basic URL validation
+            try {
+                new URL(url);
+                setFormData(prev => ({
+                    ...prev,
+                    images: [...(prev.images || []), url]
+                }));
+                setImageError('');
+            } catch {
+                setImageError('URL không hợp lệ');
+            }
+        }
+    };
+
     const validateForm = () => {
         const newErrors = {};
         if (!formData.name) newErrors.name = 'Tên kho không được để trống';
         if (!formData.address) newErrors.address = 'Địa chỉ không được để trống';
         if (!formData.size || formData.size <= 0) newErrors.size = 'Kích thước phải lớn hơn 0';
         if (!formData.description) newErrors.description = 'Mô tả không được để trống';
+        if (mode === 'create' && (!formData.images || formData.images.length === 0)) {
+            newErrors.images = 'Vui lòng thêm ít nhất một hình ảnh';
+        }
         return newErrors;
+    };
+
+
+    const removeImage = (index) => {
+        setImageFiles(prev => prev.filter((_, i) => i !== index));
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
+        }));
     };
 
     const handleSubmit = (e) => {
@@ -107,7 +142,98 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                     <X className="w-6 h-6" />
                                 </button>
                             </div>
+                            {/* Image Upload Section */}
+                            <div className="mb-4 space-y-4">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Hình ảnh kho
+                                </label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="url"
+                                        placeholder="Nhập URL hình ảnh"
+                                        className={`flex-1 ${inputClasses(errors.images)}`}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const url = e.target.value.trim();
+                                                if (url) {
+                                                    try {
+                                                        new URL(url);
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            images: [...(prev.images || []), url]
+                                                        }));
+                                                        setImageError('');
+                                                        e.target.value = ''; // Clear input after adding
+                                                    } catch {
+                                                        setImageError('URL không hợp lệ');
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            const input = e.target.previousSibling;
+                                            const url = input.value.trim();
+                                            if (url) {
+                                                try {
+                                                    new URL(url);
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        images: [...(prev.images || []), url]
+                                                    }));
+                                                    setImageError('');
+                                                    input.value = ''; // Clear input after adding
+                                                } catch {
+                                                    setImageError('URL không hợp lệ');
+                                                }
+                                            }
+                                        }}
+                                        className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
+                                    >
+                                        <Plus className="w-4 h-4"/>
+                                        Thêm
+                                    </button>
+                                </div>
+                                {imageError && (
+                                    <p className="mt-1 text-sm text-red-600">{imageError}</p>
+                                )}
+                                {errors.images && (
+                                    <p className="mt-1 text-sm text-red-600">{errors.images}</p>
+                                )}
 
+                                {/* Image Previews */}
+                                {formData.images && formData.images.length > 0 && (
+                                    <div className="mt-4 grid grid-cols-2 gap-4">
+                                        {formData.images.map((url, index) => (
+                                            <div key={index} className="relative group">
+                                                <img
+                                                    src={url}
+                                                    alt={`Warehouse ${index + 1}`}
+                                                    className="h-32 w-full object-cover rounded-lg"
+                                                    onError={(e) => {
+                                                        e.target.src = '/placeholder-image.jpg';
+                                                        setImageError('Không thể tải một số hình ảnh');
+                                                    }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(index)}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg"
+                                                >
+                                                    <X className="w-4 h-4"/>
+                                                </button>
+                                                <div
+                                                    className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate rounded-b-lg">
+                                                    {url}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
@@ -200,8 +326,11 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                         onChange={handleChange}
                                         className={inputClasses(errors.status)}
                                     >
-                                        <option value="ACTIVE">Hoạt động</option>
-                                        <option value="INACTIVE">Không hoạt động</option>
+                                        {statusOptions.map(option => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 

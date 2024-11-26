@@ -10,10 +10,10 @@ const getAuthConfig = () => ({
     }
 });
 
-export const getAllRequests = async (page = 0, limit = 10) => {
+export const getAllRequests = async () => {
     try {
         const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/requests?page=${page}&limit=${limit}`,
+            `${import.meta.env.VITE_API_BASE_URL}/requests?page=0&limit=100`,
             getAuthConfig()
         );
         return response.data;

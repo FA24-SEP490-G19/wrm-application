@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import {
     User, Building2, Menu, Phone, Mail, MapPin,
-    Edit2, Save, X, Eye, EyeOff, AlertCircle, Loader
+    Edit2, Save, X, Eye, EyeOff, AlertCircle, Loader, ArrowLeft, LayoutDashboard, ChevronDown, KeyRound, LogOut
 } from 'lucide-react';
 import {useAuth} from "../context/AuthContext.jsx";
 import {getProfile, updateProfile} from "../service/Authenticate.js";
 import {Toast} from "./Shared/Toast.jsx";
 import {useToast} from "../context/ToastProvider.jsx";
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import logo from "../assets/logo.png";
 
 
@@ -22,6 +22,7 @@ const ProfileCRUD = () => {
     const [error, setError] = useState(null);
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
     const { customer,logOut } = useAuth();
+    const navigate = useNavigate();
 
     const initialFormState = {
         fullName: '',
@@ -129,7 +130,8 @@ const ProfileCRUD = () => {
             setSaving(true);
             const apiData = {
                 ...formData,
-                phone_number: formData.phoneNumber // Transform back to snake_case
+                fullname: formData.fullName,
+                phone_number: formData.phoneNumber,// Transform back to snake_case
             };
             await updateProfile(apiData);
             setOriginalData(formData);
@@ -143,6 +145,9 @@ const ProfileCRUD = () => {
             setSaving(false);
         }
     };
+
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
     const handleCancel = () => {
         setFormData(originalData);
@@ -212,52 +217,213 @@ const ProfileCRUD = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Toast Notification */}
-            {toast.show && <Toast message={toast.message} type={toast.type} />}
+            {toast.show && <Toast message={toast.message} type={toast.type}/>}
 
             {/* Header */}
-            {/* Header */}
             <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center py-4">
+                        {/* Logo */}
                         <div className="flex items-center">
                             <img src={logo} alt="Logo" className="h-11 w-11"/>
                             <h1 className="ml-2 text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 text-transparent bg-clip-text">
                                 Warehouse Hub
                             </h1>
                         </div>
-                        <div className="hidden md:flex space-x-6">
-                            {(customer.role === 'ROLE_ADMIN' || customer.role === 'ROLE_SALES')&& (
-                                <a href="/kho"
-                                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
+
+                        {/* Desktop Navigation */}
+                        <nav className="hidden md:flex items-center space-x-4">
+                            {customer?.role !== "ROLE_USER" && (
+                                <a
+                                    href="/kho"
+                                    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                >
+                                    <LayoutDashboard className="w-4 h-4 mr-2"/>
                                     DashBoard
                                 </a>
                             )}
-                            <a href="/reset"
-                               className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
-                                Đổi mật khẩu
-                            </a>
-                            <a href="/profile"
-                               className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full hover:shadow-lg hover:scale-105 transition duration-300">
-                                Xin chào {customer?.username}
 
-                            </a>
-                            <button
-                                onClick={logOut}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition">
-                                Đăng xuất
-                            </button>
-                        </div>
-                        <button className="md:hidden">
-                            <Menu className="h-6 w-6 text-gray-700" />
+                            {customer?.role === "ROLE_USER" ? (
+                                <div className="flex items-center space-x-4">
+                                    {/* Profile Dropdown */}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                            className="flex items-center px-6 py-2 bg-gradient-to-r from-indigo-600
+                                                 to-violet-600 text-white rounded-full hover:shadow-lg
+                                                 hover:scale-105 transition duration-300"
+                                        >
+                                            <User className="w-4 h-4 mr-2"/>
+                                            Xin chào {customer?.username}
+                                            <ChevronDown className={`w-4 h-4 ml-1 transition-transform duration-200 
+                                            ${isProfileDropdownOpen ? 'rotate-180' : ''}`}
+                                            />
+                                        </button>
+
+                                        {/* Dropdown Menu */}
+                                        {isProfileDropdownOpen && (
+                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg
+                                                      border border-gray-100 py-1 animate-in fade-in slide-in-from-top-5">
+                                                <a
+                                                    href="/profile"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Thông tin cá nhân
+                                                </a>
+                                                <a
+                                                    href="/RentalByUser"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Quản lý thuê kho
+                                                </a>
+                                                <a
+                                                    href="/RentalByUser"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Quản lý cuộc hẹn
+                                                </a>
+                                                <a
+                                                    href="/MyAppoinment"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Quản lý cuộc hẹn
+                                                </a>
+                                                <a
+                                                    href="/MyRequest"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Quản lý yêu cầu
+                                                </a>
+                                                <a
+                                                    href="/MyFeedBack"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Quản lý đánh giá
+                                                </a>
+                                                <a
+                                                    href="/reset"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Đổi mật khẩu
+                                                </a>
+                                                <div className="border-t border-gray-100 my-1"></div>
+                                                <button
+                                                    onClick={logOut}
+                                                    className="flex items-center w-full px-4 py-2 text-sm text-red-600
+                                                         hover:bg-red-50 transition-colors"
+                                                >
+                                                    <LogOut className="w-4 h-4 mr-2 text-red-500"/>
+                                                    Đăng xuất
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={logOut}
+                                    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <LogOut className="w-4 h-4 mr-2"/>
+                                    Đăng xuất
+                                </button>
+                            )}
+                        </nav>
+
+                        {/* Mobile Menu Button */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                            {isMobileMenuOpen ? (
+                                <X className="h-6 w-6 text-gray-700"/>
+                            ) : (
+                                <Menu className="h-6 w-6 text-gray-700"/>
+                            )}
                         </button>
                     </div>
+
+                    {/* Mobile Menu */}
+                    {isMobileMenuOpen && (
+                        <div className="md:hidden py-4 border-t border-gray-100 animate-in slide-in-from-top">
+                            <div className="space-y-2">
+                                {customer?.role !== "ROLE_USER" && (
+                                    <a
+                                        href="/kho"
+                                        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                             hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                        <LayoutDashboard className="w-4 h-4 mr-2"/>
+                                        DashBoard
+                                    </a>
+                                )}
+
+                                {customer?.role === "ROLE_USER" && (
+                                    <>
+                                        <a
+                                            href="/profile"
+                                            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                                 hover:bg-gray-50 rounded-lg transition-colors"
+                                        >
+                                            <User className="w-4 h-4 mr-2"/>
+                                            Thông tin cá nhân
+                                        </a>
+                                        <a
+                                            href="/reset"
+                                            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                                 hover:bg-gray-50 rounded-lg transition-colors"
+                                        >
+                                            <KeyRound className="w-4 h-4 mr-2"/>
+                                            Đổi mật khẩu
+                                        </a>
+                                    </>
+                                )}
+
+                                <button
+                                    onClick={logOut}
+                                    className="flex items-center w-full px-4 py-2 text-sm font-medium text-red-600
+                                         hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <LogOut className="w-4 h-4 mr-2"/>
+                                    Đăng xuất
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </header>
+
             {/* Main Content */}
             <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                <div className="text-left flex items-center space-x-2">
+                    {/* Optional content on the left */}
+                    <button
+                        onClick={() => navigate('/home')}
+                        className="flex items-center text-gray-600 hover:text-indigo-600 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5 mr-2"/>
+                        Quay về trang home
+                    </button>
+                </div>
                 {error && (
                     <div className="mb-4 p-4 bg-red-50 rounded-xl text-red-600 flex items-center">
-                        <AlertCircle className="w-5 h-5 mr-2" />
+                        <AlertCircle className="w-5 h-5 mr-2"/>
                         {error}
                         <button
                             onClick={fetchProfileData}
@@ -274,7 +440,7 @@ const ProfileCRUD = () => {
                         <div className="flex justify-between items-center">
                             <div className="flex items-center">
                                 <div className="bg-indigo-50 rounded-xl p-3">
-                                    <User className="h-6 w-6 text-indigo-600" />
+                                    <User className="h-6 w-6 text-indigo-600"/>
                                 </div>
                                 <div className="ml-4">
                                     <h2 className="text-2xl font-bold text-gray-900">Thông tin cá nhân</h2>
@@ -286,7 +452,7 @@ const ProfileCRUD = () => {
                                     onClick={() => setEditMode(true)}
                                     className="flex items-center px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition duration-300"
                                 >
-                                    <Edit2 className="w-4 h-4 mr-2" />
+                                    <Edit2 className="w-4 h-4 mr-2"/>
                                     Sửa thông tin
                                 </button>
                             ) : (
@@ -294,7 +460,7 @@ const ProfileCRUD = () => {
                                     onClick={handleCancel}
                                     className="flex items-center px-4 py-2 bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition duration-300"
                                 >
-                                    <X className="w-4 h-4 mr-2" />
+                                    <X className="w-4 h-4 mr-2"/>
                                     Cancel
                                 </button>
                             )}
@@ -312,7 +478,7 @@ const ProfileCRUD = () => {
                                 {renderField('Full Name', 'fullName', formData.fullName)}
                                 {errors.fullName && (
                                     <p className="mt-2 text-sm text-red-600 flex items-center">
-                                        <AlertCircle className="w-4 h-4 mr-1" />
+                                        <AlertCircle className="w-4 h-4 mr-1"/>
                                         {errors.fullName}
                                     </p>
                                 )}
@@ -326,7 +492,7 @@ const ProfileCRUD = () => {
                                 {renderField('Email', 'email', formData.email, 'email')}
                                 {errors.email && (
                                     <p className="mt-2 text-sm text-red-600 flex items-center">
-                                        <AlertCircle className="w-4 h-4 mr-1" />
+                                        <AlertCircle className="w-4 h-4 mr-1"/>
                                         {errors.email}
                                     </p>
                                 )}
@@ -379,7 +545,7 @@ const ProfileCRUD = () => {
                                     type="submit"
                                     className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition duration-300"
                                 >
-                                    <Save className="w-4 h-4 mr-2" />
+                                    <Save className="w-4 h-4 mr-2"/>
                                     Lưu thay đổi
                                 </button>
                             </div>

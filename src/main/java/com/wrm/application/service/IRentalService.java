@@ -21,7 +21,8 @@ public interface IRentalService {
 
     void deleteRental(Long id) throws Exception;
 
-    Page<RentalResponse> getByCustomerId(Long customerId, PageRequest pageRequest) throws Exception;
+
+    Page<RentalResponse> getByCustomerId(String customerId, PageRequest pageRequest) throws Exception;
 
     Page<RentalResponse> getByWarehouseId(Long warehouseId, PageRequest pageRequest) throws Exception;
 

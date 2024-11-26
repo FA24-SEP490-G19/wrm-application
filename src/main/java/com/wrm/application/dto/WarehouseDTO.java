@@ -39,7 +39,7 @@ public class WarehouseDTO {
     @NotNull(message = "Warehouse Manager ID is required")
     private Long warehouseManagerId;
 
-    @Size(max = 5, message = "Maximum of 5 images allowed")
+    @Size(max = 500, message = "Maximum of 5 images allowed")
     private List<String> images;
 
     @JsonProperty("thumbnail")

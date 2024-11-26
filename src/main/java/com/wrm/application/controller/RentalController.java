@@ -4,6 +4,7 @@ import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.response.rental.RentalListResponse;
 import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.impl.RentalService;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,13 +37,32 @@ public class RentalController {
                 page, limit,
                 Sort.by("createdDate").descending());
         Page<RentalResponse> rentalPage;
-        if (warehouseId != null) {
-            rentalPage = rentalService.getByWarehouseId(warehouseId, pageRequest);
-        } else if (customerId != null) {
-            rentalPage = rentalService.getByCustomerId(customerId, pageRequest);
-        } else {
+
             rentalPage = rentalService.getAllRentals(pageRequest);
-        }
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
+
+
+    @GetMapping("/user")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<RentalListResponse> getAllByCustomer(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalResponse> rentalPage;
+
+            rentalPage = rentalService.getByCustomerId(req.getRemoteUser(), pageRequest);
+
         int totalPage = rentalPage.getTotalPages();
 
         List<RentalResponse> rentals = rentalPage.getContent();
@@ -53,7 +73,7 @@ public class RentalController {
     }
 
     @GetMapping("/sales")
-    @PreAuthorize("hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
     public ResponseEntity<RentalListResponse> getAllBySalesId(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,
@@ -91,7 +111,7 @@ public class RentalController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') ")
     public ResponseEntity<?> updateRentalStatus(@PathVariable Long id, @Valid @RequestBody RentalDTO rentalDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {

@@ -18,6 +18,20 @@ export const getAllContract = async () => {
     }
 };
 
+export const getContractById = async (id) => {
+    try {
+        const response =  await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/contracts/${id}`,
+            getAuthConfig()
+
+        );
+        return response.data
+
+    } catch (e) {
+        throw e;
+    }
+};
+
 
 export const updateContract = async (id, data) => {
     return await axios.put(`${import.meta.env.VITE_API_BASE_URL}/contracts/${id}/update`, data,getAuthConfig());

@@ -126,12 +126,10 @@ public class WarehouseService implements IWarehouseService {
         List<WarehouseImage> warehouseImages = new ArrayList<>();
         if (warehouseDTO.getImages() != null) {
             for (String base64Image : warehouseDTO.getImages()) {
-                byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-                String fileName = saveImageToFileSystem(imageBytes);
 
                 WarehouseImage warehouseImage = WarehouseImage.builder()
                         .warehouse(newWarehouse)
-                        .imageUrl(fileName)
+                        .imageUrl(base64Image)
                         .build();
 
                 warehouseImages.add(warehouseImage);

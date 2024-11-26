@@ -9,7 +9,37 @@ const getAuthConfig = () => ({
 
 export const getAllRentals = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/rentals?page=0&limit=10', getAuthConfig());
+        const response = await axios.get(`http://localhost:8080/rentals?page=0&limit=100`, getAuthConfig());
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+export const getAllCustomerId = async () => {
+    try {
+        const response = await axios.get('http://localhost:8080/rentals/user?page=0&limit=100', getAuthConfig());
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+export const getAllSaleId = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8080/rentals/sales?page=0&limit=100`, getAuthConfig());
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+export const getAllManagerId = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8080/rental_details/warehouse?page=0&limit=100`, getAuthConfig());
         return response.data;
     } catch (error) {
         throw error;

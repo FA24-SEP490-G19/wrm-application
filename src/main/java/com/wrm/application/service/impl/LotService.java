@@ -133,6 +133,7 @@ public class LotService implements ILotService {
         lotRepository.save(existingLot);
     }
 
+    //pending
     @Override
     public LotResponse updateLotStatus(Long lotId, LotDTO lotDTO, String remoteUser) throws Exception {
         User manager = userRepository.findByEmail(remoteUser)
