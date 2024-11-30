@@ -7,6 +7,8 @@ public class QrRequest {
     private String cancelUrl;
     private String returnUrl;
     private Integer expiredAt;
+    private Long user_id;
+
 
     public QrRequest(Long orderCode, Integer amount, String description, String cancelUrl, String returnUrl) {
         this.orderCode = orderCode;
@@ -14,6 +16,14 @@ public class QrRequest {
         this.description = description;
         this.cancelUrl = cancelUrl;
         this.returnUrl = returnUrl;
+    }
+
+    public Long getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(Long user_id) {
+        this.user_id = user_id;
     }
 
     public Long getOrderCode() {

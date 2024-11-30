@@ -27,6 +27,8 @@ import RentalByCustomer from "./component/RentalByCustomer.jsx";
 import MyAppointment from "./component/Myappointment.jsx";
 import MyRequestPage from "./component/MyRequestPage.jsx";
 import MyFeedBack from "./component/MyFeedback.jsx";
+import PaymentsPage from "./component/Management/Payment/PaymentsPage.jsx";
+import MyPaymentPage from "./component/MyPaymentPage.jsx";
 
 function App() {
     return (
@@ -41,6 +43,7 @@ function App() {
             <Route path="/MyAppoinment" element={<ProtectedRoute><MyAppointment /></ProtectedRoute>} />
                 <Route path="/MyRequest" element={<ProtectedRoute><MyRequestPage /></ProtectedRoute>} />
             <Route path="/MyFeedback" element={<ProtectedRoute><MyFeedBack /></ProtectedRoute>} />
+            <Route path="/payment_user" element={<ProtectedRoute><MyPaymentPage /></ProtectedRoute>} />
 
             <Route path="/profile" element={<ProfileCRUD />} />
             <Route path="/warehouse" element={<WarehouseList />} />
@@ -57,6 +60,7 @@ function App() {
             <Route path="/rental_detail" element={<ProtectedRoute><RentalDetail/> </ProtectedRoute>} />
             <Route path="/request" element={<ProtectedRoute><RequestPage/> </ProtectedRoute>} />
             <Route path="/feedback" element={<ProtectedRoute><FeedBackPage/> </ProtectedRoute>} />
+            <Route path="/payment" element={<ProtectedRoute><PaymentsPage/> </ProtectedRoute>} />
 
                 <Route path="/" element={<Navigate to="/landing" replace />} />
         </Routes>
