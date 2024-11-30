@@ -2,9 +2,8 @@ package com.wrm.application.service.impl;
 
 import com.wrm.application.model.Appointment;
 import com.wrm.application.model.Rental;
-import com.wrm.application.model.RentalDetail;
 import com.wrm.application.model.Request;
-import com.wrm.application.repository.RentalDetailRepository;
+import com.wrm.application.repository.RentalRepository;
 import com.wrm.application.service.IMailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -22,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MailService implements IMailService {
     private final JavaMailSender mailSender;
-    private final RentalDetailRepository rentalDetailRepository;
+    private final RentalRepository rentalRepository;
 
     private void sendEmail(String to, String subject, String text) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
@@ -64,16 +63,16 @@ public class MailService implements IMailService {
         LocalDateTime startOfDay = reminderDate.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-        List<RentalDetail> rentalDetails = rentalDetailRepository.findByEndDateRange(startOfDay, endOfDay);
+        List<Rental> rentals = rentalRepository.findByEndDateRange(startOfDay, endOfDay);
 
-        for (RentalDetail rentalDetail : rentalDetails) {
-            String email = rentalDetail.getRental().getCustomer().getEmail();
+        for (Rental rental : rentals) {
+            String email = rental.getCustomer().getEmail();
             String subject = "Rental Contract Expiration Reminder";
             String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                     + "<h2 style='color: #4a90e2;'>Rental Contract Expiration Reminder</h2>"
-                    + "<p>Dear " + rentalDetail.getRental().getCustomer().getFullName() + ",</p>"
-                    + "<p>This is a reminder that your rental contract for the lot <strong>#" + rentalDetail.getLot().getId() + "</strong> "
-                    + "is about to expire on <strong>" + rentalDetail.getEndDate() + "</strong>.</p>"
+                    + "<p>Dear " + rental.getCustomer().getFullName() + ",</p>"
+                    + "<p>This is a reminder that your rental contract for the lot <strong>#" + rental.getLot().getId() + "</strong> "
+                    + "is about to expire on <strong>" + rental.getEndDate() + "</strong>.</p>"
                     + "<p>Please take the necessary actions to renew or finalize your contract.</p>"
                     + "<p style='color: #888; font-size: 12px;'>If you have already renewed, please disregard this message.</p>"
                     + "<hr style='border: none; border-top: 1px solid #eee;'/>"

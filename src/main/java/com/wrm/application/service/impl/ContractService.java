@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ContractService implements IContractService {
     private final ContractRepository contractRepository;
-    private final RentalDetailRepository rentalDetailRepository;
+    private final RentalRepository rentalRepository;
     private final ContractImageRepository contractImageRepository;
     private final UserRepository userRepository;
 
@@ -38,14 +38,13 @@ public class ContractService implements IContractService {
                 .orElseThrow(() -> new DataNotFoundException("User not found with email: " + remoteUser));
         Contract contract = contractRepository.findContractById(contractId)
                 .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
-        RentalDetail rentalDetail = rentalDetailRepository.findByContractId(contractId)
+        Rental rental = rentalRepository.findByContractId(contractId)
                 .orElseThrow(() -> new DataNotFoundException("Rental Detail not found with Contract ID: " + contractId));
-      
-        Rental rental = rentalDetail.getRental();
+
         User customer = rental.getCustomer();
         User sales = rental.getSales();
         Warehouse warehouse = rental.getWarehouse();
-        Lot lot = rentalDetail.getLot();
+        Lot lot = rental.getLot();
 
         List<String> contractImageLinks = contractImageRepository.findAllByContractId(contractId)
                 .stream()
@@ -60,7 +59,7 @@ public class ContractService implements IContractService {
                 .warehouseName(warehouse.getName())
                 .warehouseAddress(warehouse.getAddress())
                 .lotDescription(lot.getDescription())
-                .additionalService(rentalDetail.getAdditionalService().getName());
+                .additionalService(rental.getAdditionalService().getName());
 
         if ("ADMIN".equals(currentUser.getRole().getRoleName()) || "SALES".equals(currentUser.getRole().getRoleName()) ||
                 "MANAGER".equals(currentUser.getRole().getRoleName())) {
@@ -213,21 +212,20 @@ public class ContractService implements IContractService {
                     responseBuilder.contractImageLinks(contractImageLinks);
 
                     // Try to get rental details if they exist
-                    Optional<RentalDetail> optionalRentalDetail = rentalDetailRepository.findByContractId(contract.getId());
+                    Optional<Rental> optionalRental = rentalRepository.findByContractId(contract.getId());
 
-                    if (optionalRentalDetail.isPresent()) {
-                        RentalDetail rentalDetail = optionalRentalDetail.get();
-                        Rental rental = rentalDetail.getRental();
+                    if (optionalRental.isPresent()) {
+                        Rental rental = optionalRental.get();
                         User customer = rental.getCustomer();
                         User sales = rental.getSales();
                         Warehouse warehouse = rental.getWarehouse();
-                        Lot lot = rentalDetail.getLot();
+                        Lot lot = rental.getLot();
 
                         responseBuilder
                                 .warehouseName(warehouse.getName())
                                 .warehouseAddress(warehouse.getAddress())
                                 .lotDescription(lot.getDescription())
-                                .additionalService(rentalDetail.getAdditionalService().getName());
+                                .additionalService(rental.getAdditionalService().getName());
 
                         // Add sensitive information only for ADMIN and SALES roles
                         if ("ADMIN".equals(currentUser.getRole().getRoleName()) ||

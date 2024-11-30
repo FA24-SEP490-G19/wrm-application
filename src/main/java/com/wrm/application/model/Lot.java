@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Lot extends BaseModel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,8 +36,7 @@ public class Lot extends BaseModel {
     private Warehouse warehouse;
 
     @OneToMany(mappedBy = "lot", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<RentalDetail> rentalDetails;
-
+    private List<Rental> rentals;
 
 }
 

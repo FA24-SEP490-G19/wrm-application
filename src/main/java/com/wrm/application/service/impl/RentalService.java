@@ -1,12 +1,11 @@
 package com.wrm.application.service.impl;
 
-import com.wrm.application.constant.enums.RentalDetailStatus;
 import com.wrm.application.constant.enums.RentalStatus;
 import com.wrm.application.dto.RentalDTO;
-import com.wrm.application.dto.RentalDetailDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.*;
 import com.wrm.application.repository.*;
+import com.wrm.application.response.rental.RentalDetailResponse;
 import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IRentalService;
@@ -15,11 +14,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -28,7 +26,6 @@ public class RentalService implements IRentalService {
     private final UserRepository userRepository;
     private final WarehouseRepository warehouseRepository;
     private final AdditionalServiceRepository additionalServiceRepository;
-    private final RentalDetailRepository rentalDetailRepository;
     private final LotRepository lotRepository;
     private final ContractRepository contractRepository;
     private final IMailService mailService;
@@ -41,6 +38,11 @@ public class RentalService implements IRentalService {
                     .salesId(rental.getSales().getId())
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .contractId(rental.getContract().getId())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
                     .status(rental.getStatus())
                     .build();
         });
@@ -56,6 +58,11 @@ public class RentalService implements IRentalService {
                     .salesId(rental.getSales().getId())
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .contractId(rental.getContract().getId())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
                     .status(rental.getStatus())
                     .build();
         });
@@ -70,89 +77,54 @@ public class RentalService implements IRentalService {
         if (rentalDTO.getWarehouseId() == null) {
             throw new IllegalArgumentException("Warehouse ID cannot be empty");
         }
-        if (rentalDTO.getRentalItems() == null || rentalDTO.getRentalItems().isEmpty()) {
-            throw new IllegalArgumentException("Rental items cannot be empty");
+        if (rentalDTO.getLotId() == null) {
+            throw new IllegalArgumentException("Lot ID cannot be empty");
         }
-
-        Rental newRental = Rental.builder()
-                .status(RentalStatus.PENDING)
-                .build();
 
         User customer = userRepository.findById(rentalDTO.getCustomerId())
                 .orElseThrow(() -> new DataNotFoundException("Customer not found"));
         if (customer.getRole().getId() != 1) {
             throw new DataIntegrityViolationException("User is not a customer");
         }
-        newRental.setCustomer(customer);
 
         User sales = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
         if (sales.getRole().getId() != 3) {
             throw new DataIntegrityViolationException("User is not a salesman");
         }
-        newRental.setSales(sales);
+
+        Lot lot = lotRepository.findById(rentalDTO.getLotId())
+                .orElseThrow(() -> new DataNotFoundException("Lot not found"));
+        if (!lot.getWarehouse().getId().equals(rentalDTO.getWarehouseId())) {
+            throw new DataIntegrityViolationException("Lot does not belong to the specified warehouse");
+        }
+        if(rentalRepository.existsByLotId(rentalDTO.getLotId())){
+            throw new DataIntegrityViolationException("Lot already used");
+        }
+
+        AdditionalService additionalService = additionalServiceRepository.findById(rentalDTO.getAdditionalServiceId())
+                .orElseThrow(() -> new DataNotFoundException("Additional service not found"));
+
+        Contract contract = contractRepository.findById(rentalDTO.getContractId())
+                .orElseThrow(() -> new DataNotFoundException("Contract not found"));
+
 
         Warehouse warehouse = warehouseRepository.findById(rentalDTO.getWarehouseId())
                 .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
-        newRental.setWarehouse(warehouse);
+
+        Rental newRental = Rental.builder()
+                .warehouse(warehouse)
+                .lot(lot)
+                .sales(sales)
+                .customer(customer)
+                .contract(contract)
+                .startDate(contract.getSignedDate())
+                .endDate(contract.getExpiryDate())
+                .additionalService(additionalService)
+                .status(RentalStatus.PENDING)
+                .build();
 
         rentalRepository.save(newRental);
-
-        List<RentalDetail> rentalDetails = new ArrayList<>();
-
-        for (RentalDetailDTO rentalDetailDTO : rentalDTO.getRentalItems()) {
-            if (rentalDetailDTO.getLotId() == null) {
-                throw new IllegalArgumentException("Lot ID cannot be empty");
-            }
-            if (rentalDetailDTO.getStartDate() == null) {
-                throw new IllegalArgumentException("Start date cannot be empty");
-            }
-            if (rentalDetailDTO.getEndDate() == null) {
-                throw new IllegalArgumentException("End date cannot be empty");
-            }
-            if (rentalDetailDTO.getStartDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
-                throw new IllegalArgumentException("Start date must be in the future");
-            }
-            if (rentalDetailDTO.getEndDate().isBefore(rentalDetailDTO.getStartDate().plusDays(1))) {
-                throw new IllegalArgumentException("End date must be after start date");
-            }
-
-            Contract contract = contractRepository.findById(rentalDetailDTO.getContractId())
-                    .orElseThrow(() -> new DataNotFoundException("Contract not found"));
-//            if (!rentalDetailDTO.getStartDate().toLocalDate().equals(contract.getSignedDate().toLocalDate()) ||
-//                    !rentalDetailDTO.getEndDate().toLocalDate().equals(contract.getExpiryDate().toLocalDate())) {
-//                throw new DataIntegrityViolationException("Rental dates must match the contract dates");
-//            }
-
-            AdditionalService additionalService = additionalServiceRepository.findById(rentalDetailDTO.getAdditionalServiceId())
-                    .orElseThrow(() -> new DataNotFoundException("Additional service not found"));
-
-            Lot lot = lotRepository.findById(rentalDetailDTO.getLotId())
-                    .orElseThrow(() -> new DataNotFoundException("Lot not found"));
-            if (!lot.getWarehouse().getId().equals(rentalDTO.getWarehouseId())) {
-                throw new DataIntegrityViolationException("Lot does not belong to the specified warehouse");
-            }
-            if(rentalDetailRepository.existsByLotId(rentalDetailDTO.getLotId())){
-                throw new DataIntegrityViolationException("Lot already used");
-            }
-
-            RentalDetail rentalDetail = RentalDetail.builder()
-                    .rental(newRental)
-                    .startDate(contract.getSignedDate())
-                    .endDate(contract.getExpiryDate())
-                    .status(RentalDetailStatus.PENDING)
-                    .contract(contract)
-                    .additionalService(additionalService)
-                    .lot(lot)
-                    .build();
-
-            rentalDetails.add(rentalDetail);
-        }
-
-        newRental.setRentalDetails(rentalDetails);
-
-        rentalDetailRepository.saveAll(rentalDetails);
-
 
         User admin = userRepository.findByRoleId(2L)
                 .orElseThrow(() -> new DataNotFoundException("Admin not found"));
@@ -164,6 +136,11 @@ public class RentalService implements IRentalService {
                 .customerId(newRental.getCustomer().getId())
                 .salesId(newRental.getSales().getId())
                 .warehouseId(newRental.getWarehouse().getId())
+                .lotId(newRental.getLot().getId())
+                .additionalServiceId(newRental.getAdditionalService().getId())
+                .contractId(newRental.getContract().getId())
+                .startDate(newRental.getStartDate())
+                .endDate(newRental.getEndDate())
                 .status(newRental.getStatus())
                 .build();
     }
@@ -181,7 +158,7 @@ public class RentalService implements IRentalService {
 
         rentalRepository.save(rental);
 
-        if (rentalDTO.getStatus() == RentalStatus.APPROVED) {
+        if (rentalDTO.getStatus() == RentalStatus.ACTIVE) {
             Warehouse warehouse = rental.getWarehouse();
             User manager = warehouse.getWarehouseManager();
             String managerEmail = manager.getEmail();
@@ -190,9 +167,14 @@ public class RentalService implements IRentalService {
 
         return RentalResponse.builder()
                 .id(rental.getId())
-                .customerId(rental.getCustomer().getId())
                 .salesId(rental.getSales().getId())
+                .customerId(rental.getCustomer().getId())
                 .warehouseId(rental.getWarehouse().getId())
+                .lotId(rental.getLot().getId())
+                .additionalServiceId(rental.getAdditionalService().getId())
+                .contractId(rental.getContract().getId())
+                .startDate(rental.getStartDate())
+                .endDate(rental.getEndDate())
                 .status(rental.getStatus())
                 .build();
     }
@@ -205,11 +187,9 @@ public class RentalService implements IRentalService {
         rentalRepository.save(rental);
     }
 
-
-
     @Override
-    public Page<RentalResponse> getByCustomerId(String customerId, PageRequest pageRequest) throws Exception {
-        User customer = userRepository.findByEmail(customerId)
+    public Page<RentalResponse> getByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
+        User customer = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
         return rentalRepository.findByCustomerId(customer.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()
@@ -217,21 +197,11 @@ public class RentalService implements IRentalService {
                     .salesId(rental.getSales().getId())
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
-                    .status(rental.getStatus())
-                    .build();
-        });
-    }
-
-    @Override
-    public Page<RentalResponse> getByWarehouseId(Long warehouseId, PageRequest pageRequest) throws Exception {
-        Warehouse warehouse = warehouseRepository.findById(warehouseId)
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
-        return rentalRepository.findByWarehouseId(warehouse.getId(), pageRequest).map(rental -> {
-            return RentalResponse.builder()
-                    .id(rental.getId())
-                    .salesId(rental.getSales().getId())
-                    .customerId(rental.getCustomer().getId())
-                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .contractId(rental.getContract().getId())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
                     .status(rental.getStatus())
                     .build();
         });
@@ -243,10 +213,67 @@ public class RentalService implements IRentalService {
                 .orElseThrow(() -> new DataNotFoundException("Rental not found"));
         return RentalResponse.builder()
                 .id(rental.getId())
-                .customerId(rental.getCustomer().getId())
                 .salesId(rental.getSales().getId())
+                .customerId(rental.getCustomer().getId())
                 .warehouseId(rental.getWarehouse().getId())
+                .lotId(rental.getLot().getId())
+                .additionalServiceId(rental.getAdditionalService().getId())
+                .contractId(rental.getContract().getId())
+                .startDate(rental.getStartDate())
+                .endDate(rental.getEndDate())
                 .status(rental.getStatus())
                 .build();
+    }
+
+    @Override
+    public Page<RentalResponse> getByWarehouseId(String remoteUser, PageRequest pageRequest) throws Exception {
+        User warehouseManager = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        Warehouse warehouse = warehouseRepository.findByManagerId(warehouseManager.getId())
+                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+
+        return rentalRepository.findByWarehouseId(warehouse.getId(), pageRequest).map(rental -> {
+            return RentalResponse.builder()
+                    .id(rental.getId())
+                    .salesId(rental.getSales().getId())
+                    .customerId(rental.getCustomer().getId())
+                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .contractId(rental.getContract().getId())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
+                    .status(rental.getStatus())
+                    .build();
+        });
+    }
+
+    public Page<RentalResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
+        User customer = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        return rentalRepository.findCompletedByCustomerId(customer.getId(), pageRequest).map(rental -> {
+            return RentalResponse.builder()
+                    .id(rental.getId())
+                    .salesId(rental.getSales().getId())
+                    .customerId(rental.getCustomer().getId())
+                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .contractId(rental.getContract().getId())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
+                    .status(rental.getStatus())
+                    .build();
+        });
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?") // Chạy vào lúc 00:00 hàng ngày
+    public void autoUpdateExpiredRentals() {
+        rentalRepository.findExpiredRentals(LocalDateTime.now()).forEach(rental -> {
+            rental.setStatus(RentalStatus.EXPIRED);
+            rentalRepository.save(rental);
+        });
     }
 }

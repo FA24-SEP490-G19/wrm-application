@@ -1,11 +1,15 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.constant.enums.LotStatus;
 import com.wrm.application.constant.enums.WarehouseStatus;
+import com.wrm.application.dto.LotDTO;
 import com.wrm.application.dto.WarehouseDTO;
 import com.wrm.application.exception.DataNotFoundException;
+import com.wrm.application.model.Lot;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
 import com.wrm.application.model.WarehouseImage;
+import com.wrm.application.repository.LotRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.repository.WarehouseImageRepository;
 import com.wrm.application.repository.WarehouseRepository;
@@ -34,6 +38,7 @@ public class WarehouseService implements IWarehouseService {
     private final WarehouseRepository warehouseRepository;
     private final UserRepository userRepository;
     private final WarehouseImageRepository warehouseImageRepository;
+    private final LotRepository lotRepository;
 
     @Override
     public Page<WarehouseResponse> getAllWarehouses(PageRequest pageRequest) {
@@ -123,6 +128,31 @@ public class WarehouseService implements IWarehouseService {
 
         warehouseRepository.save(newWarehouse);
 
+        List<Lot> lots = new ArrayList<>();
+
+        for(LotDTO lotDTO : warehouseDTO.getLotItems()) {
+            Lot lot = Lot.builder()
+                    .description(lotDTO.getDescription())
+                    .size(lotDTO.getSize())
+                    .status(LotStatus.AVAILABLE)
+                    .warehouse(newWarehouse)
+                    .price(lotDTO.getPrice())
+                    .build();
+            lots.add(lot);
+        }
+
+        float totalLotSize = warehouseDTO.getLotItems().stream()
+                .map(LotDTO::getSize)
+                .reduce(0f, Float::sum);
+
+        if (totalLotSize != warehouseDTO.getSize()) {
+            throw new IllegalArgumentException("Total size of lots have to be equal to the warehouse size.");
+        }
+
+        newWarehouse.setLots(lots);
+
+        lotRepository.saveAll(lots);
+
         List<WarehouseImage> warehouseImages = new ArrayList<>();
         if (warehouseDTO.getImages() != null) {
             for (String base64Image : warehouseDTO.getImages()) {
@@ -143,6 +173,7 @@ public class WarehouseService implements IWarehouseService {
                 .address(newWarehouse.getAddress())
                 .size(newWarehouse.getSize())
                 .status(newWarehouse.getStatus())
+                .thumbnail(newWarehouse.getThumbnail())
                 .build();
     }
 
@@ -177,8 +208,6 @@ public class WarehouseService implements IWarehouseService {
 
         warehouse.setName(warehouseDTO.getName());
         warehouse.setDescription(warehouseDTO.getDescription());
-        warehouse.setAddress(warehouseDTO.getAddress());
-        warehouse.setSize(warehouseDTO.getSize());
         warehouse.setStatus(warehouseDTO.getStatus());
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()

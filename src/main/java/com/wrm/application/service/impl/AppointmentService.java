@@ -12,6 +12,7 @@ import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.appointment.AppointmentResponse;
 import com.wrm.application.service.IAppointmentService;
 import com.wrm.application.service.IMailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -125,6 +126,7 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
+    @Transactional
     public AppointmentResponse updateAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception {
         if (appointmentDTO.getAppointmentDate() == null) {
             throw new IllegalArgumentException("Appointment date cannot be empty");

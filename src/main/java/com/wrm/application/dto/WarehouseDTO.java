@@ -44,4 +44,7 @@ public class WarehouseDTO {
 
     @JsonProperty("thumbnail")
     private String thumbnail;
+
+    @JsonProperty("lot_items")
+    private List<LotDTO> lotItems;
 }
