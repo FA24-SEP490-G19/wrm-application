@@ -18,8 +18,6 @@ public interface ILotService {
 
     LotResponse getLotById(Long id) throws Exception;
 
-    LotResponse createLot(LotDTO lotDTO) throws Exception;
-
     LotResponse updateLot(Long lotId, LotDTO lotDTO) throws Exception;
 
     void deleteLot(Long lotId) throws Exception;

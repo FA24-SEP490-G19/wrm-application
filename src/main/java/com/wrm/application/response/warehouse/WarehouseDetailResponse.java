@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.WarehouseStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 
 import java.util.List;

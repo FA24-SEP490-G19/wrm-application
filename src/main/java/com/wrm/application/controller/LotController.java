@@ -50,25 +50,6 @@ public class LotController {
         return ResponseEntity.ok(lotService.getLotById(id));
     }
 
-
-
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> createLot(@Valid @RequestBody LotDTO lotDTO, BindingResult result) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessage = result.getFieldErrors().stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessage);
-            }
-            LotResponse lotResponse = lotService.createLot(lotDTO);
-            return ResponseEntity.ok(lotResponse);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> updateLot(@PathVariable Long id, @Valid @RequestBody LotDTO lotDTO, BindingResult result) {

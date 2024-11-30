@@ -2,7 +2,6 @@ package com.wrm.application.response.rental;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrm.application.constant.enums.RentalDetailStatus;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
@@ -27,9 +26,6 @@ public class RentalDetailResponse {
 
     @JsonProperty("warehouse_id")
     private Long warehouseId;
-
-    @Enumerated(EnumType.STRING)
-    private RentalDetailStatus status;
 
     @JsonProperty("contract_id")
     private Long contractId;

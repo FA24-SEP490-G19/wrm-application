@@ -1,17 +1,22 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.constant.enums.LotStatus;
 import com.wrm.application.constant.enums.WarehouseStatus;
+import com.wrm.application.dto.LotDTO;
 import com.wrm.application.dto.WarehouseDTO;
 import com.wrm.application.exception.DataNotFoundException;
+import com.wrm.application.model.Lot;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
 import com.wrm.application.model.WarehouseImage;
+import com.wrm.application.repository.LotRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.repository.WarehouseImageRepository;
 import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.IWarehouseService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -33,6 +38,7 @@ public class WarehouseService implements IWarehouseService {
     private final WarehouseRepository warehouseRepository;
     private final UserRepository userRepository;
     private final WarehouseImageRepository warehouseImageRepository;
+    private final LotRepository lotRepository;
 
     @Override
     public Page<WarehouseResponse> getAllWarehouses(PageRequest pageRequest) {
@@ -79,6 +85,7 @@ public class WarehouseService implements IWarehouseService {
     }
 
     @Override
+    @Transactional
     public WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) throws Exception {
 
         if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
@@ -103,6 +110,12 @@ public class WarehouseService implements IWarehouseService {
             throw new DataIntegrityViolationException("Warehouse manager is already in charge of another warehouse");
         }
 
+        String thumbnailFileName = null;
+        if (warehouseDTO.getThumbnail() != null && !warehouseDTO.getThumbnail().isEmpty()) {
+            byte[] thumbnailBytes = Base64.getDecoder().decode(warehouseDTO.getThumbnail());
+            thumbnailFileName = saveImageToFileSystem(thumbnailBytes); // Lưu ảnh và lấy đường dẫn
+        }
+
         Warehouse newWarehouse = Warehouse.builder()
                 .name(warehouseDTO.getName())
                 .address(warehouseDTO.getAddress())
@@ -110,9 +123,35 @@ public class WarehouseService implements IWarehouseService {
                 .description(warehouseDTO.getDescription())
                 .status(WarehouseStatus.ACTIVE)
                 .warehouseManager(warehouseManager)
+                .thumbnail(thumbnailFileName)
                 .build();
 
         warehouseRepository.save(newWarehouse);
+
+        List<Lot> lots = new ArrayList<>();
+
+        for(LotDTO lotDTO : warehouseDTO.getLotItems()) {
+            Lot lot = Lot.builder()
+                    .description(lotDTO.getDescription())
+                    .size(lotDTO.getSize())
+                    .status(LotStatus.AVAILABLE)
+                    .warehouse(newWarehouse)
+                    .price(lotDTO.getPrice())
+                    .build();
+            lots.add(lot);
+        }
+
+        float totalLotSize = warehouseDTO.getLotItems().stream()
+                .map(LotDTO::getSize)
+                .reduce(0f, Float::sum);
+
+        if (totalLotSize != warehouseDTO.getSize()) {
+            throw new IllegalArgumentException("Total size of lots have to be equal to the warehouse size.");
+        }
+
+        newWarehouse.setLots(lots);
+
+        lotRepository.saveAll(lots);
 
         List<WarehouseImage> warehouseImages = new ArrayList<>();
         if (warehouseDTO.getImages() != null) {
@@ -134,6 +173,7 @@ public class WarehouseService implements IWarehouseService {
                 .address(newWarehouse.getAddress())
                 .size(newWarehouse.getSize())
                 .status(newWarehouse.getStatus())
+                .thumbnail(newWarehouse.getThumbnail())
                 .build();
     }
 
@@ -168,8 +208,6 @@ public class WarehouseService implements IWarehouseService {
 
         warehouse.setName(warehouseDTO.getName());
         warehouse.setDescription(warehouseDTO.getDescription());
-        warehouse.setAddress(warehouseDTO.getAddress());
-        warehouse.setSize(warehouseDTO.getSize());
         warehouse.setStatus(warehouseDTO.getStatus());
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()

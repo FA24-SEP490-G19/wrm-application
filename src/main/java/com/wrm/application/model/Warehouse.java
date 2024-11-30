@@ -1,8 +1,11 @@
 package com.wrm.application.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.wrm.application.constant.enums.WarehouseStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "warehouses")
@@ -35,4 +38,11 @@ public class Warehouse extends BaseModel{
     @OneToOne
     @JoinColumn(name = "warehouse_manager_id")
     private User warehouseManager;
+
+    @Column(name = "thumbnail")
+    private String thumbnail;
+
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Lot> lots;
 }

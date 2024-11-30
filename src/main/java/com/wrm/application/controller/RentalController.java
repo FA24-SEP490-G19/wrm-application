@@ -1,6 +1,7 @@
 package com.wrm.application.controller;
 
 import com.wrm.application.dto.RentalDTO;
+import com.wrm.application.response.rental.RentalDetailResponse;
 import com.wrm.application.response.rental.RentalListResponse;
 import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.impl.RentalService;
@@ -93,7 +94,7 @@ public class RentalController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_SALES')  ")
+    @PreAuthorize("hasRole('ROLE_SALES')")
     public ResponseEntity<?> createRental(@Valid @RequestBody RentalDTO rentalDTO, BindingResult result, HttpServletRequest req) {
         try {
             if (result.hasErrors()) {
@@ -111,7 +112,7 @@ public class RentalController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') ")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> updateRentalStatus(@PathVariable Long id, @Valid @RequestBody RentalDTO rentalDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
@@ -137,6 +138,66 @@ public class RentalController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/warehouse")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResponseEntity<RentalListResponse> getByWarehouseId(
+            @RequestParam(value = "page") int page,
+            @RequestParam(value = "limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalResponse> rentalPage = rentalService.getByWarehouseId(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/customer")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<RentalListResponse> getByCustomerId(
+            @RequestParam(value = "page") int page,
+            @RequestParam(value = "limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalResponse> rentalPage = rentalService.getByCustomerId(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/history")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<RentalListResponse> getHistoryByCustomerId(
+            @RequestParam(value = "page") int page,
+            @RequestParam(value = "limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalResponse> rentalPage = rentalService.getHistoryByCustomerId(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
     }
 }
 

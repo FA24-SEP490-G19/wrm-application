@@ -74,6 +74,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/users/login", "POST"),
                 Pair.of("/users/reset-password", "PUT"),
                 Pair.of("/lots", "GET"),
+                Pair.of("/lots/**", "GET"),
                 Pair.of("/v2/payment-requests", "POST")
         );
 

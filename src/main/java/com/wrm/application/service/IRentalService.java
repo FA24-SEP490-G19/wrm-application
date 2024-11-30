@@ -15,16 +15,13 @@ public interface IRentalService {
 
     RentalResponse createRental(RentalDTO rentalDTO, String remoteUser) throws Exception;
 
-
-
     RentalResponse updateRentalStatus(Long id, RentalDTO rentalDTO) throws Exception;
 
     void deleteRental(Long id) throws Exception;
 
-
-    Page<RentalResponse> getByCustomerId(String customerId, PageRequest pageRequest) throws Exception;
-
-    Page<RentalResponse> getByWarehouseId(Long warehouseId, PageRequest pageRequest) throws Exception;
+    Page<RentalResponse> getByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception;
 
     RentalResponse getRentalById(Long id) throws Exception;
+
+    Page<RentalResponse> getByWarehouseId(String remoteUser, PageRequest pageRequest) throws Exception;
 }

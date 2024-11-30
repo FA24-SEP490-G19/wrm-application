@@ -25,6 +25,23 @@ public class RentalResponse {
     @JsonProperty("warehouse_id")
     private Long warehouseId;
 
+    @JsonProperty("lot_id")
+    private Long lotId;
+
+    @JsonProperty("additional_service_id")
+    private Long additionalServiceId;
+
+    @JsonProperty("contract_id")
+    private Long contractId;
+
+    @JsonProperty("start_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
+    private LocalDateTime startDate;
+
+    @JsonProperty("end_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
+    private LocalDateTime endDate;
+
     @JsonProperty("sales_id")
     private Long salesId;
 

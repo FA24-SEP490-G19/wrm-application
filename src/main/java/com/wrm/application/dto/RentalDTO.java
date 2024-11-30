@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -27,9 +28,21 @@ public class RentalDTO {
     @JsonProperty("sales_id")
     private Long salesId;
 
+    @JsonProperty("lot_id")
+    private Long lotId;
+
+    @JsonProperty("additional_service_id")
+    private Long additionalServiceId;
+
+    @JsonProperty("contract_id")
+    private Long contractId;
+
+    @JsonProperty("start_date")
+    private LocalDateTime startDate;
+
+    @JsonProperty("end_date")
+    private LocalDateTime endDate;
+
     @Enumerated(EnumType.STRING)
     private RentalStatus status;
-
-    @JsonProperty("rental_items")
-    private List<RentalDetailDTO> rentalItems;
 }

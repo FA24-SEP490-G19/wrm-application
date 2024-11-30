@@ -1,20 +1,16 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.LotStatus;
-import com.wrm.application.constant.enums.RentalDetailStatus;
+import com.wrm.application.constant.enums.RentalStatus;
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.Lot;
-import com.wrm.application.model.RentalDetail;
+import com.wrm.application.model.Rental;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
-import com.wrm.application.repository.LotRepository;
-import com.wrm.application.repository.RentalDetailRepository;
-import com.wrm.application.repository.UserRepository;
-import com.wrm.application.repository.WarehouseRepository;
-import com.wrm.application.response.lot.LotListResponse;
+import com.wrm.application.repository.*;
 import com.wrm.application.response.lot.LotResponse;
 import com.wrm.application.service.ILotService;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +26,7 @@ public class LotService implements ILotService {
     private final LotRepository lotRepository;
     private final UserRepository userRepository;
     private final WarehouseRepository warehouseRepository;
-    private final RentalDetailRepository rentalDetailRepository;
+    private final RentalRepository rentalRepository;
 
     @Override
     public Page<LotResponse> getAllLots(PageRequest pageRequest) {
@@ -58,40 +54,6 @@ public class LotService implements ILotService {
                 .status(lot.getStatus())
                 .warehouseId(lot.getWarehouse().getId())
                 .price(lot.getPrice())
-                .build();
-    }
-
-
-
-    @Override
-    public LotResponse createLot(LotDTO lotDTO) throws Exception {
-        if (lotDTO.getDescription() == null || lotDTO.getDescription().isEmpty()) {
-            throw new IllegalArgumentException("Description cannot be empty");
-        }
-        if (lotDTO.getSize() <= 0) {
-            throw new IllegalArgumentException("Size must be a positive number");
-        }
-        if (lotDTO.getPrice() == null || lotDTO.getPrice().isEmpty()) {
-            throw new IllegalArgumentException("Price cannot be empty");
-        }
-
-        Warehouse warehouse = warehouseRepository.findById(lotDTO.getWarehouseId())
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
-        Lot newLot = Lot.builder()
-                .description(lotDTO.getDescription())
-                .size(lotDTO.getSize())
-                .price(lotDTO.getPrice())
-                .status(LotStatus.AVAILABLE)
-                .warehouse(warehouse)
-                .build();
-        lotRepository.save(newLot);
-        return LotResponse.builder()
-                .id(newLot.getId())
-                .description(newLot.getDescription())
-                .size(newLot.getSize())
-                .price(newLot.getPrice())
-                .status(newLot.getStatus())
-                .warehouseId(newLot.getWarehouse().getId())
                 .build();
     }
 
@@ -153,9 +115,8 @@ public class LotService implements ILotService {
             throw new PermissionDenyException("User is not the manager of this warehouse");
         }
 
-        List<RentalDetail> rentalDetails = rentalDetailRepository.findByLotId(lotId);
-        if (rentalDetails.stream().noneMatch(rd -> rd.getStatus().equals(RentalDetailStatus.ACTIVE.name()))) {
-            throw new IllegalStateException("Cannot update lot status without active rental details.");
+        if (rentalRepository.existsActiveRentalByLotId(lotId)) {
+            throw new IllegalStateException("Cannot update lot status without active rental.");
         }
 
         LotStatus newStatus = LotStatus.valueOf(lotDTO.getStatus().toString());
