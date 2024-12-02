@@ -10,8 +10,6 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         lot_id: '',
         additional_service_id: '',
         contract_id: '',
-        start_date: '',
-        end_date: ''
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -34,8 +32,6 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                 ...rentalData,
                 rental_items: rentalData.rental_items?.map(item => ({
                     ...item,
-                    start_date: formatDateForInput(item.start_date),
-                    end_date: formatDateForInput(item.end_date)
                 })) || [initialFormState.rental_items[0]]
             });
         } else {
@@ -103,8 +99,6 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         if (!formData.customer_id) errors.customer_id = 'Vui lòng chọn khách hàng';
         if (!formData.warehouse_id) errors.warehouse_id = 'Vui lòng chọn kho';
         if (!formData.lot_id) errors.lot_id = 'Vui lòng chọn lô hàng';
-        if (!formData.start_date) errors.start_date = 'Vui lòng chọn ngày bắt đầu';
-        if (!formData.end_date) errors.end_date = 'Vui lòng chọn ngày kết thúc';
         if (!formData.contract_id) errors.contract_id = 'Vui lòng nhập mã hợp đồng';
         return errors;
     };
@@ -119,8 +113,6 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
 
         const submitData = {
             ...formData,
-            start_date: new Date(formData.start_date).toISOString(),
-            end_date: new Date(formData.end_date).toISOString()
         };
 
         onSubmit(submitData);

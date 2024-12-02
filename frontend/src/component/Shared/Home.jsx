@@ -401,7 +401,7 @@ const WarehouseRental = () => {
                 ) : (
                     <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {currentItems.map((warehouse) => (
+                        {  currentItems.filter((warehouse) => warehouse.status === 'ACTIVE').map((warehouse) => (
                             <div key={warehouse.id}
                                  className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 transform hover:-translate-y-1"
                                  onClick={() => handleWarehouseClick(warehouse.id)}>

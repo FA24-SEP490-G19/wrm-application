@@ -159,7 +159,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                                         <input
                                             type="number"
                                             name="amount"
-                                            value={formData.amount ? parseInt(formData.amount).toLocaleString('vi-VN') : ''}
+                                            value={formData.amount ? formData.amount.toLocaleString('vi-VN') : ''}
                                             onChange={handleChange}
                                             className={inputClasses(errors.amount)}
                                             placeholder="0"

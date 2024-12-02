@@ -197,15 +197,15 @@ const RentalList = () => {
 
     const statusColors = {
         'PENDING': 'bg-yellow-50 text-yellow-700 border-yellow-100',
-        'APPROVED': 'bg-green-50 text-green-700 border-green-100',
-        'REJECTED': 'bg-red-50 text-red-700 border-red-100',
+        'ACTIVE': 'bg-green-50 text-green-700 border-green-100',
+        'EXPIRED': 'bg-red-50 text-red-700 border-red-100',
         'COMPLETED': 'bg-blue-50 text-blue-700 border-blue-100'
     };
 
     const statusTranslations = {
         'PENDING': 'Đang chờ',
-        'APPROVED': 'Đã duyệt',
-        'REJECTED': 'Từ chối',
+        'ACTIVE': 'Đã duyệt',
+        'EXPIRED': 'Từ chối',
         'COMPLETED': 'Hoàn thành'
     };
 
@@ -337,13 +337,13 @@ const RentalList = () => {
                                         {customer.role === "ROLE_ADMIN" && rental.status === 'PENDING' && (
                                             <>
                                                 <button
-                                                    onClick={() => handleStatusChange(rental.id, 'APPROVED')}
+                                                    onClick={() => handleStatusChange(rental.id, 'ACTIVE')}
                                                     className="text-green-600 hover:text-green-900"
                                                 >
                                                     Duyệt
                                                 </button>
                                                 <button
-                                                    onClick={() => handleStatusChange(rental.id, 'REJECTED')}
+                                                    onClick={() => handleStatusChange(rental.id, 'EXPIRED')}
                                                     className="text-red-600 hover:text-red-900"
                                                 >
                                                     Từ chối
