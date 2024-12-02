@@ -344,8 +344,8 @@ const MyFeedBack = () => {
                 </div>
                 <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Quản lí Phản hồi từ khách hàng</h1>
-                        <p className="text-gray-600">Dành cho Admin</p>
+                        <h1 className="text-2xl font-bold text-gray-900">Quản lí Phản hồi </h1>
+                        <p className="text-gray-600">Dành cho người dùng</p>
                     </div>
 
                 </div>
@@ -371,7 +371,6 @@ const MyFeedBack = () => {
                         <table className="w-full">
                             <thead>
                             <tr className="border-b border-gray-200">
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kho đánh giá</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Đánh giá</th>
@@ -383,21 +382,17 @@ const MyFeedBack = () => {
                             <tbody className="divide-y divide-gray-200">
                             {filteredItems.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        {item.createdDate}
-                                    </td>
+
                                     <td className="px-6 py-4 text-sm text-gray-900">
                                         <div className="text-sm">
-                                            <div className="text-gray-500">Tên: {item.customer.fullName}</div>
-                                            <div className="text-gray-500">Email: {item.customer.email}</div>
-                                            <div className="text-gray-500">SĐT: {item.customer.phoneNumber}</div>
+                                            <div className="text-gray-500">Tên: {item.customerName}</div>
+                                            <div className="text-gray-500">Email: {item.customerEmail}</div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-900">
                                         <div className="text-sm">
-                                            <div className="text-gray-500">Mã kho: {item.warehouse.id}</div>
-                                            <div className="text-gray-500">Tên: {item.warehouse.name}</div>
-                                            <div className="text-gray-500">Tên: {item.warehouse.address}</div>
+                                            <div className="text-gray-500">Mã kho: {item.warehouseId}</div>
+                                            <div className="text-gray-500">Tên: {item.warehouseName}</div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-900">

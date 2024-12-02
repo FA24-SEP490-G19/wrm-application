@@ -28,13 +28,13 @@ public class PaymentController {
         this.payOSPaymentService = payOSPaymentService;
     }
 
-    @PostMapping("/payment-requests")
+    @PostMapping("/payment-sdsd")
     public void initiatePayment(@RequestBody QrRequest qrRequest) throws Exception {
 
          payOSPaymentService.createPaymentRequest(qrRequest) ;
     }
 
-    @GetMapping("/payment-requests")
+    @GetMapping("/payment-sds")
     public ResponseEntity<List<Payment>> getAllPayments() {
         List<Payment> payments = payOSPaymentService.getAllPayments();
         return ResponseEntity.ok(payments);

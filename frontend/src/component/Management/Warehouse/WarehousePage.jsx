@@ -160,7 +160,7 @@ const FeatureList = () => {
             setIsModalOpen(false);
             fetchItems();
         } catch (error) {
-            showToast(err.response.data);
+            showToast(error.response.data,'error');
         }
     };
     const statusColors = {
@@ -307,8 +307,10 @@ const FeatureList = () => {
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Id</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Tên</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Địa chỉ</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">kích thước</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kích thước</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Mô tả</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Ảnh</th>
 
                             {/*<th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Hình ảnh</th>*/}
 
@@ -330,13 +332,35 @@ const FeatureList = () => {
                                     {item.address}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-500">
-                                    {item.size.toFixed(2)}
+                                    {item.size.toFixed(2) } m²
                                 </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    {item.description}
+                                </td>
+
                                 <td className="px-6 py-4">
                                     <span
                                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[item.status] || 'bg-gray-50 text-gray-700 border-gray-100'}`}>
                                         {getStatusLabel(item.status)}
                                     </span>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    {item.fullThumbnailPath ? (
+                                        <img
+                                            src={`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${item.fullThumbnailPath.split('\\').pop()}`}
+                                            alt="Warehouse thumbnail"
+                                            className="w-16 h-16 object-cover rounded-lg"
+                                            onError={(e) => {
+                                                e.target.src = '/placeholder.jpg';
+                                                e.target.classList.add('opacity-50');
+                                            }}
+                                        />
+                                    ) : (
+                                        <div
+                                            className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <Image className="w-8 h-8 text-gray-400"/>
+                                        </div>
+                                    )}
                                 </td>
 
                                 {/*<td className="px-6 py-4">*/}

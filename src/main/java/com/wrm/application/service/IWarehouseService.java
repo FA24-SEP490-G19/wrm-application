@@ -20,4 +20,5 @@ public interface IWarehouseService {
     Page<WarehouseResponse> getWarehouseByKeyword(String address, PageRequest pageRequest);
 
 
+    Page<WarehouseResponse> getAllWarehousesImageByWarehouseId(PageRequest pageRequest);
 }

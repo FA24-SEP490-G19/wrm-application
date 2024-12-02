@@ -7,13 +7,11 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
     const initialFormState = {
         customer_id: '',
         warehouse_id: '',
-        rental_items: [{
-            lot_id: '',
-            additional_service_id: '',
-            contract_id: '',
-            start_date: '',
-            end_date: ''
-        }]
+        lot_id: '',
+        additional_service_id: '',
+        contract_id: '',
+        start_date: '',
+        end_date: ''
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -21,6 +19,8 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
     const [warehouses, setWarehouses] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [availableLots, setAvailableLots] = useState([]);
+    const [availableContracts, setAvailableContracts] = useState([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -48,11 +48,39 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         return new Date(dateString).toISOString().slice(0, 16);
     };
 
+    // Add new function to fetch lots
+    const fetchLots = async (warehouseId) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/lots/${warehouseId}`);
+            const data = await response.json();
+            setAvailableLots(data || []);
+        } catch (error) {
+            console.error('Error fetching lots:', error);
+        }
+    };
+
+    const fetchContracts = async () => {
+        try {
+            const token = localStorage.getItem('access_token'); // Get token from localStorage
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/contracts/available_contract`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            setAvailableContracts(data || []);
+        } catch (error) {
+            console.error('Error fetching contracts:', error);
+        }
+    };
+
     const fetchOptions = async () => {
         setLoading(true);
         try {
             const warehousesResponse = await getAllItems();
             const customersResponse = await getAllCustomers();
+            await fetchContracts(); // Add this line
 
             setWarehouses(warehousesResponse.data.warehouses);
             setCustomers(customersResponse.data || []);
@@ -62,44 +90,22 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         setLoading(false);
     };
 
+
     const ADDITIONAL_SERVICES = [
-        { id: 1, name: "Lifting Service", description: "Provides lifting support for goods in the warehouse" },
-        { id: 2, name: "Loading and Unloading", description: "Provides loading and unloading support for goods in the warehouse" },
-        { id: 3, name: "Comprehensive Package", description: "Includes all transportation support services such as lifting and loading/unloading" }
+        { id: 1, name: "Dịch vụ nâng hàng", description: "Cung cấp hỗ trợ nâng hàng hóa trong kho" },
+        { id: 2, name: "Dịch vụ bốc dỡ", description: "Cung cấp hỗ trợ bốc dỡ hàng hóa trong kho" },
+        { id: 3, name: "Gói dịch vụ toàn diện", description: "Bao gồm tất cả các dịch vụ hỗ trợ vận chuyển như nâng và bốc/dỡ hàng" }
     ];
 
     const validateForm = () => {
         const errors = {};
 
-        if (!formData.customer_id) {
-            errors.customer_id = 'Vui lòng chọn khách hàng';
-        }
-
-        if (!formData.warehouse_id) {
-            errors.warehouse_id = 'Vui lòng chọn kho';
-        }
-
-        const itemErrors = formData.rental_items.map(item => {
-            const itemError = {};
-            if (!item.lot_id) {
-                itemError.lot_id = 'Vui lòng chọn lô hàng';
-            }
-            if (!item.start_date) {
-                itemError.start_date = 'Vui lòng chọn ngày bắt đầu';
-            }
-            if (!item.end_date) {
-                itemError.end_date = 'Vui lòng chọn ngày kết thúc';
-            }
-            if (item.start_date && item.end_date && new Date(item.end_date) <= new Date(item.start_date)) {
-                itemError.end_date = 'Ngày kết thúc phải sau ngày bắt đầu';
-            }
-            return itemError;
-        });
-
-        if (itemErrors.some(error => Object.keys(error).length > 0)) {
-            errors.rental_items = itemErrors;
-        }
-
+        if (!formData.customer_id) errors.customer_id = 'Vui lòng chọn khách hàng';
+        if (!formData.warehouse_id) errors.warehouse_id = 'Vui lòng chọn kho';
+        if (!formData.lot_id) errors.lot_id = 'Vui lòng chọn lô hàng';
+        if (!formData.start_date) errors.start_date = 'Vui lòng chọn ngày bắt đầu';
+        if (!formData.end_date) errors.end_date = 'Vui lòng chọn ngày kết thúc';
+        if (!formData.contract_id) errors.contract_id = 'Vui lòng nhập mã hợp đồng';
         return errors;
     };
 
@@ -113,65 +119,36 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
 
         const submitData = {
             ...formData,
-            rental_items: formData.rental_items.map(item => ({
-                ...item,
-                start_date: new Date(item.start_date).toISOString(),
-                end_date: new Date(item.end_date).toISOString()
-            }))
+            start_date: new Date(formData.start_date).toISOString(),
+            end_date: new Date(formData.end_date).toISOString()
         };
 
         onSubmit(submitData);
     };
 
+    // Modify handleChange to fetch lots when warehouse is selected
     const handleChange = (e) => {
         const { name, value, type } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: type === 'number' ? (value ? parseInt(value) : '') : value
         }));
+
+        // Clear lot selection when warehouse changes
+        if (name === 'warehouse_id') {
+            setFormData(prev => ({
+                ...prev,
+                lot_id: ''  // Reset lot selection
+            }));
+            if (value) {
+                fetchLots(value);  // Fetch lots for selected warehouse
+            } else {
+                setAvailableLots([]); // Clear lots if no warehouse selected
+            }
+        }
+
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
-        }
-    };
-
-    const handleRentalItemChange = (index, field, value) => {
-        const updatedItems = [...formData.rental_items];
-        updatedItems[index] = {
-            ...updatedItems[index],
-            [field]: value
-        };
-        setFormData(prevState => ({
-            ...prevState,
-            rental_items: updatedItems
-        }));
-
-        // Clear errors for the changed field
-        if (errors.rental_items?.[index]?.[field]) {
-            const newErrors = { ...errors };
-            newErrors.rental_items[index][field] = '';
-            setErrors(newErrors);
-        }
-    };
-
-    const addRentalItem = () => {
-        setFormData(prevState => ({
-            ...prevState,
-            rental_items: [...prevState.rental_items, {
-                lot_id: '',
-                additional_service_id: '',
-                contract_id: '',
-                start_date: '',
-                end_date: ''
-            }]
-        }));
-    };
-
-    const removeRentalItem = (index) => {
-        if (formData.rental_items.length > 1) {
-            setFormData(prevState => ({
-                ...prevState,
-                rental_items: prevState.rental_items.filter((_, i) => i !== index)
-            }));
         }
     };
 
@@ -209,6 +186,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {mode === 'create' && (
                                     <>
+                                        {/* Customer selection */}
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">
                                                 Khách hàng
@@ -232,6 +210,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                                             )}
                                         </div>
 
+                                        {/* Warehouse selection */}
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">
                                                 Kho
@@ -254,119 +233,86 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                                                 <p className="mt-1 text-sm text-red-600">{errors.warehouse_id}</p>
                                             )}
                                         </div>
-                                    </>
-                                )}
 
-                                {/* Rental Items */}
-                                {formData.rental_items.map((item, index) => (
-                                    <div key={index} className="space-y-4 p-4 border rounded-lg">
-                                        <div className="flex justify-between items-center">
-                                            <h3 className="text-lg font-medium">Thông tin thuê #{index + 1}</h3>
-                                            {formData.rental_items.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeRentalItem(index)}
-                                                    className="text-red-600 hover:text-red-800"
-                                                >
-                                                    <Trash2 className="w-5 h-5"/>
-                                                </button>
+                                        {/* Lot selection */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Lô hàng
+                                            </label>
+                                            <select
+                                                name="lot_id"
+                                                value={formData.lot_id}
+                                                onChange={handleChange}
+                                                className={`${inputClasses(errors.lot_id)} ${loading ? 'cursor-wait' : ''}`}
+                                                disabled={!formData.warehouse_id}  // Disable if no warehouse selected
+                                            >
+                                                <option value="">Chọn lô hàng</option>
+                                                {availableLots.map(lot => (
+                                                    <option key={lot.id} value={lot.id}>
+                                                        {lot.description} - {lot.size}m² - {lot.price}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.lot_id && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.lot_id}</p>
+                                            )}
+                                            {!formData.warehouse_id && (
+                                                <p className="mt-1 text-sm text-gray-500">
+                                                    Vui lòng chọn kho trước khi chọn lô hàng
+                                                </p>
                                             )}
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">
-                                                    Mã lô hàng
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={item.lot_id}
-                                                    onChange={(e) => handleRentalItemChange(index, 'lot_id', e.target.value)}
-                                                    className={inputClasses(errors.rental_items?.[index]?.lot_id)}
-                                                />
-                                                {errors.rental_items?.[index]?.lot_id && (
-                                                    <p className="mt-1 text-sm text-red-600">
-                                                        {errors.rental_items[index].lot_id}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">
-                                                    Dịch vụ bổ sung
-                                                </label>
-                                                <select
-                                                    value={item.additional_service_id}
-                                                    onChange={(e) => handleRentalItemChange(index, 'additional_service_id', e.target.value)}
-                                                    className={inputClasses(errors.rental_items?.[index]?.additional_service_id)}
-                                                >
-                                                    <option value="">Chọn dịch vụ (tùy chọn)</option>
-                                                    {ADDITIONAL_SERVICES.map(service => (
-                                                        <option key={service.id} value={service.id}>
-                                                            {service.name} - {service.description}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">
-                                                    Thời gian bắt đầu
-                                                </label>
-                                                <input
-                                                    type="datetime-local"
-                                                    value={item.start_date}
-                                                    onChange={(e) => handleRentalItemChange(index, 'start_date', e.target.value)}
-                                                    className={inputClasses(errors.rental_items?.[index]?.start_date)}
-                                                />
-                                                {errors.rental_items?.[index]?.start_date && (
-                                                    <p className="mt-1 text-sm text-red-600">
-                                                        {errors.rental_items[index].start_date}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">
-                                                    Thời gian kết thúc
-                                                </label>
-                                                <input
-                                                    type="datetime-local"
-                                                    value={item.end_date}
-                                                    onChange={(e) => handleRentalItemChange(index, 'end_date', e.target.value)}
-                                                    className={inputClasses(errors.rental_items?.[index]?.end_date)}
-                                                />
-                                                {errors.rental_items?.[index]?.end_date && (
-                                                    <p className="mt-1 text-sm text-red-600">
-                                                        {errors.rental_items[index].end_date}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">
-                                                    Mã hợp đồng
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={item.contract_id}
-                                                    onChange={(e) => handleRentalItemChange(index, 'contract_id', e.target.value)}
-                                                    className={inputClasses(errors.rental_items?.[index]?.contract_id)}
-                                                />
-                                            </div>
+                                        {/* Additional Service */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Dịch vụ bổ sung
+                                            </label>
+                                            <select
+                                                name="additional_service_id"
+                                                value={formData.additional_service_id}
+                                                onChange={handleChange}
+                                                className={inputClasses(errors.additional_service_id)}
+                                            >
+                                                <option value="">Chọn dịch vụ (tùy chọn)</option>
+                                                {ADDITIONAL_SERVICES.map(service => (
+                                                    <option key={service.id} value={service.id}>
+                                                        {service.name} - {service.description}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
-                                    </div>
-                                ))}
 
-                                <button
-                                    type="button"
-                                    onClick={addRentalItem}
-                                    className="w-full py-2 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:text-gray-900 hover:border-gray-400 flex items-center justify-center gap-2"
-                                >
-                                    <Plus className="w-5 h-5"/>
-                                    Thêm thông tin thuê
-                                </button>
 
+                                        {/* Contract ID */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Mã hợp đồng
+                                            </label>
+                                            <select
+                                                name="contract_id"
+                                                value={formData.contract_id}
+                                                onChange={handleChange}
+                                                className={`${inputClasses(errors.contract_id)} ${loading ? 'cursor-wait' : ''}`}
+                                                disabled={loading}
+                                            >
+                                                <option value="">Chọn hợp đồng</option>
+                                                {availableContracts.map(contract => (
+                                                    <option key={contract.id} value={contract.id}>
+                                                        Hợp đồng #{contract.id} -
+                                                        {new Date(contract.signedDate).toLocaleDateString('vi-VN')} đến
+                                                        {new Date(contract.expiryDate).toLocaleDateString('vi-VN')}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.contract_id && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.contract_id}</p>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* Submit buttons */}
                                 <div className="flex justify-end space-x-3 pt-6">
                                     <button
                                         type="button"
@@ -379,7 +325,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                                         type="submit"
                                         className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
                                     >
-                                        {mode === 'create' ? 'Tạo mới' : 'Cập nhật'}
+                                    {mode === 'create' ? 'Tạo mới' : 'Cập nhật'}
                                     </button>
                                 </div>
                             </form>
@@ -388,7 +334,9 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                 </div>
             </div>
         </>
+
     );
+
 };
 
 export default RentalModal;

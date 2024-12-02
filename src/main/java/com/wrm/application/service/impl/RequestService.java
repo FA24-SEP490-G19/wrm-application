@@ -38,6 +38,7 @@ public class RequestService implements IRequestService {
                         .type(request.getType().getContent())
                         .description(request.getDescription())
                         .status(request.getStatus())
+                        .adminResponse(request.getAdminResponse())
                         .build());
     }
 

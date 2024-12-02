@@ -7,10 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
+    Optional<Payment> findByTransactionRef(String transactionRef);
 
-    @Query(value = "SELECT p FROM Payment p WHERE p.user_id = :user_id")
-    List<Payment> findByUser_id(int user_id);
+    List<Payment> findAllByOrderByCreatedDateDesc();
+
+    List<Payment> findByUserId(Long userId);
 }

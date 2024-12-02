@@ -14,9 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/contracts")
@@ -38,7 +36,6 @@ public class ContractController {
         }
     }
 
-
     @GetMapping("/sales")
     @PreAuthorize("hasRole('ROLE_SALES')")
     public ResponseEntity<?> getAllContractsBySale() {
@@ -52,8 +49,6 @@ public class ContractController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER') or hasRole('ROLE_MANAGER')")
@@ -110,5 +105,11 @@ public class ContractController {
         }
     }
 
+    @GetMapping("/available_contract")
+    public ResponseEntity<?> getAvailableContracts() {
+        List<ContractDetailResponse> contracts = contractService.getAvailableContracts();
+
+        return ResponseEntity.ok(contracts);
+    }
 }
 

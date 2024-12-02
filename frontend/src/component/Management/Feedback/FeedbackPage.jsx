@@ -185,12 +185,12 @@ const FeatureList = () => {
             </div>
 
             {/* Item List */}
+            {/* Item List */}
             <div className="bg-white rounded-xl shadow">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
                         <tr className="border-b border-gray-200">
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kho đánh giá</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Đánh giá</th>
@@ -200,23 +200,19 @@ const FeatureList = () => {
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                        {currentItems.map((item) => (
+                        {filteredItems.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    {item.createdDate}
-                                </td>
+
                                 <td className="px-6 py-4 text-sm text-gray-900">
                                     <div className="text-sm">
-                                        <div className="text-gray-500">Tên: {item.customer.fullName}</div>
-                                        <div className="text-gray-500">Email: {item.customer.email}</div>
-                                        <div className="text-gray-500">SĐT: {item.customer.phoneNumber}</div>
+                                        <div className="text-gray-500">Tên: {item.customerName}</div>
+                                        <div className="text-gray-500">Email: {item.customerEmail}</div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-900">
                                     <div className="text-sm">
-                                        <div className="text-gray-500">Mã kho: {item.warehouse.id}</div>
-                                        <div className="text-gray-500">Tên: {item.warehouse.name}</div>
-                                        <div className="text-gray-500">Tên: {item.warehouse.address}</div>
+                                        <div className="text-gray-500">Mã kho: {item.warehouseId}</div>
+                                        <div className="text-gray-500">Tên: {item.warehouseName}</div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-900">
@@ -235,52 +231,18 @@ const FeatureList = () => {
 
                 {/* Pagination */}
                 <div className="px-6 py-4 border-t border-gray-200">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-500">
-                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredItems.length)}
-                            trong tổng số {filteredItems.length} Phản hồi
+                            Số lượng {items.length} phản hồi đang được hiển thị
                         </div>
-
-                        <div className="flex items-center gap-2">
-                            {/* Previous button */}
+                        <div className="flex gap-2">
                             <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
-                                    ${currentPage === 1
-                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
                             >
                                 Trước
                             </button>
-
-                            {/* Page numbers */}
-                            <div className="hidden sm:flex items-center gap-2">
-                                {getPageNumbers().map((page, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => page !== '...' && setCurrentPage(page)}
-                                        disabled={page === '...'}
-                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                                            ${page === currentPage
-                                            ? 'bg-indigo-600 text-white'
-                                            : page === '...'
-                                                ? 'text-gray-400 cursor-default'
-                                                : 'hover:bg-gray-50 text-gray-700'}`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Next button */}
                             <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
-                                    ${currentPage === totalPages
-                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
                             >
                                 Sau
                             </button>

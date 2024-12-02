@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -131,6 +132,20 @@ public class LotService implements ILotService {
                 .warehouseId(lot.getWarehouse().getId())
                 .price(lot.getPrice())
                 .build();
+    }
+
+    @Override
+    public List<LotResponse> getAvailableLotsByWarehouseId(Long warehouseId) {
+        List<Lot> lots = lotRepository.findAvailableLotsByWarehouseId(warehouseId);
+        return lots.stream()
+                .map(lot -> LotResponse.builder()
+                        .id(lot.getId())
+                        .description(lot.getDescription())
+                        .size(lot.getSize())
+                        .status(lot.getStatus())
+                        .price(lot.getPrice())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 

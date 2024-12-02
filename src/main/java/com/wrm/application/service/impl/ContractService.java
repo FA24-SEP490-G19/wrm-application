@@ -30,7 +30,19 @@ public class ContractService implements IContractService {
     private final ContractImageRepository contractImageRepository;
     private final UserRepository userRepository;
 
+    public List<ContractDetailResponse> getAvailableContracts() {
+        List<Contract> contracts = contractRepository.findAvailableContracts();
 
+        return contracts.stream()
+                .map(contract -> {
+                    ContractDetailResponse.ContractDetailResponseBuilder responseBuilder = ContractDetailResponse.builder()
+                            .id(contract.getId())
+                            .signedDate(contract.getSignedDate())
+                            .expiryDate(contract.getExpiryDate());
+                    return responseBuilder.build() ;
+                })
+                .collect(Collectors.toList());
+    }
 
     @Override
     public ContractDetailResponse getContractDetailsByContractId(Long contractId, String remoteUser) throws Exception {
@@ -123,7 +135,7 @@ public class ContractService implements IContractService {
         }
 
         String fileName = UUID.randomUUID().toString() + ".png";
-        Path path = Paths.get("uploads/images/contract/" + fileName);
+        Path path = Paths.get("C:\\image\\" + fileName);
         Files.createDirectories(path.getParent());
         Files.write(path, imageBytes);
         return path.toString();
@@ -260,6 +272,7 @@ public class ContractService implements IContractService {
                 })
                 .collect(Collectors.toList());
     }
+
 
 }
 

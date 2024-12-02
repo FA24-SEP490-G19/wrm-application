@@ -27,15 +27,18 @@ import RentalByCustomer from "./component/RentalByCustomer.jsx";
 import MyAppointment from "./component/Myappointment.jsx";
 import MyRequestPage from "./component/MyRequestPage.jsx";
 import MyFeedBack from "./component/MyFeedback.jsx";
-import PaymentsPage from "./component/Management/Payment/PaymentsPage.jsx";
+import  {PaymentList} from "./component/Management/Payment/PaymentsPage.jsx";
 import MyPaymentPage from "./component/MyPaymentPage.jsx";
+import HomeForGuess from "./component/Shared/HomeForGuest.jsx";
+import {AuthRoute} from "./component/Shared/AuthRoute.jsx";
+import WarehouseDetailForGuess from "./component/Shared/WareHouseDetailForGuess.jsx";
 
 function App() {
     return (
         <Routes>
             <Route path="/landing" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+                <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
+            <Route path="/register" element={<AuthRoute><RegisterPage /></AuthRoute>} />
             <Route path="/reset" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
                 <Route path="/resetForNotUser" element={<ProtectedRoute><ChangePassForNotUser /></ProtectedRoute>} />
             <Route path="/profileNotUser" element={<ProtectedRoute><ProfileNotUser /></ProtectedRoute>} />
@@ -47,11 +50,12 @@ function App() {
 
             <Route path="/profile" element={<ProfileCRUD />} />
             <Route path="/warehouse" element={<WarehouseList />} />
-            <Route path="/warehouse/:id" element={<WarehouseDetail />} />
-
+            <Route path="/warehouse/:id" element={<ProtectedRoute><WarehouseDetail /></ProtectedRoute>} />
+            <Route path="/warehouse_guess/:id" element={<AuthRoute><WarehouseDetailForGuess /></AuthRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /> </ProtectedRoute>} />
             <Route path="/user" element={<CustomersPage />} />
             <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/home/guess" element={<AuthRoute><HomeForGuess /></AuthRoute>} />
             <Route path="/kho" element={<ProtectedRoute><WarehousePage /> </ProtectedRoute>} />
             <Route path="/appointment" element={<ProtectedRoute><AppointmentPage /> </ProtectedRoute>} />
             <Route path="/lot" element={<ProtectedRoute><LotsPage /> </ProtectedRoute>} />
@@ -60,7 +64,7 @@ function App() {
             <Route path="/rental_detail" element={<ProtectedRoute><RentalDetail/> </ProtectedRoute>} />
             <Route path="/request" element={<ProtectedRoute><RequestPage/> </ProtectedRoute>} />
             <Route path="/feedback" element={<ProtectedRoute><FeedBackPage/> </ProtectedRoute>} />
-            <Route path="/payment" element={<ProtectedRoute><PaymentsPage/> </ProtectedRoute>} />
+            <Route path="/payment" element={<ProtectedRoute><PaymentList/> </ProtectedRoute>} />
 
                 <Route path="/" element={<Navigate to="/landing" replace />} />
         </Routes>

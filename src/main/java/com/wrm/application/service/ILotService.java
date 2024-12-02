@@ -24,4 +24,5 @@ public interface ILotService {
 
     LotResponse updateLotStatus(Long lotId,LotDTO lotDTO, String remoteUser) throws Exception;
 
+    List<LotResponse> getAvailableLotsByWarehouseId(Long warehouseId);
 }

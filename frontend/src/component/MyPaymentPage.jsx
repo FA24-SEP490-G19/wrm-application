@@ -10,13 +10,14 @@ import {
     ChevronDown,
     KeyRound,
     LogOut,
-    X, Menu
+    X, Menu, CreditCard, ArrowLeft
 } from 'lucide-react';
 
 import axios from 'axios';
 import logo from "../assets/logo.png";
 import {useAuth} from "../context/AuthContext.jsx";
 import {useToast} from "../context/ToastProvider.jsx";
+import {useNavigate} from "react-router-dom";
 
 const MyPaymentPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -33,6 +34,8 @@ const MyPaymentPage = () => {
     const [users, setUsers] = useState({});
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const navigate = useNavigate();
+
     // Axios instance with default config
     const axiosInstance = axios.create({
         baseURL: 'http://localhost:8080/warehouses',
@@ -337,107 +340,87 @@ const MyPaymentPage = () => {
                 )}
             </div>
         </header>
-        <div className="max-w-7xl mx-auto px-4 py-5 ">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Quản lý thanh toán</h1>
-                    <p className="text-gray-600">Quản lý các thanh toán của bạn trong hệ thống</p>
+            <div className="max-w-7xl mx-auto px-4 py-5 ">
+                <div className="text-left flex items-center space-x-2">
+                    {/* Optional content on the left */}
+                    <button
+                        onClick={() => navigate('/home')}
+                        className="flex items-center text-gray-600 hover:text-indigo-600 transition-colors"
+                    >
+                        <ArrowLeft className="w-5 h-5 mr-2"/>
+                        Quay về trang home
+                    </button>
                 </div>
-            </div>
-
-            {/* Search */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm theo mô tả, ID người dùng..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                </div>
-            </div>
-
-            {/* Payments Table */}
-            <div className="bg-white rounded-xl shadow">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                        <tr className="border-b border-gray-200">
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">ID</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Mô tả</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">URL</th>
-
-                        </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200">
-                        {currentItems.map((payment) => (
-                            <tr key={payment.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4">{payment.id}</td>
-                                <td className="px-6 py-4">
-                                    <div className="font-medium text-gray-900">{payment.description}</div>
-                                </td>
-                                <td className="px-6 py-4 text-gray-500">
-                                    {formatPrice(payment.amount)}
-                                    <a href=""></a>
-                                </td>
-                                <td className="px-6 py-4 text-gray-500"><a > {payment.url}</a></td>
-
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination */}
-                <div className="px-6 py-4 border-t border-gray-200">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="text-sm text-gray-500">
-                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredPayments.length)} trong tổng số {filteredPayments.length} thanh toán
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
-                                    ${currentPage === 1 ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
-                            >
-                                Trước
-                            </button>
-                            <div className="hidden sm:flex items-center gap-2">
-                                {getPageNumbers().map((page, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => page !== '...' && setCurrentPage(page)}
-                                        disabled={page === '...'}
-                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                                            ${page === currentPage ? 'bg-indigo-600 text-white' : page === '...' ? 'text-gray-400 cursor-default' : 'hover:bg-gray-50 text-gray-700'}`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-                            </div>
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredPayments.length / itemsPerPage)))}
-                                disabled={currentPage === Math.ceil(filteredPayments.length / itemsPerPage)}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
-                                    ${currentPage === Math.ceil(filteredPayments.length / itemsPerPage) ? 'border-gray-200 text-gray-400 cursor-not-allowed' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
-                            >
-                                Sau
-                            </button>
-                        </div>
+                {/* Header */}
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Quản lý thanh toán</h1>
+                        <p className="text-gray-600">Quản lý các thanh toán của bạn trong hệ thống</p>
                     </div>
                 </div>
-            </div>
 
-        </div>
+                {/* Search */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm theo mô tả, ID người dùng..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Payments Table */}
+                <div className="bg-white rounded-xl shadow overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                            <tr className="bg-gray-50">
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">url thanh toán
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                            {currentItems.map((payment) => (
+                                <tr key={payment.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm">
+                                            <div className="font-medium text-gray-900">{payment.orderInfo}</div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                        {formatPrice(payment.amount)}
+                                    </td>
+                                    <td className="px-6 py-4">{payment.user.fullName}</td>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            onClick={() => window.location.href = payment.url}
+                                            className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700
+                             transition-colors duration-200 flex items-center gap-2"
+                                        >
+                                            <CreditCard className="w-4 h-4"/>
+                                            Thanh toán
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination remains the same */}
+                </div>
+
+            </div>
         </div>
     );
 };
-
 
 
 export default MyPaymentPage;

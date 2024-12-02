@@ -29,6 +29,13 @@ import java.util.List;
 public class LotController {
     private final ILotService lotService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<List<LotResponse>> getAvailableLots(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(lotService.getAvailableLotsByWarehouseId(id));
+    }
+
+
     @GetMapping("")
     public ResponseEntity<LotListResponse> getAllLots(
             @RequestParam("page") int page,
@@ -45,10 +52,10 @@ public class LotController {
                 .build());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<LotResponse> getLotById(@PathVariable Long id) throws Exception {
-        return ResponseEntity.ok(lotService.getLotById(id));
-    }
+//    @GetMapping("/{id}")
+//    public ResponseEntity<LotResponse> getLotById(@PathVariable Long id) throws Exception {
+//        return ResponseEntity.ok(lotService.getLotById(id));
+//    }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")

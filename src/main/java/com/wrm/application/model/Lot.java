@@ -1,10 +1,9 @@
 package com.wrm.application.model;
-
 import com.wrm.application.constant.enums.LotStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.List;
+
 
 @Entity
 @Table(name = "lots")

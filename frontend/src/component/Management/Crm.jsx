@@ -26,11 +26,10 @@ const CRMLayout = ({ children }) => {
         { name: 'Quản lí lot', icon: Package, path: '/lot', roles: ['ROLE_ADMIN',"ROLE_MANAGER"] },
         { name: 'Thời gian cho thuê', icon: Package, path: '/contract', roles: ['ROLE_ADMIN','ROLE_SALES','ROLE_USER'] },
         { name: 'Quản lí cho thuê', icon: Package, path: '/rental', roles: ['ROLE_ADMIN','ROLE_SALES'] },
-        { name: 'Chi tiết cho thuê', icon: Package, path: '/rental_detail', roles: ['ROLE_MANAGER'] },
         { name: 'Quản lí yêu cầu', icon: Package, path: '/request', roles: ['ROLE_ADMIN','ROLE_SALES',"ROLE_MANAGER"] },
         { name: 'Quản lí phản hồi', icon: Package, path: '/feedback', roles: ['ROLE_ADMIN'] },
         { name: 'Quản lí người dùng', icon: Users, path: '/user', roles: ['ROLE_ADMIN'] },
-        { name: 'Quản lí thanh toán', icon: Users, path: '/payment', roles: ['ROLE_SALES'] },
+        { name: 'Quản lí thanh toán', icon: Users, path: '/payment', roles: ['ROLE_SALES','ROLE_ADMIN'] },
 
 
     ];

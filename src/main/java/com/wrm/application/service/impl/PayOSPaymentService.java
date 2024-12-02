@@ -38,9 +38,7 @@ public class PayOSPaymentService {
                 .build();
 
         Payment payment = new Payment();
-        payment.setAmount(qrRequest.getAmount());
-        payment.setDescription(qrRequest.getDescription());
-        payment.setUser_id(qrRequest.getUser_id());
+
         payment.setUrl(payOS.createPaymentLink(paymentData).getCheckoutUrl());
         paymentRepository.save(payment);
 
@@ -53,7 +51,7 @@ public class PayOSPaymentService {
     public List<Payment> getAllPaymentsByUser(String email)  {
 
         User user =  userRepository.findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return paymentRepository.findByUser_id(Math.toIntExact(user.getId()));
+        return null ;
 
 
     }
@@ -62,7 +60,7 @@ public class PayOSPaymentService {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found with id: " + id));
 
-        payment.set_payment(paymentDetails.is_payment());
+
 
         return paymentRepository.save(payment);
     }

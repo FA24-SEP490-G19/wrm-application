@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {
     Building2, Square, Timer, Truck, Package,
-    MapPin, Phone, Mail, Search, Menu, Loader2, User, LayoutDashboard, LogOut, ChevronDown, X, KeyRound, Image
+    MapPin, Phone, Mail, Search, Menu, Loader2,User,LayoutDashboard,LogOut,ChevronDown,X,KeyRound
 } from 'lucide-react';
 import logo from "../../assets/logo.png";
 import {getAllItems} from "../../service/WareHouse.js";
@@ -9,7 +9,7 @@ import WarehouseDetailModal from "./WarehouseDetailModal.jsx";
 import {useNavigate} from 'react-router-dom';
 import {useAuth} from "../../context/AuthContext.jsx";
 
-const WarehouseRental = () => {
+const HomeForGuess = () => {
     // State Management
     const [warehouses, setWarehouses] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -87,7 +87,7 @@ const WarehouseRental = () => {
     }, []);
 
     const handleWarehouseClick = (warehouseId) => {
-        navigate(`/warehouse/${warehouseId}`);
+        navigate(`/warehouse_guess/${warehouseId}`);
     };
 
     // Filter warehouses based on search
@@ -130,7 +130,7 @@ const WarehouseRental = () => {
         {
             icon: Package,
             title: 'Tổng diện tích',
-            value: `${warehouses.reduce((acc, w) => acc + (w.size || 0), 0).toLocaleString()} m²`
+            value: `${warehouses.reduce((acc, w) => acc + (w.size || 0), 0)} m²`
         }
     ];
 
@@ -153,119 +153,14 @@ const WarehouseRental = () => {
 
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center space-x-4">
-
-
-                            {customer?.role !== "ROLE_USER" && (
-                                <a
-                                    href="/kho"
-                                    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
-                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
-                                >
-                                    <LayoutDashboard className="w-4 h-4 mr-2"/>
-                                    DashBoard
-                                </a>
-                            )}
-
-                            {customer?.role === "ROLE_USER" ? (
-                                <div className="flex items-center space-x-4">
-                                    {/* Profile Dropdown */}
-                                    <div className="relative">
-                                        <button
-                                            onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                                            className="flex items-center px-6 py-2 bg-gradient-to-r from-indigo-600
-                                                 to-violet-600 text-white rounded-full hover:shadow-lg
-                                                 hover:scale-105 transition duration-300"
-                                        >
-                                            <User className="w-4 h-4 mr-2"/>
-                                            Xin chào {customer?.username}
-                                            <ChevronDown className={`w-4 h-4 ml-1 transition-transform duration-200 
-                                            ${isProfileDropdownOpen ? 'rotate-180' : ''}`}
-                                            />
-                                        </button>
-
-                                        {/* Dropdown Menu */}
-                                        {isProfileDropdownOpen && (
-                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg
-                                                      border border-gray-100 py-1 animate-in fade-in slide-in-from-top-5">
-                                                <a
-                                                    href="/profile"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
-                                                         hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Thông tin cá nhân
-                                                </a>
-                                                <a
-                                                    href="/RentalByUser"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
-                                                         hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý thuê kho
-                                                </a>
-                                                <a
-                                                    href="/MyAppoinment"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
-                                                         hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý cuộc hẹn
-                                                </a>
-                                                <a
-                                                    href="/MyRequest"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
-                                                         hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý yêu cầu
-                                                </a>
-                                                <a
-                                                    href="/MyFeedBack"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
-                                                         hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý đánh giá
-                                                </a>
-                                                <a
-                                                    href="/payment_user"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
-                                                         hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý thanh toán
-                                                </a>
-                                                <a
-                                                    href="/reset"
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
-                                                         hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Đổi mật khẩu
-                                                </a>
-                                                <div className="border-t border-gray-100 my-1"></div>
-                                                <button
-                                                    onClick={logOut}
-                                                    className="flex items-center w-full px-4 py-2 text-sm text-red-600
-                                                         hover:bg-red-50 transition-colors"
-                                                >
-                                                    <LogOut className="w-4 h-4 mr-2 text-red-500"/>
-                                                    Đăng xuất
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ) : (
                                 <button
-                                    onClick={logOut}
+                                    onClick={()=> navigate('/login')}
                                     className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
                                          hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                 >
                                     <LogOut className="w-4 h-4 mr-2"/>
-                                    Đăng xuất
+                                    Đăng nhập
                                 </button>
-                            )}
                         </nav>
 
                         {/* Mobile Menu Button */}
@@ -400,59 +295,49 @@ const WarehouseRental = () => {
                     </div>
                 ) : (
                     <>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {currentItems.map((warehouse) => (
-                            <div key={warehouse.id}
-                                 className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 transform hover:-translate-y-1"
-                                 onClick={() => handleWarehouseClick(warehouse.id)}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {currentItems.map((warehouse) => (
+                                <div key={warehouse.id}
+                                     className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 transform hover:-translate-y-1"
 
-                                <div
-                                    className="bg-gradient-to-br from-gray-200 to-gray-300 relative aspect-[16/9]"> {/* Added aspect ratio */}
-                                    {warehouse.fullThumbnailPath ? (
+                                     onClick={() => handleWarehouseClick(warehouse.id)}>
+
+
+                                    <div className="h-48 bg-gradient-to-br from-gray-200 to-gray-300 relative">
                                         <img
-                                            src={`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${warehouse.fullThumbnailPath.split('\\').pop()}`}
-                                            alt="Warehouse thumbnail"
-                                            className="w-full h-full object-cover" // Modified image classes
-                                            onError={(e) => {
-                                                e.target.src = '/placeholder.jpg';
-                                                e.target.classList.add('opacity-50');
-                                            }}
+                                            src="/api/placeholder/400/320"
+                                            alt={warehouse.name}
+                                            className="w-full h-full object-cover"
                                         />
-                                    ) : (
                                         <div
-                                            className="w-full h-full bg-gray-100 flex items-center justify-center"> {/* Modified placeholder */}
-                                            <Image className="w-8 h-8 text-gray-400"/>
+                                            className={`absolute top-4 right-4 px-4 py-1 rounded-full text-sm font-medium border ${statusColors[warehouse.status]}`}>
+                                            {warehouse.status === 'ACTIVE' ? 'Đang hoạt động' : 'Không hoạt động'}
                                         </div>
-                                    )}
-                                    <div
-                                        className={`absolute top-4 right-4 px-4 py-1 rounded-full text-sm font-medium border ${statusColors[warehouse.status]}`}>
-                                        {warehouse.status === 'ACTIVE' ? 'Đang hoạt động' : 'Không hoạt động'}
                                     </div>
-                                </div>
-                                <div className="p-6">
-                                    <h3 className="text-xl font-bold mb-2">{warehouse.name}</h3>
-                                    <div className="flex items-center text-gray-600 mb-4">
-                                        <MapPin className="h-4 w-4 mr-2 text-indigo-600"/>
-                                        {warehouse.address}
-                                    </div>
-                                    <p className="text-gray-600 mb-4">{warehouse.description}</p>
-                                    {/*<div className="flex flex-wrap gap-2 mb-4">*/}
-                                    {/*    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-sm">*/}
-                                    {/*        Quản lý: {warehouse.warehouse_manager_name || 'Chưa có'}*/}
-                                    {/*    </span>*/}
-                                    {/*</div>*/}
-                                    <div className="flex justify-between items-center pt-4 border-t">
-                                        <div className="flex items-center">
-                                            <Square className="h-5 w-5 text-indigo-600 mr-2"/>
-                                            <span className="text-xl font-bold">{warehouse.size.toLocaleString()}</span>
-                                            <span className="text-gray-600 text-sm ml-1">m²</span>
+                                    <div className="p-6">
+                                        <h3 className="text-xl font-bold mb-2">{warehouse.name}</h3>
+                                        <div className="flex items-center text-gray-600 mb-4">
+                                            <MapPin className="h-4 w-4 mr-2 text-indigo-600"/>
+                                            {warehouse.address}
+                                        </div>
+                                        <p className="text-gray-600 mb-4">{warehouse.description}</p>
+                                        {/*<div className="flex flex-wrap gap-2 mb-4">*/}
+                                        {/*    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-sm">*/}
+                                        {/*        Quản lý: {warehouse.warehouse_manager_name || 'Chưa có'}*/}
+                                        {/*    </span>*/}
+                                        {/*</div>*/}
+                                        <div className="flex justify-between items-center pt-4 border-t">
+                                            <div className="flex items-center">
+                                                <Square className="h-5 w-5 text-indigo-600 mr-2"/>
+                                                <span className="text-xl font-bold">{warehouse.size}</span>
+                                                <span className="text-gray-600 text-sm ml-1">m²</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
 
-                    </div>
+                        </div>
                         {/* Pagination */}
                         {totalPages > 1 && (
                             <div className="mt-12 flex justify-center">
@@ -546,4 +431,4 @@ const WarehouseRental = () => {
 
 };
 
-export default WarehouseRental;
+export default HomeForGuess;

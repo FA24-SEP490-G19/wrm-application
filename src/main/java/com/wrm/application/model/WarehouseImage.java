@@ -15,7 +15,7 @@ public class WarehouseImage extends BaseModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", columnDefinition = "LONGTEXT", nullable = false)
     private String imageUrl;
 
     @ManyToOne

@@ -2,6 +2,8 @@ package com.wrm.application.controller;
 
 import com.wrm.application.dto.FeedbackDTO;
 import com.wrm.application.model.Feedback;
+import com.wrm.application.response.feedback.FeedbackListResponse;
+import com.wrm.application.response.feedback.FeedbackResponse;
 import com.wrm.application.service.IFeedbackService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,16 +24,16 @@ public class FeedbackController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<Feedback> getAllFeedBack() {
-        return feedbackService.getAllFeedBack();
+    public ResponseEntity<List<FeedbackListResponse>> getAllFeedBack() {
+        return ResponseEntity.ok(feedbackService.getAllFeedBack());
     }
 
-    @PostMapping("/add")
+        @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> addFeedback(@RequestBody FeedbackDTO feedbackDTO, HttpServletRequest req) {
         try {
-            Feedback feedback = feedbackService.addFeedback(feedbackDTO, req.getRemoteUser());
-            return ResponseEntity.ok(feedback);
+            FeedbackResponse response = feedbackService.addFeedback(feedbackDTO, req.getRemoteUser());
+            return ResponseEntity.ok(response);
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.badRequest().body("Data integrity violation: " + e.getMessage());
         } catch (Exception e) {
@@ -40,14 +42,16 @@ public class FeedbackController {
     }
 
     @GetMapping("/warehouse/{warehouseId}")
-    public List<Feedback> getFeedbackByWarehouse(@PathVariable Long warehouseId) {
-        return feedbackService.getFeedbackByWarehouse(warehouseId);
+    public ResponseEntity<List<FeedbackListResponse>> getFeedbackByWarehouse(@PathVariable Long warehouseId) {
+        return ResponseEntity.ok(feedbackService.getFeedbackByWarehouse(warehouseId));
     }
+
 
 
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/customer")
-    public List<Feedback> getFeedbackByCustomer(HttpServletRequest req) {
-        return feedbackService.getFeedbackByCustomer(req.getRemoteUser());
+    public ResponseEntity<List<FeedbackListResponse>> getFeedbackByCustomer(HttpServletRequest req) {
+        return ResponseEntity.ok(feedbackService.getFeedbackByCustomer(req.getRemoteUser()));
     }
+
 }

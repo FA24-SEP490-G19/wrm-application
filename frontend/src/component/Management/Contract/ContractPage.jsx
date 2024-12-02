@@ -211,7 +211,7 @@ const ContractList = () => {
                                 <div>Khách hàng</div>
                             </th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                                <div>Mô giới</div>
+                                <div>Môi giới</div>
 
                             </th>
                             <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
@@ -244,13 +244,7 @@ const ContractList = () => {
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end space-x-2">
-                                        <button
-                                            onClick={() => handleViewContract(contract)}
-                                            className="p-1 text-gray-600 hover:text-gray-800"
-                                            title="Xem chi tiết"
-                                        >
-                                            <Eye className="w-5 h-5"/>
-                                        </button>
+
                                         {customer.role === "ROLE_SALES" || customer.role === "ROLE_ADMIN" ? (
 
                                             <button

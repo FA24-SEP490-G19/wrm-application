@@ -247,6 +247,7 @@ const LotList = () => {
                         <tr className="border-b border-gray-200">
 
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Mô tả</th>
+
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kho</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kích thước (m²)</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Giá</th>

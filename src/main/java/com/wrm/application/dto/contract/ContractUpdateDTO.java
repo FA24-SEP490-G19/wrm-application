@@ -16,10 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ContractUpdateDTO {
 
-    @NotBlank(message = "Signing date is required")
     private LocalDateTime signedDate;
 
-    @NotBlank(message = "Expiry date is required")
     private LocalDateTime expiryDate;
 
     @Size(max = 10, message = "Maximum of 10 images allowed")

@@ -1,9 +1,10 @@
 // AppointmentModal.jsx
 import React, { useState, useEffect } from 'react';
-import { X, Upload, X as XIcon,Plus} from 'lucide-react';
+import { X, Upload, X as XIcon,Plus,Image, Trash2} from 'lucide-react';
 import {ManagerNotHaveWarehouse} from "../../../service/WareHouse.js";
 
 const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
+
     const initialFormState = {
         name: '',
         address: '',
@@ -11,44 +12,206 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         status: 'ACTIVE',
         description: '',
         warehouse_manager_id: '',
-        images: [] // Add images array to store base64 strings
+        images: [], // Ensure this is always initialized
+        lot_items: [] // Ensure this is always initialized
     };
+
+// Add this initial lot state
+    const initialLotState = {
+        description: '',
+        size: '',
+        price: '',
+        status: 'AVAILABLE'
+    };
+
+    // Add state for managing the current lot being added
+    const [currentLot, setCurrentLot] = useState(initialLotState);
+    const [lotErrors, setLotErrors] = useState({});
+
 
     const [formData, setFormData] = useState(initialFormState);
     const [errors, setErrors] = useState({});
     const [managers, setManagers] = useState([]); // State for managers
     const [loadingManagers, setLoadingManagers] = useState(false); // Loading state
-    const [imageFiles, setImageFiles] = useState([]); // Store image preview data
-    const [imageError, setImageError] = useState('');
+    const [existingImages, setExistingImages] = useState([]);
+
+    // Add state for image previews
+    const [imagePreviews, setImagePreviews] = useState([]);
+    const [thumbnailPreview, setThumbnailPreview] = useState('');
     const statusOptions = [
         { value: 'ACTIVE', label: 'Hoạt động' },
         { value: 'INACTIVE', label: 'Không hoạt động' }
     ];
+
+// Add function to validate lot
+    const validateLot = (lot) => {
+        const errors = {};
+        if (!lot.description) errors.description = 'Mô tả không được để trống';
+        if (!lot.size || lot.size <= 0) errors.size = 'Kích thước phải lớn hơn 0';
+        if (!lot.price) errors.price = 'Giá không được để trống';
+        return errors;
+    };
+
+// Add function to handle adding a lot
+    const handleAddLot = () => {
+        const errors = validateLot(currentLot);
+        if (Object.keys(errors).length > 0) {
+            setLotErrors(errors);
+            return;
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            lot_items: [...prev.lot_items, currentLot]
+        }));
+        setCurrentLot(initialLotState);
+        setLotErrors({});
+    };
+
+// Add function to remove lot
+    const handleRemoveLot = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            lot_items: prev.lot_items.filter((_, i) => i !== index)
+        }));
+    };
+    // Function to convert file to base64
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                // Remove the data:image/jpeg;base64, prefix
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    // Handle thumbnail upload
+    const handleThumbnailUpload = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5242880) { // 5MB limit
+                setErrors(prev => ({
+                    ...prev,
+                    thumbnail: 'Kích thước ảnh không được vượt quá 5MB'
+                }));
+                return;
+            }
+
+            try {
+                const base64String = await fileToBase64(file);
+                setFormData(prev => ({
+                    ...prev,
+                    thumbnail: base64String
+                }));
+                setThumbnailPreview(URL.createObjectURL(file));
+            } catch (error) {
+                setErrors(prev => ({
+                    ...prev,
+                    thumbnail: 'Không thể xử lý ảnh. Vui lòng thử lại'
+                }));
+            }
+        }
+    };
+
+    const handleImagesUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        const newPreviews = [];
+        const newBase64s = [];
+
+        for (const file of files) {
+            if (file.size > 5242880) { // 5MB limit
+                setErrors(prev => ({
+                    ...prev,
+                    images: 'Một hoặc nhiều ảnh vượt quá giới hạn 5MB'
+                }));
+                return;
+            }
+
+            try {
+                const base64String = await fileToBase64(file);
+                newBase64s.push(base64String);
+                newPreviews.push(URL.createObjectURL(file));
+            } catch (error) {
+                setErrors(prev => ({
+                    ...prev,
+                    images: 'Không thể xử lý một số ảnh'
+                }));
+                return;
+            }
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, ...newBase64s]
+        }));
+        setImagePreviews(prev => [...prev, ...newPreviews]);
+    };
     // Existing useEffect for form data...
 
-    // New useEffect to fetch managers
+    // Remove image
+    const removeImage = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
+        }));
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    };
     useEffect(() => {
         const fetchManagers = async () => {
-            if (mode === 'create' && isOpen) {
+
+            if (!isOpen) {
+                setFormData(initialFormState);
+                setImagePreviews([]);
+                setThumbnailPreview('');
+                setExistingImages([]);
+                setErrors({});
+                setLotErrors({});
+                return;
+            }
+
+            if (mode === 'create') {
+                setFormData(initialFormState);
+                setImagePreviews([]);
+                setThumbnailPreview('');
+                setExistingImages([]);
                 try {
                     setLoadingManagers(true);
                     const response = await ManagerNotHaveWarehouse();
                     setManagers(response.data || []);
                 } catch (error) {
                     console.error('Error fetching managers:', error);
-                    // Optionally show error toast
                 } finally {
                     setLoadingManagers(false);
                 }
-            }
+            } else if (mode === 'edit' && warehouseData) {
+                // Handle existing warehouse data
+                const existingImageUrls = warehouseData.images?.map(imagePath =>
+                    `${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${imagePath.split('\\').pop()}`
+                ) || [];
 
-            if (mode === 'edit' && isOpen) {
-                setFormData(warehouseData);
-            }
-        };
+                setExistingImages(existingImageUrls);
+                setThumbnailPreview(
+                    warehouseData.fullThumbnailPath
+                        ? `${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${warehouseData.fullThumbnailPath.split('\\').pop()}`
+                        : ''
+                );
 
-        fetchManagers();
-    }, [isOpen, mode,warehouseData]);
+                setFormData({
+                    ...warehouseData,
+                    images: [], // Reset images array for new uploads
+                    lot_items: warehouseData.lot_items || []
+                });
+            }
+        }
+        fetchManagers()
+    }, [isOpen, mode, warehouseData]);
+
+    // New useEffect to fetch managers
+
 
     const handleImageURLAdd = () => {
         const url = prompt('Nhập URL hình ảnh:');
@@ -76,17 +239,20 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         if (mode === 'create' && (!formData.images || formData.images.length === 0)) {
             newErrors.images = 'Vui lòng thêm ít nhất một hình ảnh';
         }
+        if (mode === 'create' && (!formData.lot_items || formData.lot_items.length === 0)) {
+            newErrors.lots = 'Vui lòng thêm ít nhất một lô hàng';
+        }
+
+        // Check if total lot size matches warehouse size
+        const totalLotSize = formData.lot_items.reduce((sum, lot) => sum + parseFloat(lot.size), 0);
+        if (totalLotSize !== parseFloat(formData.size) && mode === 'create') {
+            newErrors.size = 'Tổng diện tích các lô phải bằng diện tích kho';
+        }
+
         return newErrors;
     };
 
 
-    const removeImage = (index) => {
-        setImageFiles(prev => prev.filter((_, i) => i !== index));
-        setFormData(prev => ({
-            ...prev,
-            images: prev.images.filter((_, i) => i !== index)
-        }));
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -95,7 +261,24 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
             setErrors(validationErrors);
             return;
         }
-        onSubmit(formData);
+
+        // Prepare final form data including existing images
+        const finalFormData = {
+            ...formData,
+            existingImages: existingImages.map(url => {
+                // Extract filename from URL
+                const urlParts = url.split('/');
+                return urlParts[urlParts.length - 1];
+            })
+        };
+
+        onSubmit(finalFormData);
+    };
+
+    // Rest of your existing functions remain the same...
+
+    const removeExistingImage = (index) => {
+        setExistingImages(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleChange = (e) => {
@@ -129,230 +312,375 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
             <div className="fixed inset-0 z-50 overflow-y-auto">
                 <div className="flex min-h-screen items-center justify-center p-4">
-                    <div className="bg-white rounded-xl w-full max-w-md shadow-xl transform transition-all">
+                    {/* Change max-w-md to max-w-4xl for wider form */}
+                    <div className="bg-white rounded-xl w-full max-w-4xl shadow-xl transform transition-all">
                         <div className="p-6">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">
-                                    {mode === 'create' ? 'Thêm mới kho' : 'Sửa thông tin kho'}
-                                </h2>
-                                <button
-                                    onClick={onClose}
-                                    className="text-gray-400 hover:text-gray-600"
-                                >
-                                    <X className="w-6 h-6" />
-                                </button>
-                            </div>
-                            {/* Image Upload Section */}
-                            <div className="mb-4 space-y-4">
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Hình ảnh kho
-                                </label>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="url"
-                                        placeholder="Nhập URL hình ảnh"
-                                        className={`flex-1 ${inputClasses(errors.images)}`}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                const url = e.target.value.trim();
-                                                if (url) {
-                                                    try {
-                                                        new URL(url);
-                                                        setFormData(prev => ({
-                                                            ...prev,
-                                                            images: [...(prev.images || []), url]
-                                                        }));
-                                                        setImageError('');
-                                                        e.target.value = ''; // Clear input after adding
-                                                    } catch {
-                                                        setImageError('URL không hợp lệ');
-                                                    }
-                                                }
-                                            }
-                                        }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            const input = e.target.previousSibling;
-                                            const url = input.value.trim();
-                                            if (url) {
-                                                try {
-                                                    new URL(url);
-                                                    setFormData(prev => ({
-                                                        ...prev,
-                                                        images: [...(prev.images || []), url]
-                                                    }));
-                                                    setImageError('');
-                                                    input.value = ''; // Clear input after adding
-                                                } catch {
-                                                    setImageError('URL không hợp lệ');
-                                                }
-                                            }
-                                        }}
-                                        className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
-                                    >
-                                        <Plus className="w-4 h-4"/>
-                                        Thêm
-                                    </button>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Ảnh đại diện kho
+                                    </label>
+                                    <div className="mt-1 flex items-center space-x-4">
+                                        <div className="flex-shrink-0 h-32 w-32 relative">
+                                            {thumbnailPreview ? (
+                                                <>
+                                                    <img
+                                                        src={thumbnailPreview}
+                                                        alt="Thumbnail preview"
+                                                        className="h-32 w-32 object-cover rounded-lg"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setThumbnailPreview('');
+                                                            setFormData(prev => ({...prev, thumbnail: ''}));
+                                                        }}
+                                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                                                    >
+                                                        <XIcon className="w-4 h-4"/>
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <div
+                                                    className="h-32 w-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                                                    <Image className="w-8 h-8 text-gray-400"/>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <label
+                                            className="relative cursor-pointer bg-white px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50">
+                                            <span className="text-sm font-medium text-gray-700">Chọn ảnh</span>
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={handleThumbnailUpload}
+                                            />
+                                        </label>
+                                    </div>
+                                    {errors.thumbnail && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.thumbnail}</p>
+                                    )}
                                 </div>
-                                {imageError && (
-                                    <p className="mt-1 text-sm text-red-600">{imageError}</p>
-                                )}
-                                {errors.images && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.images}</p>
-                                )}
-
-                                {/* Image Previews */}
-                                {formData.images && formData.images.length > 0 && (
-                                    <div className="mt-4 grid grid-cols-2 gap-4">
-                                        {formData.images.map((url, index) => (
-                                            <div key={index} className="relative group">
+                            {existingImages.length > 0 && (
+                                <div className="mt-4">
+                                    <h4 className="text-sm font-medium text-gray-700 mb-2">Ảnh hiện có</h4>
+                                    <div className="grid grid-cols-4 gap-4">
+                                        {existingImages.map((url, index) => (
+                                            <div key={index} className="relative">
                                                 <img
                                                     src={url}
-                                                    alt={`Warehouse ${index + 1}`}
+                                                    alt={`Existing ${index + 1}`}
                                                     className="h-32 w-full object-cover rounded-lg"
-                                                    onError={(e) => {
-                                                        e.target.src = '/placeholder-image.jpg';
-                                                        setImageError('Không thể tải một số hình ảnh');
-                                                    }}
                                                 />
                                                 <button
                                                     type="button"
-                                                    onClick={() => removeImage(index)}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg"
+                                                    onClick={() => removeExistingImage(index)}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
                                                 >
-                                                    <X className="w-4 h-4"/>
+                                                    <XIcon className="w-4 h-4"/>
                                                 </button>
-                                                <div
-                                                    className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate rounded-b-lg">
-                                                    {url}
-                                                </div>
                                             </div>
                                         ))}
                                     </div>
-                                )}
-                            </div>
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                                </div>
+                            )}
+
+                                {/* Multiple Images Upload */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Tên kho
+                                        Hình ảnh kho
                                     </label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.name)}
-                                        placeholder="Nhập tên kho"
-                                    />
-                                    {errors.name && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                                    )}
-                                </div>
-                                {mode === 'create' && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Người quản lý
+                                    <div className="mt-1">
+                                        <label
+                                            className="relative cursor-pointer bg-white px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 inline-flex items-center">
+                                            <Upload className="w-4 h-4 mr-2"/>
+                                            <span className="text-sm font-medium text-gray-700">Tải ảnh lên</span>
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                multiple
+                                                onChange={handleImagesUpload}
+                                            />
                                         </label>
-                                        <select
-                                            name="warehouse_manager_id"
-                                            value={formData.warehouse_manager_id}
-                                            onChange={handleChange}
-                                            className={`${inputClasses(errors.warehouse_manager_id)} ${loadingManagers ? 'cursor-wait' : ''}`}
-                                            disabled={loadingManagers}
-                                        >
-                                            <option value="">Chọn người quản lý</option>
-                                            {loadingManagers ? (
-                                                <option value="" disabled>Đang tải...</option>
-                                            ) : (
-                                                managers.map(manager => (
-                                                    <option key={manager.id} value={manager.id}>
-                                                        {manager.fullname} {/* Adjust the property name based on your API response */}
-                                                    </option>
-                                                ))
-                                            )}
-                                        </select>
-                                        {errors.warehouse_manager_id && (
-                                            <p className="mt-1 text-sm text-red-600">
-                                                {errors.warehouse_manager_id}
-                                            </p>
-                                        )}
                                     </div>
-                                )}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Địa chỉ
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.address)}
-                                        placeholder="Nhập địa chỉ"
-                                    />
-                                    {errors.address && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+                                    {errors.images && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.images}</p>
                                     )}
                                 </div>
+                                    {/* Make the image grid better with more space */}
+                            {imagePreviews.length > 0 && (
+                                <div className="mt-4 grid grid-cols-4 gap-4">
+                                    {imagePreviews.map((preview, index) => (
+                                        <div key={index} className="relative">
+                                            <img
+                                                src={preview}
+                                                alt={`Preview ${index + 1}`}
+                                                className="h-32 w-full object-cover rounded-lg"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImage(index)}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                                            >
+                                                <XIcon className="w-4 h-4"/>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Kích thước (m²)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        name="size"
-                                        value={formData.size}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.size)}
-                                        placeholder="Nhập kích thước"
-                                        step="0.01"
-                                    />
-                                    {errors.size && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.size}</p>
+                            {/* Make form fields in two columns */}
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="grid grid-cols-2 gap-6">
+                                    {/* Left column */}
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Tên kho
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                className={inputClasses(errors.name)}
+                                                placeholder="Nhập tên kho"
+                                            />
+                                            {errors.name && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Địa chỉ
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                                className={inputClasses(errors.address)}
+                                                placeholder="Nhập địa chỉ"
+                                            />
+                                            {errors.address && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Kích thước (m²)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                name="size"
+                                                value={formData.size}
+                                                onChange={handleChange}
+                                                className={inputClasses(errors.size)}
+                                                placeholder="Nhập kích thước"
+                                                step="0.01"
+                                            />
+                                            {errors.size && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.size}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Right column */}
+                                    <div className="space-y-4">
+                                        {mode === 'create' && (
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">
+                                                    Người quản lý
+                                                </label>
+                                                <select
+                                                    name="warehouse_manager_id"
+                                                    value={formData.warehouse_manager_id}
+                                                    onChange={handleChange}
+                                                    className={`${inputClasses(errors.warehouse_manager_id)} ${loadingManagers ? 'cursor-wait' : ''}`}
+                                                    disabled={loadingManagers}
+                                                >
+                                                    <option value="">Chọn người quản lý</option>
+                                                    {managers.map(manager => (
+                                                        <option key={manager.id} value={manager.id}>
+                                                            {manager.fullname}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {errors.warehouse_manager_id && (
+                                                    <p className="mt-1 text-sm text-red-600">
+                                                        {errors.warehouse_manager_id}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Trạng thái
+                                            </label>
+                                            <select
+                                                name="status"
+                                                value={formData.status}
+                                                onChange={handleChange}
+                                                className={inputClasses(errors.status)}
+                                            >
+                                                {statusOptions.map(option => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Mô tả
+                                            </label>
+                                            <textarea
+                                                name="description"
+                                                value={formData.description}
+                                                onChange={handleChange}
+                                                className={inputClasses(errors.description)}
+                                                placeholder="Nhập mô tả"
+                                                rows="4"
+                                            />
+                                            {errors.description && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                </div>
+                                {mode === 'create' ? (
+                                <div className="space-y-4">
+                                    <div className="border-t border-gray-200 pt-6 mt-6">
+                                        <h3 className="text-lg font-semibold mb-4">Thông tin các lô hàng</h3>
+
+                                        {/* Lot Form */}
+                                        <div className="bg-gray-50 p-4 rounded-xl mb-4">
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700">
+                                                        Mô tả lô
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={currentLot.description}
+                                                        onChange={(e) => setCurrentLot(prev => ({
+                                                            ...prev,
+                                                            description: e.target.value
+                                                        }))}
+                                                        className={inputClasses(lotErrors.description)}
+                                                        placeholder="Nhập mô tả lô"
+                                                    />
+                                                    {lotErrors.description && (
+                                                        <p className="mt-1 text-sm text-red-600">{lotErrors.description}</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700">
+                                                        Kích thước (m²)
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        value={currentLot.size}
+                                                        onChange={(e) => setCurrentLot(prev => ({
+                                                            ...prev,
+                                                            size: parseFloat(e.target.value)
+                                                        }))}
+                                                        className={inputClasses(lotErrors.size)}
+                                                        placeholder="Nhập kích thước"
+                                                        step="0.01"
+                                                    />
+                                                    {lotErrors.size && (
+                                                        <p className="mt-1 text-sm text-red-600">{lotErrors.size}</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700">
+                                                        Giá
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={currentLot.price}
+                                                        onChange={(e) => setCurrentLot(prev => ({
+                                                            ...prev,
+                                                            price: e.target.value
+                                                        }))}
+                                                        className={inputClasses(lotErrors.price)}
+                                                        placeholder="Nhập giá"
+                                                    />
+                                                    {lotErrors.price && (
+                                                        <p className="mt-1 text-sm text-red-600">{lotErrors.price}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 flex justify-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAddLot}
+                                                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
+                                                >
+                                                    <Plus className="w-4 h-4"/>
+                                                    Thêm lô
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Lots List */}
+                                    {formData.lot_items.length > 0  && (
+                                        <div className="space-y-2">
+                                            <h4 className="font-medium text-gray-700">Danh sách lô đã thêm</h4>
+                                            <div className="border rounded-xl overflow-hidden">
+                                                <table className="min-w-full divide-y divide-gray-200">
+                                                    <thead className="bg-gray-50">
+                                                    <tr>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mô
+                                                            tả
+                                                        </th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kích
+                                                            thước
+                                                        </th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giá</th>
+                                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Thao
+                                                            tác
+                                                        </th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody className="bg-white divide-y divide-gray-200">
+                                                    {formData.lot_items.map((lot, index) => (
+                                                        <tr key={index}>
+                                                            <td className="px-6 py-4 text-sm text-gray-900">{lot.description}</td>
+                                                            <td className="px-6 py-4 text-sm text-gray-900">{lot.size} m²</td>
+                                                            <td className="px-6 py-4 text-sm text-gray-900">{lot.price}</td>
+                                                            <td className="px-6 py-4 text-right">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleRemoveLot(index)}
+                                                                    className="text-red-600 hover:text-red-800"
+                                                                >
+                                                                    <Trash2 className="w-5 h-5"/>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className="text-sm text-gray-500">
+                                                Tổng diện
+                                                tích:  {formData.lot_items.reduce((sum, lot) => sum + parseFloat(lot.size), 0).toLocaleString('de-DE')} m²
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
+                            ) : ("") }
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Trạng thái
-                                    </label>
-                                    <select
-                                        name="status"
-                                        value={formData.status}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.status)}
-                                    >
-                                        {statusOptions.map(option => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        Mô tả
-                                    </label>
-                                    <textarea
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.description)}
-                                        placeholder="Nhập mô tả"
-                                        rows="3"
-                                    />
-                                    {errors.description && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex justify-end space-x-3 pt-6">
+                                {/* Form buttons */}
+                                <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
                                     <button
                                         type="button"
                                         onClick={onClose}

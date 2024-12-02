@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-
+import {useEffect, useState} from "react";
+import {
+    X
+} from 'lucide-react';
 const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
-        orderCode: '',
         amount: '',
-        description: '',
-        returnUrl: 'google.com', // Default value
-        cancelUrl: 'google.com', // Default value
-        expiredAt: 1, // Default value
+        orderInfo: '',  // Changed from description to match VNPAY
         user_id: ''
     });
     const [errors, setErrors] = useState({});
@@ -18,6 +15,12 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
     useEffect(() => {
         if (isOpen) {
             fetchUsers();
+            setFormData({
+                amount: '',
+                orderInfo: '',
+                user_id: ''
+            });
+            setErrors({});
         }
     }, [isOpen]);
 
@@ -37,29 +40,88 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
 
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.orderCode) newErrors.orderCode = 'Mã đơn hàng không được để trống';
-        if (!formData.amount || formData.amount <= 0) newErrors.amount = 'Số tiền phải lớn hơn 0';
-        if (!formData.description) newErrors.description = 'Mô tả không được để trống';
-        if (!formData.user_id) newErrors.user_id = 'Vui lòng chọn khách hàng';
+        const amount = parseInt(formData.amount);
+
+        if (!formData.amount || amount <= 0) {
+            newErrors.amount = 'Số tiền phải lớn hơn 0';
+        }
+        if (amount > 100000000) { // Example maximum amount
+            newErrors.amount = 'Số tiền không được vượt quá 100.000.000 VNĐ';
+        }
+        if (!formData.orderInfo.trim()) {
+            newErrors.orderInfo = 'Thông tin đơn hàng không được để trống';
+        }
+        if (!formData.user_id) {
+            newErrors.user_id = 'Vui lòng chọn khách hàng';
+        }
         return newErrors;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
         }
-        onSubmit(formData);
-    };
 
+        try {
+            setLoading(true);
+            // Create URL-encoded form data
+            const params = new URLSearchParams();
+            params.append('amount', parseInt(formData.amount));
+            params.append('orderInfo', formData.orderInfo);
+            params.append('id', parseInt(formData.user_id));
+
+            const response = await fetch('http://localhost:8080/warehouses/submitOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                },
+                body: params
+            });
+
+            if (!response.ok) {
+                throw new Error('Payment request failed');
+            }
+
+            const paymentUrl = await response.text();
+            window.location.href = paymentUrl;
+            onClose();
+        } catch (error) {
+            console.error('Error creating payment:', error);
+            setErrors(prev => ({
+                ...prev,
+                submit: 'Có lỗi xảy ra khi tạo thanh toán'
+            }));
+        } finally {
+            setLoading(false);
+        }
+    };
     const handleChange = (e) => {
-        const { name, value, type } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'number' ? parseFloat(value) : value
-        }));
+        const { name, value } = e.target;
+
+        if (name === 'amount') {
+            // Remove non-numeric characters and convert to number
+            const numericValue = value.replace(/[^0-9]/g, '');
+            // Format number with thousand separators
+            const formattedValue = numericValue ? parseInt(numericValue).toLocaleString('vi-VN') : '';
+
+            setFormData(prev => ({
+                ...prev,
+                [name]: numericValue // Store raw numeric value
+            }));
+
+            // Update the input value with formatted number
+            e.target.value = formattedValue;
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
@@ -84,7 +146,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                     <div className="bg-white rounded-xl w-full max-w-md shadow-xl transform transition-all">
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">Tạo thanh toán mới</h2>
+                                <h2 className="text-xl font-bold text-gray-900">Tạo thanh toán VNPAY</h2>
                                 <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                                     <X className="w-6 h-6" />
                                 </button>
@@ -92,42 +154,41 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Mã đơn hàng</label>
-                                    <input
-                                        type="number"
-                                        name="orderCode"
-                                        value={formData.orderCode}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.orderCode)}
-                                        placeholder="Nhập mã đơn hàng"
-                                    />
-                                    {errors.orderCode && <p className="mt-1 text-sm text-red-600">{errors.orderCode}</p>}
-                                </div>
-
-                                <div>
                                     <label className="block text-sm font-medium text-gray-700">Số tiền (VNĐ)</label>
-                                    <input
-                                        type="number"
-                                        name="amount"
-                                        value={formData.amount}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.amount)}
-                                        placeholder="Nhập số tiền"
-                                    />
-                                    {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount}</p>}
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            name="amount"
+                                            value={formData.amount ? parseInt(formData.amount).toLocaleString('vi-VN') : ''}
+                                            onChange={handleChange}
+                                            className={inputClasses(errors.amount)}
+                                            placeholder="0"
+                                            inputMode="numeric"
+                                        />
+                                        <span
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+            VNĐ
+        </span>
+                                    </div>
+                                    {errors.amount && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+                                    )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Mô tả</label>
+                                    <label className="block text-sm font-medium text-gray-700">Thông tin đơn
+                                        hàng</label>
                                     <textarea
-                                        name="description"
-                                        value={formData.description}
+                                        name="orderInfo"
+                                        value={formData.orderInfo}
                                         onChange={handleChange}
-                                        className={inputClasses(errors.description)}
-                                        placeholder="Nhập mô tả"
+                                        className={inputClasses(errors.orderInfo)}
+                                        placeholder="Nhập thông tin đơn hàng"
                                         rows="3"
                                     />
-                                    {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+                                    {errors.orderInfo && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.orderInfo}</p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -141,12 +202,20 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                                         <option value="">Chọn khách hàng</option>
                                         {users.map(user => (
                                             <option key={user.id} value={user.id}>
-                                                {user.username} - {user.email}
+                                                {user.email} {user.phone && `- ${user.phone}`}
                                             </option>
                                         ))}
                                     </select>
-                                    {errors.user_id && <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>}
+                                    {errors.user_id && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
+                                    )}
                                 </div>
+
+                                {errors.submit && (
+                                    <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                                        {errors.submit}
+                                    </div>
+                                )}
 
                                 <div className="flex justify-end space-x-3 pt-6">
                                     <button
@@ -158,9 +227,20 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
+                                        disabled={loading}
+                                        className={`px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 
+                                                  flex items-center ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
-                                        Tạo thanh toán
+                                        {loading && (
+                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none"
+                                                 viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10"
+                                                        stroke="currentColor" strokeWidth="4"/>
+                                                <path className="opacity-75" fill="currentColor"
+                                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                            </svg>
+                                        )}
+                                        {loading ? 'Đang xử lý...' : 'Tạo thanh toán'}
                                     </button>
                                 </div>
                             </form>

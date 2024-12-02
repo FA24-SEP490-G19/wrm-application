@@ -1,5 +1,6 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.WarehouseMapper;
 import com.wrm.application.constant.enums.LotStatus;
 import com.wrm.application.constant.enums.WarehouseStatus;
 import com.wrm.application.dto.LotDTO;
@@ -16,12 +17,13 @@ import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.IWarehouseService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,18 +41,17 @@ public class WarehouseService implements IWarehouseService {
     private final UserRepository userRepository;
     private final WarehouseImageRepository warehouseImageRepository;
     private final LotRepository lotRepository;
+    private final WarehouseMapper warehouseMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<WarehouseResponse> getAllWarehouses(PageRequest pageRequest) {
-        return warehouseRepository.findAll(pageRequest).map(warehouse -> {
-            return WarehouseResponse.builder()
-                    .id(warehouse.getId())
-                    .name(warehouse.getName())
-                    .address(warehouse.getAddress())
-                    .size(warehouse.getSize())
-                    .status(warehouse.getStatus())
-                    .build();
-        });
+        return warehouseRepository.findAll(pageRequest)
+                .map(warehouse -> {
+                    // Force initialization of the collection
+                    Hibernate.initialize(warehouse.getWarehouseImages());
+                    return warehouseMapper.toWarehouseResponse(warehouse);
+                });
     }
 
     @Override
@@ -64,10 +65,8 @@ public class WarehouseService implements IWarehouseService {
 
         List<String> imageBase64List = new ArrayList<>();
         for (WarehouseImage warehouseImage : warehouseImages) {
-            Path imagePath = Paths.get(warehouseImage.getImageUrl());
-            byte[] imageBytes = Files.readAllBytes(imagePath);
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-            imageBase64List.add(base64Image);
+
+            imageBase64List.add(warehouseImage.getImageUrl());
         }
 
         return WarehouseDetailResponse.builder()
@@ -140,14 +139,14 @@ public class WarehouseService implements IWarehouseService {
                     .build();
             lots.add(lot);
         }
-
-        float totalLotSize = warehouseDTO.getLotItems().stream()
-                .map(LotDTO::getSize)
-                .reduce(0f, Float::sum);
-
-        if (totalLotSize != warehouseDTO.getSize()) {
-            throw new IllegalArgumentException("Total size of lots have to be equal to the warehouse size.");
-        }
+//
+//        float totalLotSize = warehouseDTO.getLotItems().stream()
+//                .map(LotDTO::getSize)
+//                .reduce(0f, Float::sum);
+//
+//        if (totalLotSize != warehouseDTO.getSize()) {
+//            throw new IllegalArgumentException("Total size of lots have to be equal to the warehouse size.");
+//        }
 
         newWarehouse.setLots(lots);
 
@@ -156,10 +155,11 @@ public class WarehouseService implements IWarehouseService {
         List<WarehouseImage> warehouseImages = new ArrayList<>();
         if (warehouseDTO.getImages() != null) {
             for (String base64Image : warehouseDTO.getImages()) {
-
+                byte[] thumbnailBytes = Base64.getDecoder().decode(base64Image);
+                thumbnailFileName = saveImageToFileSystem(thumbnailBytes); // Lưu ảnh và lấy đường dẫn
                 WarehouseImage warehouseImage = WarehouseImage.builder()
                         .warehouse(newWarehouse)
-                        .imageUrl(base64Image)
+                        .imageUrl(thumbnailFileName)
                         .build();
 
                 warehouseImages.add(warehouseImage);
@@ -185,7 +185,7 @@ public class WarehouseService implements IWarehouseService {
             throw new IllegalArgumentException("Image size exceeds the maximum limit of 10MB.");
         }
         String fileName = UUID.randomUUID().toString() + ".png";
-        Path path = Paths.get("uploads/images/warehouse/" + fileName);
+        Path path = Paths.get("C:\\image\\" + fileName);
         Files.createDirectories(path.getParent());
         Files.write(path, imageBytes);
         return path.toString();
@@ -205,10 +205,18 @@ public class WarehouseService implements IWarehouseService {
         if (warehouseDTO.getStatus() == null) {
             throw new IllegalArgumentException("Warehouse status cannot be null");
         }
-
+        String thumbnailFileName = null;
+        if (warehouseDTO.getThumbnail() != null && !warehouseDTO.getThumbnail().isEmpty()) {
+            byte[] thumbnailBytes = Base64.getDecoder().decode(warehouseDTO.getThumbnail());
+            thumbnailFileName = saveImageToFileSystem(thumbnailBytes); // Lưu ảnh và lấy đường dẫn
+        }
         warehouse.setName(warehouseDTO.getName());
         warehouse.setDescription(warehouseDTO.getDescription());
         warehouse.setStatus(warehouseDTO.getStatus());
+        warehouse.setSize(warehouseDTO.getSize());
+        warehouse.setAddress(warehouseDTO.getAddress());
+        warehouse.setThumbnail(thumbnailFileName);
+
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()
                 .id(warehouse.getId())
@@ -216,6 +224,7 @@ public class WarehouseService implements IWarehouseService {
                 .address(warehouse.getAddress())
                 .size(warehouse.getSize())
                 .status(warehouse.getStatus())
+                .thumbnail(warehouse.getThumbnail())
                 .build();
     }
 
@@ -245,5 +254,10 @@ public class WarehouseService implements IWarehouseService {
                     .build();
             return warehouseResponse;
         });
+    }
+
+    @Override
+    public Page<WarehouseResponse> getAllWarehousesImageByWarehouseId(PageRequest pageRequest) {
+        return null;
     }
 }
