@@ -73,7 +73,7 @@ public class UserService implements IUserService {
                 .phoneNumber(userDTO.getPhoneNumber())
                 .address(userDTO.getAddress())
                 .gender(userDTO.getGender())
-                .status(UserStatus.ACTIVE)
+                .status(UserStatus.INACTIVE)
                 .build();
         Role role = roleRepository.findById(1L)
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
@@ -87,6 +87,10 @@ public class UserService implements IUserService {
         newUser.setPassword(encodedPassword);
 
         userRepository.save(newUser);
+
+        String token = jwtTokenUtil.generateToken(newUser);
+        mailService.sendVerificationEmail(newUser.getEmail(), token);
+
         return UserResponse.builder()
                 .id(newUser.getId())
                 .fullName(newUser.getFullName())
@@ -96,6 +100,18 @@ public class UserService implements IUserService {
                 .gender(newUser.getGender())
                 .status(newUser.getStatus())
                 .build();
+    }
+
+    public void verifyEmail(String token) throws Exception {
+        String email = jwtTokenUtil.getSubject(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        if (user.getStatus() == UserStatus.ACTIVE) {
+            throw new IllegalStateException("Email already verified.");
+        }
+        user.setStatus(UserStatus.ACTIVE);
+        userRepository.save(user);
     }
 
     @Override
