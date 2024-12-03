@@ -34,4 +34,7 @@ public interface IMailService {
 
     @Async
     void sendRequestUpdateNotification(String to, Request request) throws MessagingException;
+
+    @Async
+    void sendVerificationEmail(String email, String token) throws MessagingException;
 }

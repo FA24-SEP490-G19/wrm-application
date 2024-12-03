@@ -32,7 +32,8 @@ public class WebSecurityConfig {
                             .requestMatchers(
                                     "/users/register",
                                     "/users/login",
-                                    "/users/reset-password"
+                                    "/users/reset-password",
+                                    "/users/verify"
                             )
                             .permitAll()
                             .requestMatchers(GET,
