@@ -45,7 +45,7 @@ public class RequestService implements IRequestService {
     @Override
     public Page<RequestResponse> getAllMyRequests(String remoteUser, PageRequest pageRequest) throws Exception {
         User user = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         return requestRepository.findAllByUserId(user.getId(), pageRequest).map(request -> {
             return RequestResponse.builder()
                     .id(request.getId())
@@ -60,7 +60,7 @@ public class RequestService implements IRequestService {
     @Override
     public RequestResponse getRequestById(Long id) throws Exception {
         Request request = requestRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Request not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy yêu cầu"));
         return RequestResponse.builder()
                 .id(request.getId())
                 .type(request.getType().getContent())
@@ -74,7 +74,7 @@ public class RequestService implements IRequestService {
     @Override
     public RequestResponse createRequest(RequestDTO requestDTO, String remoteUser) throws Exception {
         if (requestDTO.getDescription() == null || requestDTO.getDescription().isEmpty()) {
-            throw new IllegalArgumentException("Request description cannot be empty");
+            throw new IllegalArgumentException("Mô tả yêu cầu không được để trống");
         }
 
         Request request = Request.builder()
@@ -82,17 +82,17 @@ public class RequestService implements IRequestService {
                 .status(RequestStatus.PENDING)
                 .build();
         User user = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         request.setUser(user);
 
         RequestType requestType = requestTypeRepository.findByIdAndRoleId(requestDTO.getTypeId(), user.getRole().getId())
-                .orElseThrow(() -> new DataNotFoundException("Request type not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy loại yêu cầu"));
         request.setType(requestType);
 
         requestRepository.save(request);
 
         User admin = userRepository.findByRoleId(2L)
-                .orElseThrow(() -> new DataNotFoundException("Admin not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy quản trị viên"));
         String adminEmail = admin.getEmail();
         mailService.sendRequestCreationNotification(adminEmail, request);
 
@@ -107,14 +107,14 @@ public class RequestService implements IRequestService {
     @Override
     public AdminRequestResponse updateRequest(Long id, AdminReplyDTO adminReplyDTO) throws Exception {
         if (adminReplyDTO.getAdminResponse() == null || adminReplyDTO.getAdminResponse().isEmpty()) {
-            throw new IllegalArgumentException("Admin response cannot be empty");
+            throw new IllegalArgumentException("Phản hồi của quản trị viên không được để trống");
         }
         if (adminReplyDTO.getStatus() == null) {
-            throw new IllegalArgumentException("Request status cannot be null");
+            throw new IllegalArgumentException("Trạng thái yêu cầu không được để trống");
         }
 
         Request request = requestRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Request not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy yêu cầu"));
         request.setAdminResponse(adminReplyDTO.getAdminResponse());
         request.setAdminResponseDate(LocalDateTime.now());
         request.setStatus(adminReplyDTO.getStatus());
@@ -139,7 +139,7 @@ public class RequestService implements IRequestService {
     @Override
     public void deleteRequest(Long id) throws Exception {
         Request request = requestRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Request not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy yêu cầu"));
 
         request.setDeleted(true);
         request.setStatus(RequestStatus.CANCELLED);

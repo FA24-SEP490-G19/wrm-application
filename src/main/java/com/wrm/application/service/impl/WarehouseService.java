@@ -57,9 +57,9 @@ public class WarehouseService implements IWarehouseService {
     @Override
     public WarehouseDetailResponse getWarehouseById(Long id) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
         if (warehouse.isDeleted()) {
-            throw new DataNotFoundException("Warehouse not found");
+            throw new DataNotFoundException("Không tìm thấy kho hàng");
         }
         List<WarehouseImage> warehouseImages = warehouseImageRepository.findAllByWarehouseId(id);
 
@@ -88,25 +88,25 @@ public class WarehouseService implements IWarehouseService {
     public WarehouseResponse createWarehouse(WarehouseDTO warehouseDTO) throws Exception {
 
         if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
-            throw new IllegalArgumentException("Warehouse name cannot be empty");
+            throw new IllegalArgumentException("Tên kho hàng không được để trống");
         }
         if (warehouseDTO.getAddress() == null || warehouseDTO.getAddress().isEmpty()) {
-            throw new IllegalArgumentException("Warehouse address cannot be empty");
+            throw new IllegalArgumentException("Địa chỉ kho hàng không được để trống");
         }
         if (warehouseDTO.getSize() <= 0) {
-            throw new IllegalArgumentException("Warehouse size must be a positive number");
+            throw new IllegalArgumentException("Kích thước kho hàng phải là một số dương");
         }
         if (warehouseDTO.getDescription() == null || warehouseDTO.getDescription().isEmpty()) {
-            throw new IllegalArgumentException("Warehouse description cannot be empty");
+            throw new IllegalArgumentException("Mô tả kho hàng không được để trống");
         }
 
         User warehouseManager = userRepository.findById(warehouseDTO.getWarehouseManagerId())
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         if (warehouseManager.getRole().getId() != 4) {
-            throw new DataIntegrityViolationException("User is not a warehouse manager");
+            throw new DataIntegrityViolationException("Người dùng không phải là quản lý kho hàng");
         }
         if (warehouseRepository.existsWarehouseByWarehouseManager(warehouseManager)) {
-            throw new DataIntegrityViolationException("Warehouse manager is already in charge of another warehouse");
+            throw new DataIntegrityViolationException("Quản lý kho hàng này đã phụ trách một kho khác");
         }
 
         String thumbnailFileName = null;
@@ -179,10 +179,10 @@ public class WarehouseService implements IWarehouseService {
 
     private String saveImageToFileSystem(byte[] imageBytes) throws IOException {
         if (imageBytes == null || imageBytes.length == 0) {
-            throw new IllegalArgumentException("Image bytes cannot be null or empty");
+            throw new IllegalArgumentException("Dữ liệu ảnh không được để trống");
         }
         if (imageBytes.length > 10 * 1024 * 1024) {
-            throw new IllegalArgumentException("Image size exceeds the maximum limit of 10MB.");
+            throw new IllegalArgumentException("Kích thước ảnh vượt quá giới hạn tối đa 10MB.");
         }
         String fileName = UUID.randomUUID().toString() + ".png";
         Path path = Paths.get("C:\\image\\" + fileName);
@@ -194,16 +194,16 @@ public class WarehouseService implements IWarehouseService {
     @Override
     public WarehouseResponse updateWarehouse(Long id, WarehouseDTO warehouseDTO) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
 
         if (warehouseDTO.getName() == null || warehouseDTO.getName().isEmpty()) {
-            throw new IllegalArgumentException("Warehouse name cannot be empty");
+            throw new IllegalArgumentException("Tên kho hàng không được để trống");
         }
         if (warehouseDTO.getDescription() == null || warehouseDTO.getDescription().isEmpty()) {
-            throw new IllegalArgumentException("Warehouse description cannot be empty");
+            throw new IllegalArgumentException("Mô tả kho hàng không được để trống");
         }
         if (warehouseDTO.getStatus() == null) {
-            throw new IllegalArgumentException("Warehouse status cannot be null");
+            throw new IllegalArgumentException("Trạng thái kho hàng không được để trống");
         }
         String thumbnailFileName = null;
         if (warehouseDTO.getThumbnail() != null && !warehouseDTO.getThumbnail().isEmpty()) {
@@ -231,7 +231,7 @@ public class WarehouseService implements IWarehouseService {
     @Override
     public void deleteWarehouse(Long id) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
         warehouse.setDeleted(true);
         warehouse.setStatus(WarehouseStatus.INACTIVE);
 
@@ -240,6 +240,13 @@ public class WarehouseService implements IWarehouseService {
             image.setDeleted(true);
         }
         warehouseImageRepository.saveAll(warehouseImages);
+
+        List<Lot> lots = lotRepository.findLotsByWarehouseId(id);
+        for (Lot lot : lots) {
+            lot.setDeleted(true);
+        }
+        lotRepository.saveAll(lots);
+
         warehouseRepository.save(warehouse);
     }
 

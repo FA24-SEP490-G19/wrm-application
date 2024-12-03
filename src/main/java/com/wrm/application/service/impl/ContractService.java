@@ -47,11 +47,11 @@ public class ContractService implements IContractService {
     @Override
     public ContractDetailResponse getContractDetailsByContractId(Long contractId, String remoteUser) throws Exception {
         User currentUser = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + remoteUser));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng với email: " + remoteUser));
         Contract contract = contractRepository.findContractById(contractId)
-                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy hợp đồng với ID: " + contractId));
         Rental rental = rentalRepository.findByContractId(contractId)
-                .orElseThrow(() -> new DataNotFoundException("Rental Detail not found with Contract ID: " + contractId));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy chi tiết thuê liên quan tới hợp đồng ID: " + contractId));
 
         User customer = rental.getCustomer();
         User sales = rental.getSales();
@@ -81,7 +81,7 @@ public class ContractService implements IContractService {
                     .saleFullName(sales.getFullName())
                     .salePhoneNumber(sales.getPhoneNumber());
         } else if (!"USER".equals(currentUser.getRole().getRoleName())) {
-            throw new PermissionDenyException("User role is not authorized to view contract details.");
+            throw new PermissionDenyException("Người dùng không được phép xem thông tin chi tiết hợp đồng.");
         }
 
         return responseBuilder.build();
@@ -90,10 +90,10 @@ public class ContractService implements IContractService {
     @Override
     public CreateContractResponse createContract(ContractDTO contractDTO) throws Exception {
         if (contractDTO.getSignedDate() == null) {
-            throw new IllegalArgumentException("Contract signing date cannot be null");
+            throw new IllegalArgumentException("Ngày ký hợp đồng không được để trống");
         }
         if (contractDTO.getExpiryDate() == null) {
-            throw new IllegalArgumentException("Contract expiry date cannot be null");
+            throw new IllegalArgumentException("Ngày hết hạn hợp đồng không được để trống");
         }
 
         Contract newContract = Contract.builder()
@@ -127,11 +127,11 @@ public class ContractService implements IContractService {
 
     private String saveImageContractToFileSystem(byte[] imageBytes) throws IOException {
         if (imageBytes == null || imageBytes.length == 0) {
-            throw new IllegalArgumentException("Image bytes cannot be null or empty");
+            throw new IllegalArgumentException("Dữ liệu ảnh không được để trống");
         }
 
         if (imageBytes.length > 10 * 1024 * 1024) {
-            throw new IllegalArgumentException("Image size exceeds the maximum limit of 10MB.");
+            throw new IllegalArgumentException("Kích thước ảnh vượt quá giới hạn tối đa 10MB.");
         }
 
         String fileName = UUID.randomUUID().toString() + ".png";
@@ -144,7 +144,7 @@ public class ContractService implements IContractService {
     @Override
     public UpdateContractResponse updateContract(Long contractId, ContractUpdateDTO contractUpdateDTO) throws Exception {
         Contract contract = contractRepository.findContractById(contractId)
-                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy hợp đồng với ID: " + contractId));
         if (contractUpdateDTO.getSignedDate() != null) {
             contract.setSignedDate(contractUpdateDTO.getSignedDate());
         }
@@ -190,7 +190,7 @@ public class ContractService implements IContractService {
     @Override
     public void deleteContract(Long contractId) throws Exception {
         Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy hợp đồng với ID: " + contractId));
        
         List<ContractImage> contractImages = contractImageRepository.findAllByContractId(contractId);
         for (ContractImage img : contractImages) {
@@ -204,7 +204,7 @@ public class ContractService implements IContractService {
     @Override
     public List<ContractDetailResponse> getAllContractDetails(String remoteUser) throws DataNotFoundException, PermissionDenyException {
         User currentUser = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + remoteUser));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng với email: " + remoteUser));
 
         List<Contract> contracts = contractRepository.findAll();
 
