@@ -234,7 +234,6 @@ public class WarehouseService implements IWarehouseService {
                 .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
         warehouse.setDeleted(true);
         warehouse.setStatus(WarehouseStatus.INACTIVE);
-        warehouse.setWarehouseManager(null);
 
         List<WarehouseImage> warehouseImages = warehouseImageRepository.findAllByWarehouseId(id);
         for (WarehouseImage image : warehouseImages) {
