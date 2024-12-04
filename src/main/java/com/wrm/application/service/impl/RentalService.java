@@ -161,7 +161,7 @@ public class RentalService implements IRentalService {
 
         if (rentalDTO.getStatus() == RentalStatus.ACTIVE) {
             Lot lot = rental.getLot();
-            lot.setStatus(LotStatus.OCCUPIED);
+            lot.setStatus(LotStatus.RESERVED);
             lotRepository.save(lot);
 
             Warehouse warehouse = rental.getWarehouse();

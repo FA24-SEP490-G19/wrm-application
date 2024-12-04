@@ -65,7 +65,7 @@ public class AppointmentService implements IAppointmentService {
             return AppointmentResponse.builder()
                     .id(appointment.getId())
                     .customerId(appointment.getCustomer().getId())
-                    .salesId(appointment.getSales().getId())
+                    .salesId(appointment.getSales() != null ? appointment.getSales().getId() : null)
                     .warehouseId(appointment.getWarehouse().getId())
                     .appointmentDate(appointment.getAppointmentDate())
                     .status(appointment.getStatus())
