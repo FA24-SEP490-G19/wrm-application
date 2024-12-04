@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {
     Building2, Square, Timer, Truck, Package,
-    MapPin, Phone, Mail, Search, Menu, Loader2,User,LayoutDashboard,LogOut,ChevronDown,X,KeyRound
+    MapPin, Phone, Mail, Search, Menu, Loader2, User, LayoutDashboard, LogOut, ChevronDown, X, KeyRound, Image
 } from 'lucide-react';
 import logo from "../../assets/logo.png";
 import {getAllItems} from "../../service/WareHouse.js";
@@ -296,19 +296,29 @@ const HomeForGuess = () => {
                 ) : (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {currentItems.map((warehouse) => (
+                            {  currentItems.filter((warehouse) => warehouse.status === 'ACTIVE').map((warehouse) => (
                                 <div key={warehouse.id}
                                      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 transform hover:-translate-y-1"
-
                                      onClick={() => handleWarehouseClick(warehouse.id)}>
 
-
-                                    <div className="h-48 bg-gradient-to-br from-gray-200 to-gray-300 relative">
-                                        <img
-                                            src="/api/placeholder/400/320"
-                                            alt={warehouse.name}
-                                            className="w-full h-full object-cover"
-                                        />
+                                    <div
+                                        className="bg-gradient-to-br from-gray-200 to-gray-300 relative aspect-[16/9]"> {/* Added aspect ratio */}
+                                        {warehouse.fullThumbnailPath ? (
+                                            <img
+                                                src={`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${warehouse.fullThumbnailPath.split('\\').pop()}`}
+                                                alt="Warehouse thumbnail"
+                                                className="w-full h-full object-cover" // Modified image classes
+                                                onError={(e) => {
+                                                    e.target.src = '/placeholder.jpg';
+                                                    e.target.classList.add('opacity-50');
+                                                }}
+                                            />
+                                        ) : (
+                                            <div
+                                                className="w-full h-full bg-gray-100 flex items-center justify-center"> {/* Modified placeholder */}
+                                                <Image className="w-8 h-8 text-gray-400"/>
+                                            </div>
+                                        )}
                                         <div
                                             className={`absolute top-4 right-4 px-4 py-1 rounded-full text-sm font-medium border ${statusColors[warehouse.status]}`}>
                                             {warehouse.status === 'ACTIVE' ? 'Đang hoạt động' : 'Không hoạt động'}
@@ -329,7 +339,7 @@ const HomeForGuess = () => {
                                         <div className="flex justify-between items-center pt-4 border-t">
                                             <div className="flex items-center">
                                                 <Square className="h-5 w-5 text-indigo-600 mr-2"/>
-                                                <span className="text-xl font-bold">{warehouse.size}</span>
+                                                <span className="text-xl font-bold">{warehouse.size.toLocaleString()}</span>
                                                 <span className="text-gray-600 text-sm ml-1">m²</span>
                                             </div>
                                         </div>

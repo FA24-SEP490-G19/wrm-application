@@ -276,92 +276,105 @@ const RentalList = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Kho
                             </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Thời gian ký hợp đồng
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Thời hạn hợp đồng
+                            </th>
                             {customer.role === "ROLE_ADMIN" ? (
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Thao tác
                                 </th>
-                                ) : ""}
+                            ) : ""}
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                         {currentItems
                             .map((rental) => (
-                            <tr key={rental.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {rental.id}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[rental.status]}`}>
+                                <tr key={rental.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {rental.id}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[rental.status]}`}>
                                         {statusTranslations[rental.status]}
                                     </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {customersData[rental.customer_id] ? (
-                                        <div className="text-sm">
-                                            <div className="font-medium text-gray-900">
-                                                {customersData[rental.customer_id].fullname}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        {customersData[rental.customer_id] ? (
+                                            <div className="text-sm">
+                                                <div className="font-medium text-gray-900">
+                                                    {customersData[rental.customer_id].fullname}
+                                                </div>
+                                                <div className="text-gray-500">
+                                                    {customersData[rental.customer_id].email}
+                                                </div>
+                                                <div className="text-gray-500">
+                                                    {customersData[rental.customer_id].phone_number}
+                                                </div>
                                             </div>
-                                            <div className="text-gray-500">
-                                                {customersData[rental.customer_id].email}
+                                        ) : (
+                                            <div className="text-sm text-gray-500">
+                                                {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
                                             </div>
-                                            <div className="text-gray-500">
-                                                {customersData[rental.customer_id].phone_number}
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        {warehousesData[rental.warehouse_id] ? (
+                                            <div className="text-sm">
+                                                <div className="font-medium text-gray-900">
+                                                    {warehousesData[rental.warehouse_id].name}
+                                                </div>
+                                                <div className="text-gray-500">
+                                                    {warehousesData[rental.warehouse_id].address}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="text-sm text-gray-500">
-                                            {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
-                                        </div>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {warehousesData[rental.warehouse_id] ? (
-                                        <div className="text-sm">
-                                            <div className="font-medium text-gray-900">
-                                                {warehousesData[rental.warehouse_id].name}
+                                        ) : (
+                                            <div className="text-sm text-gray-500">
+                                                {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
                                             </div>
-                                            <div className="text-gray-500">
-                                                {warehousesData[rental.warehouse_id].address}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="text-sm text-gray-500">
-                                            {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
-                                        </div>
-                                    )}
-                                </td>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {rental.start_date}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {rental.start_date}
+                                    </td>
 
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div className="flex justify-end space-x-2">
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div className="flex justify-end space-x-2">
 
-                                        {customer.role === "ROLE_ADMIN" && rental.status === 'PENDING' && (
-                                            <>
+                                            {customer.role === "ROLE_ADMIN" && rental.status === 'PENDING' && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleStatusChange(rental.id, 'ACTIVE')}
+                                                        className="text-green-600 hover:text-green-900"
+                                                    >
+                                                        Duyệt
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(rental.id, 'EXPIRED')}
+                                                        className="text-red-600 hover:text-red-900"
+                                                    >
+                                                        Từ chối
+                                                    </button>
+                                                </>
+                                            )}
+                                            {customer.role === "ROLE_ADMIN" ? (
                                                 <button
-                                                    onClick={() => handleStatusChange(rental.id, 'ACTIVE')}
-                                                    className="text-green-600 hover:text-green-900"
-                                                >
-                                                    Duyệt
-                                                </button>
-                                                <button
-                                                    onClick={() => handleStatusChange(rental.id, 'EXPIRED')}
+                                                    onClick={() => handleDeleteRental(rental.id)}
                                                     className="text-red-600 hover:text-red-900"
                                                 >
-                                                    Từ chối
+                                                    <Trash2 className="w-5 h-5"/>
                                                 </button>
-                                            </>
-                                        )}
-                                        {customer.role === "ROLE_ADMIN" ? (
-                                        <button
-                                            onClick={() => handleDeleteRental(rental.id)}
-                                            className="text-red-600 hover:text-red-900"
-                                        >
-                                            <Trash2 className="w-5 h-5"/>
-                                        </button>
                                             ) : ""}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>

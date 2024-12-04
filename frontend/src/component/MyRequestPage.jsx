@@ -25,14 +25,14 @@ import {useNavigate} from "react-router-dom";
 
 
 const REQUEST_TYPES = [
-    { id: 1, content: "Service Feedback Request", role_id: 1 },
-    { id: 2, content: "Create New Customer Account Request", role_id: 3 },
-    { id: 3, content: "Revenue Report Request", role_id: 3 },
-    { id: 4, content: "Promotional Material Request", role_id: 3 },
-    { id: 5, content: "Maintenance Request", role_id: 4 },
-    { id: 6, content: "Incident Report", role_id: 4 },
-    { id: 7, content: "Inventory Audit Request", role_id: 4 },
-    { id: 8, content: "Improvement/Upgrade Request", role_id: 4 }
+    { id: 1, content: "Yêu cầu phản hồi dịch vụ", role_id: 1 },
+    { id: 2, content: "Yêu cầu tạo tài khoản khách hàng mới", role_id: 3 },
+    { id: 3, content: "Yêu cầu báo cáo doanh thu", role_id: 3 },
+    { id: 4, content: "Yêu cầu tài liệu quảng cáo", role_id: 3 },
+    { id: 5, content: "Yêu cầu bảo trì", role_id: 4 },
+    { id: 6, content: "Báo cáo sự cố", role_id: 4 },
+    { id: 7, content: "Yêu cầu kiểm toán hàng tồn kho", role_id: 4 },
+    { id: 8, content: "Yêu cầu cải thiện/nâng cấp", role_id: 4 }
 ];
 
 const MyRequestPage = () => {
@@ -195,8 +195,16 @@ const MyRequestPage = () => {
 
                             {customer?.role === "ROLE_USER" ? (
                                 <div className="flex items-center space-x-4">
+                                    <div><a
+                                        href="/landing"
+                                        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                        Landing Page
+                                    </a></div>
                                     {/* Profile Dropdown */}
                                     <div className="relative">
+
                                         <button
                                             onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                             className="flex items-center px-6 py-2 bg-gradient-to-r from-indigo-600

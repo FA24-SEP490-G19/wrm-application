@@ -122,7 +122,7 @@ const ProfileCRUD = () => {
 
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-            showToast('Please check the form for errors', 'error');
+            showToast('Vui lòng nhập đầy đủ các trường thông tin', 'error');
             return;
         }
 
@@ -166,7 +166,7 @@ const ProfileCRUD = () => {
         if (!editMode) {
             return (
                 <div className="bg-gray-50 px-4 py-3 rounded-xl">
-                    {type === 'select' ? options.find(opt => opt.value === value)?.label : value || 'Not set'}
+                    {type === 'select' ? options.find(opt => opt.value === value)?.label : value }
                 </div>
             );
         }
@@ -179,7 +179,6 @@ const ProfileCRUD = () => {
                     onChange={handleChange}
                     className={inputClasses}
                 >
-                    <option value="">Select {label}</option>
                     {options.map(option => (
                         <option key={option.value} value={option.value}>
                             {option.label}
@@ -247,6 +246,13 @@ const ProfileCRUD = () => {
                             {customer?.role === "ROLE_USER" ? (
                                 <div className="flex items-center space-x-4">
                                     {/* Profile Dropdown */}
+                                    <div><a
+                                        href="/landing"
+                                        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                        Landing Page
+                                    </a></div>
                                     <div className="relative">
                                         <button
                                             onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
@@ -485,19 +491,19 @@ const ProfileCRUD = () => {
                                 )}
                             </div>
 
-                            {/* Email */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email
-                                </label>
-                                {renderField('Email', 'email', formData.email, 'email')}
-                                {errors.email && (
-                                    <p className="mt-2 text-sm text-red-600 flex items-center">
-                                        <AlertCircle className="w-4 h-4 mr-1"/>
-                                        {errors.email}
-                                    </p>
-                                )}
-                            </div>
+                            {/*/!* Email *!/*/}
+                            {/*<div>*/}
+                            {/*    <label className="block text-sm font-medium text-gray-700 mb-2">*/}
+                            {/*        Email*/}
+                            {/*    </label>*/}
+                            {/*    {renderField('Email', 'email', formData.email, 'email')}*/}
+                            {/*    {errors.email && (*/}
+                            {/*        <p className="mt-2 text-sm text-red-600 flex items-center">*/}
+                            {/*            <AlertCircle className="w-4 h-4 mr-1"/>*/}
+                            {/*            {errors.email}*/}
+                            {/*        </p>*/}
+                            {/*    )}*/}
+                            {/*</div>*/}
 
                             {/* Password fields only shown in edit mode */}
                             {editMode && (
@@ -530,13 +536,13 @@ const ProfileCRUD = () => {
                                 {renderField('Gender', 'gender', formData.gender, 'select', genderOptions)}
                             </div>
 
-                            {/* Status */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Trạng thái
-                                </label>
-                                {renderField('Status', 'status', formData.status, 'select', statusOptions)}
-                            </div>
+                            {/*/!* Status *!/*/}
+                            {/*<div>*/}
+                            {/*    <label className="block text-sm font-medium text-gray-700 mb-2">*/}
+                            {/*        Trạng thái*/}
+                            {/*    </label>*/}
+                            {/*    {renderField('Status', 'status', formData.status, 'select', statusOptions)}*/}
+                            {/*</div>*/}
                         </div>
 
                         {/* Form Actions */}

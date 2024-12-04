@@ -247,4 +247,17 @@ public class MailService implements IMailService {
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
+
+    @Async
+    @Override
+    public void sendVerificationEmail(String email, String token) throws MessagingException {
+        String subject = "Verify Your Email Address";
+        String htmlContent = "<div style='font-family: Arial, sans-serif;'>"
+                + "<h2>Verify Your Email</h2>"
+                + "<p>Thank you for registering. Please click the link below to verify your email address:</p>"
+                + "<a href='http://localhost:8080/users/verify?token=" + token + "'>Verify Email</a>"
+                + "<p>If you did not register, please ignore this email.</p>"
+                + "</div>";
+        sendEmail(email, subject, htmlContent);
+    }
 }

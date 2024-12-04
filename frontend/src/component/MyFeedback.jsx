@@ -175,8 +175,16 @@ const MyFeedBack = () => {
 
                             {customer?.role === "ROLE_USER" ? (
                                 <div className="flex items-center space-x-4">
+                                    <div><a
+                                        href="/landing"
+                                        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                        Landing Page
+                                    </a></div>
                                     {/* Profile Dropdown */}
                                     <div className="relative">
+
                                         <button
                                             onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                             className="flex items-center px-6 py-2 bg-gradient-to-r from-indigo-600
@@ -344,7 +352,7 @@ const MyFeedBack = () => {
                 </div>
                 <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Quản lí Phản hồi </h1>
+                        <h1 className="text-2xl font-bold text-gray-900">Quản lý Phản hồi </h1>
                         <p className="text-gray-600">Dành cho người dùng</p>
                     </div>
 

@@ -1,5 +1,6 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.constant.enums.LotStatus;
 import com.wrm.application.constant.enums.RentalStatus;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.exception.DataNotFoundException;
@@ -159,10 +160,19 @@ public class RentalService implements IRentalService {
         rentalRepository.save(rental);
 
         if (rentalDTO.getStatus() == RentalStatus.ACTIVE) {
+            Lot lot = rental.getLot();
+            lot.setStatus(LotStatus.OCCUPIED);
+            lotRepository.save(lot);
+
             Warehouse warehouse = rental.getWarehouse();
             User manager = warehouse.getWarehouseManager();
             String managerEmail = manager.getEmail();
             mailService.sendRentalStatusUpdateNotification(managerEmail, rental);
+        }
+        if (rentalDTO.getStatus() == RentalStatus.EXPIRED || rentalDTO.getStatus() == RentalStatus.TERMINATED) {
+            Lot lot = rental.getLot();
+            lot.setStatus(LotStatus.AVAILABLE);
+            lotRepository.save(lot);
         }
 
         return RentalResponse.builder()

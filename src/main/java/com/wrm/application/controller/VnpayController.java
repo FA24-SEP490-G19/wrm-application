@@ -6,6 +6,7 @@ import com.wrm.application.repository.UserRepository;
 import com.wrm.application.response.payment.PaymentResponse;
 import com.wrm.application.service.impl.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -24,9 +26,9 @@ public class VnpayController {
     private final UserRepository userRepository;
 
     @GetMapping("/vnpay-payment-return")
-    public ResponseEntity<PaymentResponse> paymentCompleted(HttpServletRequest request) {
-        PaymentResponse response = paymentService.processPaymentReturn(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<PaymentResponse> paymentCompleted(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        PaymentResponse re = paymentService.processPaymentReturn(request,response);
+        return ResponseEntity.ok(re);
     }
 
     @GetMapping("/payment-requests")
@@ -37,15 +39,20 @@ public class VnpayController {
     }
 
     @GetMapping("/payment-requests/users")
-    public ResponseEntity<List<PaymentResponse>> getCustomerPayments() throws DataNotFoundException {
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<List<PaymentResponse>> getCustomerPayments(HttpServletRequest req) throws DataNotFoundException {
 
-            User user = userRepository.findByEmail("sale@gmail.com")
-                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+            User user = userRepository.findByEmail(req.getRemoteUser())
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
             List<PaymentResponse> payments = paymentService.getPaymentsByCustomer(user.getEmail());
             return ResponseEntity.ok(payments);
 
     }
+    @PutMapping("/payment-requests/{id}/confirm")
+    public void paymentCompleted(@PathVariable Long id) {
+       paymentService.confirm(id);
 
+    }
 
     @PostMapping("/submitOrder")
     public ResponseEntity<String> submitOrder(

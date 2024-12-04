@@ -3,7 +3,7 @@ import axios from "axios";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {useToast} from "../../../context/ToastProvider.jsx";
 import {
-   Loader2,Plus,Search,CreditCard
+    Loader2,Plus,Search,CreditCard
 } from 'lucide-react';
 import PaymentModal from "./PaymentModal.jsx";
 import CRMLayout from "../Crm.jsx";
@@ -129,6 +129,18 @@ export const Payment = () => {
         return pages;
     };
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    };
     const getUserInfo = (userId) => {
         const user = users[userId];
         if (user) {
@@ -214,8 +226,11 @@ export const Payment = () => {
                         <tr className="bg-gray-50">
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">url thanh toán</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500"></th>
+
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -229,16 +244,18 @@ export const Payment = () => {
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                     {formatPrice(payment.amount)}
                                 </td>
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {payment?.status}
+                                </td>
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {formatDate(payment?.paymentTime)}
+
+                                </td>
                                 <td className="px-6 py-4">{payment.user.fullName}</td>
+
                                 <td className="px-6 py-4">
-                                    <button
-                                        onClick={() => window.location.href = payment.url}
-                                        className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700
-                             transition-colors duration-200 flex items-center gap-2"
-                                    >
-                                        <CreditCard className="w-4 h-4"/>
-                                        Thanh toán
-                                    </button>
+
+                                    {payment.status === 'SUCCESS' ? 'Đã Thanh Toán' : 'Đang đợi thanh toán'}
                                 </td>
                             </tr>
                         ))}
@@ -247,6 +264,62 @@ export const Payment = () => {
                 </div>
 
                 {/* Pagination remains the same */}
+                <div className="px-6 py-4 border-t border-gray-200">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="text-sm text-gray-500">
+                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, currentItems.length)}
+                            trong tổng số {currentItems.length} lô hàng
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {/* Previous button */}
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                    ${currentPage === 1
+                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                            >
+                                Trước
+                            </button>
+
+                            {/* Page numbers */}
+                            <div className="hidden sm:flex items-center gap-2">
+                                {getPageNumbers().map((page, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => page !== '...' && setCurrentPage(page)}
+                                        disabled={page === '...'}
+                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                            ${page === currentPage
+                                            ? 'bg-indigo-600 text-white'
+                                            : page === '...'
+                                                ? 'text-gray-400 cursor-default'
+                                                : 'hover:bg-gray-50 text-gray-700'}`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Next button */}
+                            <button
+                                onClick={() => setCurrentPage(prev =>
+                                    Math.min(prev + 1, Math.ceil(currentItems.length / itemsPerPage))
+                                )}
+                                disabled={currentPage === Math.ceil(currentItems.length / itemsPerPage)}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
+                    ${currentPage === Math.ceil(currentItems.length / itemsPerPage)
+                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                            >
+                                Sau
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             {/* Payment Modal */}

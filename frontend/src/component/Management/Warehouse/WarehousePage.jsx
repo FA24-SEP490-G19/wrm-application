@@ -237,7 +237,7 @@ const FeatureList = () => {
             {/* Page Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Quản lí kho</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Quản lý kho</h1>
                     <p className="text-gray-600">Dành cho Admin</p>
                 </div>
                 {customer.role === "ROLE_ADMIN" ? (

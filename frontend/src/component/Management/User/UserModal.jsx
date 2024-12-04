@@ -11,7 +11,7 @@ const UserModal = ({ isOpen, onClose, mode, userData, onSubmit }) => {
         retype_password: '',
         address: '',
         gender: '',
-        roleId: '',
+        roleId: '1',
         phone_number: ''
     });
 
@@ -284,7 +284,6 @@ transition-colors
                                         onChange={handleChange}
                                         className={inputClasses(errors.gender)}
                                     >
-                                        <option value="">Chọn giới tính</option>
                                         <option value="MALE">Nam</option>
                                         <option value="FEMALE">Nữ</option>
                                     </select>
@@ -301,7 +300,6 @@ transition-colors
                                         onChange={handleChange}
                                         className={inputClasses(errors.roleId)}
                                     >
-                                        <option value="">Chọn vai trò</option>
                                         <option value={1}>User</option>
                                         <option value={2}>Admin</option>
                                         <option value={3}>Sales</option>
