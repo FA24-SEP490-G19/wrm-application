@@ -417,13 +417,14 @@ const MyPaymentPage = () => {
                                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                         {formatPrice(payment.amount)}
                                     </td>
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                        {payment?.status}
-                                    </td>
+
                                     <td className="px-6 py-4 text-sm font-medium text-gray-900"
                                     >
                                         {formatDate(payment?.paymentTime)}
 
+                                    </td>
+                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                        {payment.status === 'SUCCESS' ? 'Đã thanh toán' : 'Thanh toán'}
                                     </td>
                                     <td className="px-6 py-4">
                                         <button
