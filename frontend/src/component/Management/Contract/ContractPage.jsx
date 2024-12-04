@@ -180,18 +180,18 @@ const ContractList = () => {
             </div>
 
             {/* Search */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm theo tên khách hàng, tên kho..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                </div>
-            </div>
+            {/*<div className="flex flex-col sm:flex-row gap-4">*/}
+            {/*    <div className="relative flex-1">*/}
+            {/*        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>*/}
+            {/*        <input*/}
+            {/*            type="text"*/}
+            {/*            placeholder="Tìm kiếm theo tên khách hàng, tên kho..."*/}
+            {/*            value={searchTerm}*/}
+            {/*            onChange={(e) => setSearchTerm(e.target.value)}*/}
+            {/*            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"*/}
+            {/*        />*/}
+            {/*    </div>*/}
+            {/*</div>*/}
 
             {/* Contracts Table */}
             <div className="bg-white rounded-xl shadow">
@@ -201,19 +201,7 @@ const ContractList = () => {
                         <tr className="border-b border-gray-200">
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian ký</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian hết hạn</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                                <div>Kho</div>
-                            </th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Miêu tả lô cho thuê
-                            </th>
 
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                                <div>Khách hàng</div>
-                            </th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
-                                <div>Môi giới</div>
-
-                            </th>
                             <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
                         </tr>
                         </thead>
@@ -227,21 +215,6 @@ const ContractList = () => {
                                     {formatDateTime(contract.expiryDate)}
                                 </td>
 
-                                <td className="px-6 py-4 text-sm">
-                                    <div className="font-medium">{contract.warehouseName}</div>
-                                    <div className="text-gray-500">{contract.warehouseAddress}</div>
-                                    <div className="text-gray-500 truncate max-w-xs">{contract.additionalService}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm">{contract.lotDescription}</td>
-                                <td className="px-6 py-4 text-sm">
-                                    <div className="font-medium">{contract.customerFullName}</div>
-                                    <div className="text-gray-500">{contract.customerPhoneNumber}</div>
-                                    <div className="text-gray-500 truncate max-w-xs">{contract.customerAddress}</div>
-                                </td>
-                                <td className="px-6 py-4 text-sm">
-                                    <div className="font-medium">{contract.saleFullName}</div>
-                                    <div className="text-gray-500">{contract.salePhoneNumber}</div>
-                                </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end space-x-2">
 

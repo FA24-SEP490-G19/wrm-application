@@ -4,14 +4,14 @@ import { X } from 'lucide-react';
 import {useAuth} from "../context/AuthContext.jsx";
 
 const REQUEST_TYPES = [
-    { id: 1, content: "Service Feedback Request", role_id: 1 },
-    { id: 2, content: "Create New Customer Account Request", role_id: 3 },
-    { id: 3, content: "Revenue Report Request", role_id: 3 },
-    { id: 4, content: "Promotional Material Request", role_id: 3 },
-    { id: 5, content: "Maintenance Request", role_id: 4 },
-    { id: 6, content: "Incident Report", role_id: 4 },
-    { id: 7, content: "Inventory Audit Request", role_id: 4 },
-    { id: 8, content: "Improvement/Upgrade Request", role_id: 4 }
+    { id: 1, content: "Yêu cầu phản hồi dịch vụ", role_id: 1 },
+    { id: 2, content: "Yêu cầu tạo tài khoản khách hàng mới", role_id: 3 },
+    { id: 3, content: "Yêu cầu báo cáo doanh thu", role_id: 3 },
+    { id: 4, content: "Yêu cầu tài liệu quảng cáo", role_id: 3 },
+    { id: 5, content: "Yêu cầu bảo trì", role_id: 4 },
+    { id: 6, content: "Báo cáo sự cố", role_id: 4 },
+    { id: 7, content: "Yêu cầu kiểm toán hàng tồn kho", role_id: 4 },
+    { id: 8, content: "Yêu cầu cải thiện/nâng cấp", role_id: 4 }
 ];
 
 const ROLE_MAPPINGS = {

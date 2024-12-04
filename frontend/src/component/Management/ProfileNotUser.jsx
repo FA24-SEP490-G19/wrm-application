@@ -98,18 +98,18 @@ const ProfileCRUD = () => {
         const newErrors = {};
 
         if (!formData.email) {
-            newErrors.email = 'Email is required';
+            newErrors.email = 'Email là bắt buộc';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Invalid email format';
+            newErrors.email = 'Định dạng email không hợp lệ';
         }
 
 
         if (!formData.fullName) {
-            newErrors.fullName = 'Full name is required';
+            newErrors.fullName = 'Tên là bắt buộc';
         }
 
         if (!formData.phoneNumber) {
-            newErrors.phoneNumber = 'Phone number is required';
+            newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
         }
 
         return newErrors;
@@ -121,7 +121,7 @@ const ProfileCRUD = () => {
 
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-            showToast('Please check the form for errors', 'error');
+            showToast('Vui lòng nhập dầy đủ hết các trường thông tin', 'error');
             return;
         }
 

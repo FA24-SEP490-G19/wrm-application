@@ -32,6 +32,8 @@ import MyPaymentPage from "./component/MyPaymentPage.jsx";
 import HomeForGuess from "./component/Shared/HomeForGuest.jsx";
 import {AuthRoute} from "./component/Shared/AuthRoute.jsx";
 import WarehouseDetailForGuess from "./component/Shared/WareHouseDetailForGuess.jsx";
+import PaymentSuccess from "./component/PaymentSuccess.jsx";
+import ResetPassword from "./component/ResetPassword.jsx";
 
 function App() {
     return (
@@ -65,8 +67,11 @@ function App() {
             <Route path="/request" element={<ProtectedRoute><RequestPage/> </ProtectedRoute>} />
             <Route path="/feedback" element={<ProtectedRoute><FeedBackPage/> </ProtectedRoute>} />
             <Route path="/payment" element={<ProtectedRoute><PaymentList/> </ProtectedRoute>} />
+            <Route path="/payment_user" element={<ProtectedRoute><MyPaymentPage /></ProtectedRoute>} />
 
-                <Route path="/" element={<Navigate to="/landing" replace />} />
+                <Route path="/payment-return" element={<ProtectedRoute><PaymentSuccess/> </ProtectedRoute>} />
+            <Route path="/forgot" element={<ResetPassword/> } />
+
         </Routes>
     );
 }

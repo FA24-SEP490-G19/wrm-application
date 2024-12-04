@@ -122,9 +122,10 @@ const CustomerList = () => {
                 showToast('Cập nhật người dùng thành công', 'success');
             }
             setIsModalOpen(false);
+            setIsModalOpen(false);
             fetchCustomers();
-        } catch (error) {
-            showToast(err.response.data);
+        } catch (err) {
+            showToast('Email đã tồn tại trong hệ thống, vui lòng dùng email khác','error');
         }
     };
 

@@ -111,8 +111,8 @@ const RentalByCustomer = () => {
 
     const statusTranslations = {
         'PENDING': 'Đang chờ',
-        'APPROVED': 'Đã duyệt',
-        'REJECTED': 'Từ chối',
+        'ACTIVE': 'Đã duyệt',
+        'EXPIRED': 'Từ chối',
         'COMPLETED': 'Hoàn thành'
     };
 
@@ -165,6 +165,13 @@ const RentalByCustomer = () => {
 
                             {customer?.role === "ROLE_USER" ? (
                                 <div className="flex items-center space-x-4">
+                                    <div><a
+                                        href="/landing"
+                                        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                    >
+                                        Landing Page
+                                    </a></div>
                                     {/* Profile Dropdown */}
                                     <div className="relative">
                                         <button

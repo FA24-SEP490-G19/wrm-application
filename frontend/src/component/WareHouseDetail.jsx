@@ -236,12 +236,6 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot }) => {
                     Lối thoát hiểm
                 </div>
 
-                {/* Main Aisle */}
-                <div className="absolute top-5 bottom-0 left-1/2 -translate-x-1/2 w-12 bg-gray-50 rounded-xl">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-900 text-xs whitespace-nowrap rotate-90">
-                        Lối đi chính 3m
-                    </div>
-                </div>
 
                 {/* Lots Grid */}
                 <div className="grid grid-cols-1 gap-6 relative py-8">

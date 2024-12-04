@@ -154,7 +154,18 @@ const MyPaymentPage = () => {
         }).format(price);
     };
 
-
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -186,7 +197,15 @@ const MyPaymentPage = () => {
                         {customer?.role === "ROLE_USER" ? (
                             <div className="flex items-center space-x-4">
                                 {/* Profile Dropdown */}
+                                <div><a
+                                    href="/landing"
+                                    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                >
+                                    Landing Page
+                                </a></div>
                                 <div className="relative">
+
                                     <button
                                         onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                                         className="flex items-center px-6 py-2 bg-gradient-to-r from-indigo-600
@@ -381,8 +400,9 @@ const MyPaymentPage = () => {
                             <tr className="bg-gray-50">
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">url thanh toán
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian</th>
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">trạng thái</th>
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Link thanh toán
                                 </th>
                             </tr>
                             </thead>
@@ -397,15 +417,25 @@ const MyPaymentPage = () => {
                                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                         {formatPrice(payment.amount)}
                                     </td>
-                                    <td className="px-6 py-4">{payment.user.fullName}</td>
+                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                        {payment?.status}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm font-medium text-gray-900"
+                                    >
+                                        {formatDate(payment?.paymentTime)}
+
+                                    </td>
                                     <td className="px-6 py-4">
                                         <button
                                             onClick={() => window.location.href = payment.url}
-                                            className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700
-                             transition-colors duration-200 flex items-center gap-2"
+                                            disabled={payment.status === 'SUCCESS'}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                                                payment.status === 'SUCCESS'
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-green-600 text-white hover:bg-green-700'
+                                            }`}
                                         >
-                                            <CreditCard className="w-4 h-4"/>
-                                            Thanh toán
+                                            {payment.status === 'SUCCESS' ? 'Đã thanh toán' : 'Thanh toán'}
                                         </button>
                                     </td>
                                 </tr>
