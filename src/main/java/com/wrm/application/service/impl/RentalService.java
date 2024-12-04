@@ -52,7 +52,7 @@ public class RentalService implements IRentalService {
     @Override
     public Page<RentalResponse> getBySalesId(String remoteUser, PageRequest pageRequest) {
         User sales = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataIntegrityViolationException("Không tìm thấy người dùng"));
         return rentalRepository.findBySalesId(sales.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()
                     .id(rental.getId())
@@ -73,45 +73,45 @@ public class RentalService implements IRentalService {
     @Transactional
     public RentalResponse createRental(RentalDTO rentalDTO, String remoteUser) throws Exception {
         if (rentalDTO.getCustomerId() == null) {
-            throw new IllegalArgumentException("Customer ID cannot be empty");
+            throw new IllegalArgumentException("ID khách hàng không được để trống");
         }
         if (rentalDTO.getWarehouseId() == null) {
-            throw new IllegalArgumentException("Warehouse ID cannot be empty");
+            throw new IllegalArgumentException("ID kho hàng không được để trống");
         }
         if (rentalDTO.getLotId() == null) {
-            throw new IllegalArgumentException("Lot ID cannot be empty");
+            throw new IllegalArgumentException("ID lô không được để trống");
         }
 
         User customer = userRepository.findById(rentalDTO.getCustomerId())
-                .orElseThrow(() -> new DataNotFoundException("Customer not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy khách hàng"));
         if (customer.getRole().getId() != 1) {
-            throw new DataIntegrityViolationException("User is not a customer");
+            throw new DataIntegrityViolationException("Người dùng không phải là khách hàng");
         }
 
         User sales = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         if (sales.getRole().getId() != 3) {
-            throw new DataIntegrityViolationException("User is not a salesman");
+            throw new DataIntegrityViolationException("Người dùng không phải là nhân viên bán hàng");
         }
 
         Lot lot = lotRepository.findById(rentalDTO.getLotId())
-                .orElseThrow(() -> new DataNotFoundException("Lot not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô"));
         if (!lot.getWarehouse().getId().equals(rentalDTO.getWarehouseId())) {
-            throw new DataIntegrityViolationException("Lot does not belong to the specified warehouse");
+            throw new DataIntegrityViolationException("Lô không thuộc về kho hàng đã chỉ định");
         }
         if(rentalRepository.existsByLotId(rentalDTO.getLotId())){
-            throw new DataIntegrityViolationException("Lot already used");
+            throw new DataIntegrityViolationException("Lô đã được thuê");
         }
 
         AdditionalService additionalService = additionalServiceRepository.findById(rentalDTO.getAdditionalServiceId())
-                .orElseThrow(() -> new DataNotFoundException("Additional service not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy dịch vụ bổ sung"));
 
         Contract contract = contractRepository.findById(rentalDTO.getContractId())
-                .orElseThrow(() -> new DataNotFoundException("Contract not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy hợp đồng"));
 
 
         Warehouse warehouse = warehouseRepository.findById(rentalDTO.getWarehouseId())
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
 
         Rental newRental = Rental.builder()
                 .warehouse(warehouse)
@@ -128,7 +128,7 @@ public class RentalService implements IRentalService {
         rentalRepository.save(newRental);
 
         User admin = userRepository.findByRoleId(2L)
-                .orElseThrow(() -> new DataNotFoundException("Admin not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy quản trị viên"));
         String adminEmail = admin.getEmail();
         mailService.sendRentalCreationNotification(adminEmail, newRental);
 
@@ -150,18 +150,18 @@ public class RentalService implements IRentalService {
     @Transactional
     public RentalResponse updateRentalStatus(Long id, RentalDTO rentalDTO) throws Exception {
         if (rentalDTO.getStatus() == null) {
-            throw new IllegalArgumentException("Rental status cannot be empty");
+            throw new IllegalArgumentException("Trạng thái thuê không được để trống");
         }
 
         Rental rental = rentalRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Rental not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy thông tin thuê"));
         rental.setStatus(rentalDTO.getStatus());
 
         rentalRepository.save(rental);
 
         if (rentalDTO.getStatus() == RentalStatus.ACTIVE) {
             Lot lot = rental.getLot();
-            lot.setStatus(LotStatus.OCCUPIED);
+            lot.setStatus(LotStatus.RESERVED);
             lotRepository.save(lot);
 
             Warehouse warehouse = rental.getWarehouse();
@@ -192,7 +192,7 @@ public class RentalService implements IRentalService {
     @Override
     public void deleteRental(Long id) throws Exception {
         Rental rental = rentalRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Rental not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy thông tin thuê"));
         rental.setDeleted(true);
         rentalRepository.save(rental);
     }
@@ -200,7 +200,7 @@ public class RentalService implements IRentalService {
     @Override
     public Page<RentalResponse> getByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
         User customer = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         return rentalRepository.findByCustomerId(customer.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()
                     .id(rental.getId())
@@ -220,7 +220,7 @@ public class RentalService implements IRentalService {
     @Override
     public RentalResponse getRentalById(Long id) throws Exception {
         Rental rental = rentalRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Rental not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy thông tin thuê"));
         return RentalResponse.builder()
                 .id(rental.getId())
                 .salesId(rental.getSales().getId())
@@ -238,10 +238,10 @@ public class RentalService implements IRentalService {
     @Override
     public Page<RentalResponse> getByWarehouseId(String remoteUser, PageRequest pageRequest) throws Exception {
         User warehouseManager = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         Warehouse warehouse = warehouseRepository.findByManagerId(warehouseManager.getId())
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
 
         return rentalRepository.findByWarehouseId(warehouse.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()
@@ -261,7 +261,7 @@ public class RentalService implements IRentalService {
 
     public Page<RentalResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
         User customer = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         return rentalRepository.findCompletedByCustomerId(customer.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()

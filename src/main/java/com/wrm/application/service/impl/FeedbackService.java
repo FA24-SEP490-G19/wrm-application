@@ -44,7 +44,7 @@ public class FeedbackService implements IFeedbackService {
     @Override
     public List<FeedbackListResponse> getFeedbackByCustomer(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataIntegrityViolationException("Không tìm thấy người dùng"));
         return feedbackRepository.findByCustomerId(user.getId()).stream()
                 .map(this::mapToFeedbackListResponse)
                 .collect(Collectors.toList());
@@ -66,14 +66,14 @@ public class FeedbackService implements IFeedbackService {
     @Override
     public FeedbackResponse addFeedback(FeedbackDTO feedbackDTO, String remoteUser) {
         User customer = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataIntegrityViolationException("User not found"));
+                .orElseThrow(() -> new DataIntegrityViolationException("Không tìm thấy người dùng"));
 
         if (customer.getRole().getId() != 1) {
-            throw new DataIntegrityViolationException("User is not a customer");
+            throw new DataIntegrityViolationException("Người dùng không phải là khách hàng");
         }
 
         Warehouse warehouse = warehouseRepository.findById(feedbackDTO.getWarehouseId())
-                .orElseThrow(() -> new DataIntegrityViolationException("Warehouse not found"));
+                .orElseThrow(() -> new DataIntegrityViolationException("Không tìm thấy kho hàng"));
 
         Feedback feedback = new Feedback();
         feedback.setCustomer(customer);

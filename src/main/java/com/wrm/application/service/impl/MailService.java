@@ -37,18 +37,18 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendPasswordResetEmail(String to, String newPassword) throws MessagingException {
-        String subject = "Password Reset";
+        String subject = "Đặt lại mật khẩu";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2;'>Password Reset Successful</h2>"
-                + "<p>Hello,</p>"
-                + "<p>Your password has been reset successfully. Please use the following password to log in:</p>"
+                + "<h2 style='color: #4a90e2;'>Đặt lại mật khẩu thành công</h2>"
+                + "<p>Xin chào,</p>"
+                + "<p>Mật khẩu của bạn đã được đặt lại thành công. Vui lòng sử dụng mật khẩu sau để đăng nhập:</p>"
                 + "<div style='margin: 20px 0; padding: 10px; background-color: #f2f2f2; border-radius: 5px;'>"
                 + "<strong style='font-size: 18px;'>" + newPassword + "</strong>"
                 + "</div>"
-                + "<p>For security reasons, please change this password after logging in.</p>"
-                + "<p style='color: #888; font-size: 12px;'>If you did not request this change, please contact our support team immediately.</p>"
+                + "<p>Vì lý do bảo mật, hãy đổi mật khẩu này sau khi đăng nhập.</p>"
+                + "<p style='color: #888; font-size: 12px;'>Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng liên hệ ngay với đội ngũ hỗ trợ của chúng tôi.</p>"
                 + "<hr style='border: none; border-top: 1px solid #eee;'/>"
-                + "<p style='font-size: 12px; color: #aaa;'>Best Regards,<br/>Warehouse Hub Team</p>"
+                + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
@@ -67,16 +67,16 @@ public class MailService implements IMailService {
 
         for (Rental rental : rentals) {
             String email = rental.getCustomer().getEmail();
-            String subject = "Rental Contract Expiration Reminder";
+            String subject = "Nhắc nhở sắp hết hạn hợp đồng thuê";
             String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                    + "<h2 style='color: #4a90e2;'>Rental Contract Expiration Reminder</h2>"
-                    + "<p>Dear " + rental.getCustomer().getFullName() + ",</p>"
-                    + "<p>This is a reminder that your rental contract for the lot <strong>#" + rental.getLot().getId() + "</strong> "
-                    + "is about to expire on <strong>" + rental.getEndDate() + "</strong>.</p>"
-                    + "<p>Please take the necessary actions to renew or finalize your contract.</p>"
-                    + "<p style='color: #888; font-size: 12px;'>If you have already renewed, please disregard this message.</p>"
+                    + "<h2 style='color: #4a90e2;'>Nhắc nhở sắp hết hạn hợp đồng thuê</h2>"
+                    + "<p>Kính gửi " + rental.getCustomer().getFullName() + ",</p>"
+                    + "<p>Đây là thông báo nhắc nhở rằng hợp đồng thuê của bạn cho lô hàng <strong>#" + rental.getLot().getId() + "</strong> "
+                    + "sẽ hết hạn vào ngày <strong>" + rental.getEndDate() + "</strong>.</p>"
+                    + "<p>Vui lòng thực hiện các hành động cần thiết để gia hạn hoặc hoàn tất hợp đồng của bạn.</p>"
+                    + "<p style='color: #888; font-size: 12px;'>Nếu bạn đã gia hạn hợp đồng, vui lòng bỏ qua email này.</p>"
                     + "<hr style='border: none; border-top: 1px solid #eee;'/>"
-                    + "<p style='font-size: 12px; color: #aaa;'>Best Regards,<br/>Warehouse Hub Team</p>"
+                    + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                     + "</div>";
 
             sendEmail(email, subject, htmlContent);
@@ -86,24 +86,24 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendAppointmentConfirmationEmail(String to, Appointment appointment) throws MessagingException {
-        String subject = "Appointment Confirmation";
+        String subject = "Xác nhận lịch hẹn";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2;'>Appointment Confirmation</h2>"
-                + "<p>Hello,</p>"
-                + "<p>Your appointment has been scheduled successfully. Here are the details:</p>"
+                + "<h2 style='color: #4a90e2;'>Xác nhận lịch hẹn</h2>"
+                + "<p>Xin chào,</p>"
+                + "<p>Lịch hẹn của bạn đã được đặt thành công. Dưới đây là chi tiết:</p>"
                 + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
                 + "<table style='width: 100%; font-size: 16px; color: #333;'>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Appointment ID:</strong></td><td>" + appointment.getId() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Customer:</strong></td><td>" + appointment.getCustomer().getFullName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Warehouse:</strong></td><td>" + appointment.getWarehouse().getName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Appointment Date:</strong></td><td>" + appointment.getAppointmentDate() + "</td></tr>"
-                + "<tr><td style='padding: 8px;'><strong>Status:</strong></td><td>" + appointment.getStatus() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã lịch hẹn:</strong></td><td>" + appointment.getId() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Khách hàng:</strong></td><td>" + appointment.getCustomer().getFullName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Kho hàng:</strong></td><td>" + appointment.getWarehouse().getName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Ngày hẹn:</strong></td><td>" + appointment.getAppointmentDate() + "</td></tr>"
+                + "<tr><td style='padding: 8px;'><strong>Trạng thái:</strong></td><td>" + appointment.getStatus() + "</td></tr>"
                 + "</table>"
                 + "</div>"
-                + "<p>We look forward to seeing you.</p>"
-                + "<p style='color: #888; font-size: 12px;'>If you have any questions, please contact our support team.</p>"
+                + "<p>Chúng tôi mong được phục vụ bạn.</p>"
+                + "<p style='color: #888; font-size: 12px;'>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ đội hỗ trợ của chúng tôi.</p>"
                 + "<hr style='border: none; border-top: 1px solid #eee;'/>"
-                + "<p style='font-size: 12px; color: #aaa;'>Best Regards,<br/>Warehouse Hub Team</p>"
+                + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
 
         sendEmail(to, subject, htmlContent);
@@ -112,24 +112,24 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendTaskAssignmentNotification(String to, Appointment appointment) throws MessagingException {
-        String subject = "New Task Assigned";
+        String subject = "Thông báo nhiệm vụ mới";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2;'>New Task Assigned</h2>"
-                + "<p>Hello,</p>"
-                + "<p>You have been assigned a new task. Here are the details:</p>"
+                + "<h2 style='color: #4a90e2;'>Thông báo nhiệm vụ mới</h2>"
+                + "<p>Xin chào,</p>"
+                + "<p>Bạn đã được giao một nhiệm vụ mới. Dưới đây là chi tiết:</p>"
                 + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
                 + "<table style='width: 100%; font-size: 16px; color: #333;'>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Appointment ID:</strong></td><td>" + appointment.getId() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Customer:</strong></td><td>" + appointment.getCustomer().getFullName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Warehouse:</strong></td><td>" + appointment.getWarehouse().getName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Appointment Date:</strong></td><td>" + appointment.getAppointmentDate() + "</td></tr>"
-                + "<tr><td style='padding: 8px;'><strong>Status:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + appointment.getStatus() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã lịch hẹn:</strong></td><td>" + appointment.getId() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Khách hàng:</strong></td><td>" + appointment.getCustomer().getFullName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Kho hàng:</strong></td><td>" + appointment.getWarehouse().getName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Ngày hẹn:</strong></td><td>" + appointment.getAppointmentDate() + "</td></tr>"
+                + "<tr><td style='padding: 8px;'><strong>Trạng thái:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + appointment.getStatus() + "</td></tr>"
                 + "</table>"
                 + "</div>"
-                + "<p>Please ensure the task is completed promptly.</p>"
-                + "<p style='color: #888; font-size: 12px;'>If you have any questions, please contact the admin team.</p>"
+                + "<p>Vui lòng đảm bảo hoàn thành nhiệm vụ kịp thời.</p>"
+                + "<p style='color: #888; font-size: 12px;'>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ đội ngũ quản trị.</p>"
                 + "<hr style='border: none; border-top: 1px solid #eee;'/>"
-                + "<p style='font-size: 12px; color: #aaa;'>Best Regards,<br/>Warehouse Hub Team</p>"
+                + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
@@ -137,24 +137,24 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendAppointmentUpdateNotification(String to, Appointment appointment) throws MessagingException {
-        String subject = "Appointment Updated";
+        String subject = "Cập nhật lịch hẹn";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2; text-align: center;'>Appointment Status Updated</h2>"
-                + "<p>Hello,</p>"
-                + "<p>Your appointment has been updated. Below are the updated details:</p>"
+                + "<h2 style='color: #4a90e2; text-align: center;'>Trạng thái lịch hẹn được cập nhật</h2>"
+                + "<p>Xin chào,</p>"
+                + "<p>Lịch hẹn của bạn đã được cập nhật. Dưới đây là thông tin chi tiết mới:</p>"
                 + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
                 + "<table style='width: 100%; font-size: 16px; color: #333;'>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Appointment ID:</strong></td><td>" + appointment.getId() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Customer:</strong></td><td>" + appointment.getCustomer().getFullName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Warehouse:</strong></td><td>" + appointment.getWarehouse().getName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Appointment Date:</strong></td><td>" + appointment.getAppointmentDate() + "</td></tr>"
-                + "<tr><td style='padding: 8px;'><strong>Status:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + appointment.getStatus() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã lịch hẹn:</strong></td><td>" + appointment.getId() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Khách hàng:</strong></td><td>" + appointment.getCustomer().getFullName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Kho hàng:</strong></td><td>" + appointment.getWarehouse().getName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Ngày hẹn:</strong></td><td>" + appointment.getAppointmentDate() + "</td></tr>"
+                + "<tr><td style='padding: 8px;'><strong>Trạng thái:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + appointment.getStatus() + "</td></tr>"
                 + "</table>"
                 + "</div>"
-                + "<p>Please log in to your account for further details or to manage your appointment.</p>"
-                + "<p style='color: #888; font-size: 12px;'>If you have any questions, feel free to contact our support team.</p>"
+                + "<p>Vui lòng đăng nhập vào tài khoản của bạn để biết thêm chi tiết hoặc quản lý lịch hẹn.</p>"
+                + "<p style='color: #888; font-size: 12px;'>Nếu có bất kỳ câu hỏi nào, hãy liên hệ với đội hỗ trợ của chúng tôi.</p>"
                 + "<hr style='border: none; border-top: 1px solid #eee;'/>"
-                + "<p style='font-size: 12px; color: #aaa;'>Best Regards,<br/>Warehouse Hub Team</p>"
+                + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
@@ -162,20 +162,20 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendRentalCreationNotification(String to, Rental rental) throws MessagingException {
-        String subject = "New Rental Created";
+        String subject = "Tạo hợp đồng thuê mới";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2;'>New Rental Created</h2>"
-                + "<p>Hello Admin,</p>"
-                + "<p>A new rental has been created. Here are the details:</p>"
+                + "<h2 style='color: #4a90e2;'>Hợp đồng thuê mới được tạo</h2>"
+                + "<p>Xin chào Quản trị viên,</p>"
+                + "<p>Một hợp đồng thuê mới đã được tạo. Dưới đây là thông tin chi tiết:</p>"
                 + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
                 + "<table style='width: 100%; font-size: 16px; color: #333;'>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Rental ID:</strong></td><td>" + rental.getId() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Customer:</strong></td><td>" + rental.getCustomer().getFullName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Warehouse:</strong></td><td>" + rental.getWarehouse().getName() + "</td></tr>"
-                + "<tr><td style='padding: 8px;'><strong>Status:</strong></td><td>" + rental.getStatus() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã hợp đồng thuê:</strong></td><td>" + rental.getId() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Khách hàng:</strong></td><td>" + rental.getCustomer().getFullName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Kho hàng:</strong></td><td>" + rental.getWarehouse().getName() + "</td></tr>"
+                + "<tr><td style='padding: 8px;'><strong>Trạng thái:</strong></td><td>" + rental.getStatus() + "</td></tr>"
                 + "</table>"
                 + "</div>"
-                + "<p>Best Regards,<br/>Warehouse Hub Team</p>"
+                + "<p>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
@@ -183,21 +183,21 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendRentalStatusUpdateNotification(String to, Rental rental) throws MessagingException {
-        String subject = "Rental Status Updated";
+        String subject = "Cập nhật trạng thái hợp đồng thuê";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2;'>Rental Status Notification</h2>"
-                + "<p>Hello Manager,</p>"
-                + "<p>A rental request has been created for a lot in your warehouse. Please visit the rental management page to review and approve the request. Here are the details:</p>"
+                + "<h2 style='color: #4a90e2;'>Thông báo trạng thái thuê</h2>"
+                + "<p>Xin chào Quản lý,</p>"
+                + "<p>Một yêu cầu thuê đã được tạo cho một lô hàng trong kho của bạn. Vui lòng truy cập trang quản lý thuê để kiểm tra và phê duyệt yêu cầu. Dưới đây là thông tin chi tiết:</p>"
                 + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
                 + "<table style='width: 100%; font-size: 16px; color: #333;'>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Rental ID:</strong></td><td>" + rental.getId() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Customer:</strong></td><td>" + rental.getCustomer().getFullName() + "</td></tr>"
-                + "<tr><td style='padding: 8px;'><strong>Status:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + rental.getStatus() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã hợp đồng thuê:</strong></td><td>" + rental.getId() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Khách hàng:</strong></td><td>" + rental.getCustomer().getFullName() + "</td></tr>"
+                + "<tr><td style='padding: 8px;'><strong>Trạng thái:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + rental.getStatus() + "</td></tr>"
                 + "</table>"
                 + "</div>"
-                + "<p style='color: #888; font-size: 12px;'>If you have any questions, please contact the admin team.</p>"
+                + "<p style='color: #888; font-size: 12px;'>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ với đội ngũ quản trị.</p>"
                 + "<hr style='border: none; border-top: 1px solid #eee;'/>"
-                + "<p style='font-size: 12px; color: #aaa;'>Best Regards,<br/>Warehouse Hub Team</p>"
+                + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
@@ -205,23 +205,23 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendRequestCreationNotification(String to, Request request) throws MessagingException {
-        String subject = "New Request Created";
+        String subject = "Yêu cầu mới được tạo";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2;'>New Request Created</h2>"
-                + "<p>Hello Admin,</p>"
-                + "<p>A new request has been created. Here are the details:</p>"
+                + "<h2 style='color: #4a90e2;'>Yêu cầu mới được tạo</h2>"
+                + "<p>Xin chào Quản trị viên,</p>"
+                + "<p>Một yêu cầu mới đã được tạo. Dưới đây là thông tin chi tiết:</p>"
                 + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
                 + "<table style='width: 100%; font-size: 16px; color: #333;'>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Request ID:</strong></td><td>" + request.getId() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>User:</strong></td><td>" + request.getUser().getFullName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã yêu cầu:</strong></td><td>" + request.getId() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Người tạo:</strong></td><td>" + request.getUser().getFullName() + "</td></tr>"
                 + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Email:</strong></td><td>" + request.getUser().getEmail() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Role:</strong></td><td>" + request.getUser().getRole().getRoleName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Type:</strong></td><td>" + request.getType().getContent() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Description:</strong></td><td>" + request.getDescription() + "</td></tr>"
-                + "<tr><td style='padding: 8px;'><strong>Status:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + request.getStatus() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Vai trò:</strong></td><td>" + request.getUser().getRole().getRoleName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Loại yêu cầu:</strong></td><td>" + request.getType().getContent() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mô tả:</strong></td><td>" + request.getDescription() + "</td></tr>"
+                + "<tr><td style='padding: 8px;'><strong>Trạng thái:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + request.getStatus() + "</td></tr>"
                 + "</table>"
                 + "</div>"
-                + "<p>Best Regards,<br/>Warehouse Hub Team</p>"
+                + "<p>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
@@ -229,21 +229,21 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendRequestUpdateNotification(String to, Request request) throws MessagingException {
-        String subject = "Request Status Updated";
+        String subject = "Cập nhật trạng thái yêu cầu";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2;'>Request Status Updated</h2>"
-                + "<p>Hello,</p>"
-                + "<p>Your request has been updated. Here are the details:</p>"
+                + "<h2 style='color: #4a90e2;'>Trạng thái yêu cầu được cập nhật</h2>"
+                + "<p>Xin chào,</p>"
+                + "<p>Yêu cầu của bạn đã được cập nhật. Dưới đây là thông tin chi tiết:</p>"
                 + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
                 + "<table style='width: 100%; font-size: 16px; color: #333;'>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Request ID:</strong></td><td>" + request.getId() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Type:</strong></td><td>" + request.getType().getContent() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Description:</strong></td><td>" + request.getDescription() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Status:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + request.getStatus() + "</td></tr>"
-                + "<tr><td style='padding: 8px;'><strong>Admin Response:</strong></td><td>" + request.getAdminResponse() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã yêu cầu:</strong></td><td>" + request.getId() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Loại yêu cầu:</strong></td><td>" + request.getType().getContent() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mô tả:</strong></td><td>" + request.getDescription() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Trạng thái:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + request.getStatus() + "</td></tr>"
+                + "<tr><td style='padding: 8px;'><strong>Phản hồi của quản trị viên:</strong></td><td>" + request.getAdminResponse() + "</td></tr>"
                 + "</table>"
                 + "</div>"
-                + "<p>Best Regards,<br/>Warehouse Hub Team</p>"
+                + "<p>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
@@ -251,12 +251,24 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendVerificationEmail(String email, String token) throws MessagingException {
-        String subject = "Verify Your Email Address";
-        String htmlContent = "<div style='font-family: Arial, sans-serif;'>"
-                + "<h2>Verify Your Email</h2>"
-                + "<p>Thank you for registering. Please click the link below to verify your email address:</p>"
-                + "<a href='http://localhost:8080/users/verify?token=" + token + "'>Verify Email</a>"
-                + "<p>If you did not register, please ignore this email.</p>"
+        String subject = "Xác minh địa chỉ email của bạn";
+        String htmlContent = "<div style='font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;'>"
+                + "<div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;'>"
+                + "<div style='background-color: #4a90e2; color: white; padding: 20px; text-align: center;'>"
+                + "<h2 style='margin: 0; font-size: 24px;'>Xác minh email của bạn</h2>"
+                + "</div>"
+                + "<div style='padding: 20px; color: #333;'>"
+                + "<p>Xin chào,</p>"
+                + "<p>Cảm ơn bạn đã đăng ký tài khoản với chúng tôi. Để hoàn tất quá trình đăng ký, vui lòng nhấp vào liên kết bên dưới để xác minh địa chỉ email của bạn:</p>"
+                + "<div style='text-align: center; margin: 20px;'>"
+                + "<a href='http://localhost:8080/users/verify?token=" + token + "' style='background-color: #4a90e2; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;'>Xác minh email</a>"
+                + "</div>"
+                + "<p>Nếu bạn không thực hiện đăng ký này, vui lòng bỏ qua email này.</p>"
+                + "</div>"
+                + "<div style='background-color: #f2f2f2; padding: 10px; text-align: center; font-size: 12px; color: #777;'>"
+                + "<p>Bản quyền © 2024 Warehouse Hub. Mọi quyền được bảo lưu.</p>"
+                + "</div>"
+                + "</div>"
                 + "</div>";
         sendEmail(email, subject, htmlContent);
     }

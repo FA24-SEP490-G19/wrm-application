@@ -18,20 +18,20 @@ import lombok.*;
 public class LotDTO {
     private Long id;
 
-    @Size(max = 500, message = "Description must be less than 500 characters")
-    @NotBlank(message = "Description is required")
+    @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
+    @NotBlank(message = "Vui lòng nhập mô tả")
     private String description;
 
-    @Positive(message = "Size must be greater than 0")
+    @Positive(message = "Kích thước phải lớn hơn 0")
     private float size;
 
     @Enumerated(EnumType.STRING)
     private LotStatus status;
 
     @JsonProperty("warehouse_id")
-    @NotNull(message = "Warehouse ID is required")
+    @NotNull(message = "Vui lòng chọn kho")
     private Long warehouseId;
 
-    @Size(max = 100, message = "Price must be less than 100 characters")
+    @Size(max = 100, message = "Giá không được vượt quá 100 ký tự")
     private String price;
 }

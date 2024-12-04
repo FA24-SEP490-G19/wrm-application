@@ -28,16 +28,16 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.getAllFeedBack());
     }
 
-        @PostMapping("/add")
+    @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> addFeedback(@RequestBody FeedbackDTO feedbackDTO, HttpServletRequest req) {
         try {
             FeedbackResponse response = feedbackService.addFeedback(feedbackDTO, req.getRemoteUser());
             return ResponseEntity.ok(response);
         } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.badRequest().body("Data integrity violation: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Dữ liệu không hợp lệ hoặc xung đột: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đã xảy ra lỗi không mong muốn: " + e.getMessage());
         }
     }
 

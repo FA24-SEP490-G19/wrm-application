@@ -47,24 +47,24 @@ public class UserService implements IUserService {
     @Override
     public UserResponse createUser(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
-        if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new InvalidParamException("Invalid email format");
+        if (email == null || !email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new InvalidParamException("Định dạng email không hợp lệ");
         }
         if (userRepository.existsByEmail(email)) {
-            throw new DataIntegrityViolationException("Email already exists");
+            throw new DataIntegrityViolationException("Email đã tồn tại");
         }
         if (userDTO.getPassword() == null || userDTO.getPassword().length() < 8 ||
                 !userDTO.getPassword().matches(".*\\d.*") || !userDTO.getPassword().matches(".*[!@#$%^&*].*")) {
-            throw new InvalidParamException("Password must be at least 8 characters long and contain at least one number and one special character");
+            throw new InvalidParamException("Mật khẩu phải có ít nhất 8 ký tự và chứa ít nhất một số và một ký tự đặc biệt");
         }
-        if (userDTO.getPhoneNumber() == null || !userDTO.getPhoneNumber().matches("^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])[0-9]{7}$")) {
-            throw new InvalidParamException("Invalid phone number format");
+        if (userDTO.getPhoneNumber() == null || !userDTO.getPhoneNumber().matches("^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$")) {
+            throw new InvalidParamException("Định dạng số điện thoại không hợp lệ");
         }
         if (userDTO.getFullName() == null || userDTO.getFullName().isEmpty()) {
-            throw new InvalidParamException("Full name cannot be empty");
+            throw new InvalidParamException("Họ tên không được để trống");
         }
         if (userDTO.getAddress() == null || userDTO.getAddress().isEmpty() || userDTO.getAddress().length() > 255) {
-            throw new InvalidParamException("Address cannot be empty and must be less than 255 characters");
+            throw new InvalidParamException("Địa chỉ không được để trống và phải ít hơn 255 ký tự");
         }
         User newUser = User.builder()
                 .fullName(userDTO.getFullName())
@@ -76,9 +76,9 @@ public class UserService implements IUserService {
                 .status(UserStatus.INACTIVE)
                 .build();
         Role role = roleRepository.findById(1L)
-                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy vai trò"));
         if (!role.getRoleName().equals("USER")) {
-            throw new PermissionDenyException("Permission deny");
+            throw new PermissionDenyException("Quyền bị từ chối");
         }
         newUser.setRole(role);
 
@@ -105,10 +105,10 @@ public class UserService implements IUserService {
     public void verifyEmail(String token) throws Exception {
         String email = jwtTokenUtil.getSubject(token);
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         if (user.getStatus() == UserStatus.ACTIVE) {
-            throw new IllegalStateException("Email already verified.");
+            throw new IllegalStateException("Email đã được xác minh.");
         }
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
@@ -118,11 +118,11 @@ public class UserService implements IUserService {
     public String login(String email, String password) throws Exception {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
-            throw new DataNotFoundException("User not found");
+            throw new DataNotFoundException("Không tìm thấy người dùng");
         }
         User existingUser = user.get();
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-            throw new BadCredentialsException("Wrong email or password");
+            throw new BadCredentialsException("Email hoặc mật khẩu không đúng");
         }
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password, existingUser.getAuthorities());
 
@@ -133,7 +133,7 @@ public class UserService implements IUserService {
     @Override
     public User getUserByEmail(String email) throws Exception {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
     }
 
     @Override
@@ -155,16 +155,16 @@ public class UserService implements IUserService {
 
     public void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng với email: " + email));
 
         if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
-            throw new InvalidParamException("Old password is incorrect");
+            throw new InvalidParamException("Mật khẩu cũ không đúng");
         }
         if (changePasswordDTO.getNewPassword().equals(changePasswordDTO.getOldPassword())) {
-            throw new InvalidParamException("New password cannot be the same as the old password");
+            throw new InvalidParamException("Mật khẩu mới không được giống mật khẩu cũ");
         }
         if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
-            throw new InvalidParamException("New password and confirm password do not match");
+            throw new InvalidParamException("Mật khẩu mới và xác nhận mật khẩu không khớp");
         }
         user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
         userRepository.save(user);
@@ -172,7 +172,7 @@ public class UserService implements IUserService {
 
     public UserDTO getUserProfile(String email) throws DataNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         return UserDTO.builder()
                 .fullName(user.getFullName())
                 .email(user.getEmail())
@@ -187,7 +187,7 @@ public class UserService implements IUserService {
     @Transactional
     public void resetPassword(String email) throws Exception {
         User existingUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new DataNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng với email: " + email));
         String newPassword = UUID.randomUUID().toString().substring(0, 8);
         String encodedPassword = passwordEncoder.encode(newPassword);
         existingUser.setPassword(encodedPassword);
@@ -201,7 +201,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getUserById(Long id) throws Exception {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         return UserDTO.builder()
                 .id(user.getId())
@@ -263,7 +263,7 @@ public class UserService implements IUserService {
     public User createUserWithRole(UserDTO userDTO) throws Exception {
         String email = userDTO.getEmail();
         if (userRepository.existsByEmail(email)) {
-            throw new DataIntegrityViolationException("Email already exists");
+            throw new DataIntegrityViolationException("Email đã tồn tại");
         }
 
         User newUser = User.builder()
@@ -278,7 +278,7 @@ public class UserService implements IUserService {
 
         // Find role by ID
         Role role = roleRepository.findById(userDTO.getRoleId())
-                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy role"));
         newUser.setRole(role);
 
         return userRepository.save(newUser);

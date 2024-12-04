@@ -44,9 +44,9 @@ public class LotService implements ILotService {
     @Override
     public LotResponse getLotById(Long id) throws Exception {
         Lot lot = lotRepository.findLotById(id)
-                .orElseThrow(() -> new DataNotFoundException("Lot not found with ID: " + id));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô hàng với ID: " + id));
         if (lot.isDeleted()){
-            throw new DataNotFoundException("Lot not found");
+            throw new DataNotFoundException("Không tìm thấy lô hàng");
         }
         return LotResponse.builder()
                 .id(lot.getId())
@@ -61,21 +61,21 @@ public class LotService implements ILotService {
     @Override
     public LotResponse updateLot(Long lotId, LotDTO lotDTO) throws Exception {
         Lot existingLot = lotRepository.findById(lotId)
-                .orElseThrow(() -> new DataNotFoundException("Lot not found with ID: " + lotId));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô hàng với ID: " + lotId));
         if (lotDTO.getDescription() == null || lotDTO.getDescription().isEmpty()) {
-            throw new InvalidParamException("Description cannot be empty");
+            throw new InvalidParamException("Mô tả không được để trống");
         }
         existingLot.setDescription(lotDTO.getDescription());
         if (lotDTO.getSize() <= 0) {
-            throw new InvalidParamException("Size must be a positive number");
+            throw new InvalidParamException("Kích thước phải là một số dương");
         }
         existingLot.setSize(lotDTO.getSize());
         if (lotDTO.getPrice() == null || lotDTO.getPrice().isEmpty()) {
-            throw new InvalidParamException("Price cannot be empty");
+            throw new InvalidParamException("Giá không được để trống");
         }
         existingLot.setPrice(lotDTO.getPrice());
         if (lotDTO.getStatus() == null) {
-            throw new InvalidParamException("Status cannot be null");
+            throw new InvalidParamException("Trạng thái không được để trống");
         }
         existingLot.setStatus(lotDTO.getStatus());
         lotRepository.save(existingLot);
@@ -91,7 +91,7 @@ public class LotService implements ILotService {
     @Override
     public void deleteLot(Long lotId) throws Exception {
         Lot existingLot = lotRepository.findLotById(lotId)
-                .orElseThrow(() -> new DataNotFoundException("Lot not found with ID: " + lotId));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô hàng với ID: " + lotId));
         existingLot.setDeleted(true);
         lotRepository.save(existingLot);
     }
@@ -100,24 +100,24 @@ public class LotService implements ILotService {
     @Override
     public LotResponse updateLotStatus(Long lotId, LotDTO lotDTO, String remoteUser) throws Exception {
         User manager = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("Manager not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy quản lý"));
 
         if (manager.getRole().getId() != 2 && manager.getRole().getId() != 4) {
-            throw new PermissionDenyException("User does not have permission to update lot status");
+            throw new PermissionDenyException("Người dùng không có quyền cập nhật trạng thái lô hàng");
         }
 
         Lot lot = lotRepository.findLotById(lotId)
-                .orElseThrow(() -> new DataNotFoundException("Lot not found with ID: " + lotId));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô hàng với ID: " + lotId));
 
         Warehouse warehouse = warehouseRepository.findById(lot.getWarehouse().getId())
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found for Lot"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng chứa lô hàng này"));
 
         if (!warehouse.getWarehouseManager().getId().equals(manager.getId())) {
-            throw new PermissionDenyException("User is not the manager of this warehouse");
+            throw new PermissionDenyException("Người dùng không phải là quản lý của kho hàng này");
         }
 
         if (rentalRepository.existsActiveRentalByLotId(lotId)) {
-            throw new IllegalStateException("Cannot update lot status without active rental.");
+            throw new IllegalStateException("Không thể cập nhật trạng thái lô hàng khi đang có hợp đồng thuê hoạt động");
         }
 
         LotStatus newStatus = LotStatus.valueOf(lotDTO.getStatus().toString());

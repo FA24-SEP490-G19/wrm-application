@@ -34,7 +34,7 @@ public class UserController {
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO, BindingResult result) throws Exception {
         try {
             if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
-                return ResponseEntity.badRequest().body("Password does not match");
+                return ResponseEntity.badRequest().body("Mật khẩu không khớp");
             }
             UserResponse user = userService.createUser(userDTO);
             return ResponseEntity.ok(user);
@@ -74,7 +74,7 @@ public class UserController {
             }
             String token = authHeader.substring(7);
             tokenService.revokeToken(token);
-            return ResponseEntity.ok("Logged out successfully");
+            return ResponseEntity.ok("Đăng xuất thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -92,11 +92,11 @@ public class UserController {
         String email = principal.getName();
         try {
             userService.changePassword(email, changePasswordDTO);
-            return ResponseEntity.ok("Password changed successfully");
+            return ResponseEntity.ok("Đổi mật khẩu thành công");
         } catch (InvalidParamException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đã có lỗi xảy ra");
         }
     }
 
@@ -104,7 +104,7 @@ public class UserController {
     public ResponseEntity<?> resetPassword(@RequestParam String email) throws Exception{
         try {
             userService.resetPassword(email);
-            return ResponseEntity.ok("A new password has been sent to your email.");
+            return ResponseEntity.ok("Mật khẩu mới đã được gửi tới email của bạn");
         } catch (InvalidPasswordException | DataNotFoundException e) {
             return ResponseEntity.ok(e.getMessage());
         }
@@ -128,7 +128,7 @@ public class UserController {
                     .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while fetching user data");
+                    .body("Đã xảy ra lỗi khi lấy dữ liệu người dùng");
         }
     }
 
@@ -178,7 +178,7 @@ public class UserController {
 
         // Check if passwords match
         if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
-            return ResponseEntity.badRequest().body("Passwords do not match");
+            return ResponseEntity.badRequest().body("Mật khẩu không khớp");
         }
 
         try {
@@ -200,7 +200,7 @@ public class UserController {
         } catch (Exception e) {
             // Log exception for debugging
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the user");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Đã có lỗi xảy ra khi tạo người dùng");
         }
     }
 

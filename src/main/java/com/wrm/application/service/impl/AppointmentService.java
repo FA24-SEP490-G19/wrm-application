@@ -46,7 +46,7 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public AppointmentResponse getAppointmentById(Long id) throws Exception {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Appointment not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy cuộc hẹn"));
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .customerId(appointment.getCustomer().getId())
@@ -60,12 +60,12 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public Page<AppointmentResponse> getAppointmentByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
         User user = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         return appointmentRepository.findByCustomerId(user.getId(), pageRequest).map(appointment -> {
             return AppointmentResponse.builder()
                     .id(appointment.getId())
                     .customerId(appointment.getCustomer().getId())
-                    .salesId(appointment.getSales().getId())
+                    .salesId(appointment.getSales() != null ? appointment.getSales().getId() : null)
                     .warehouseId(appointment.getWarehouse().getId())
                     .appointmentDate(appointment.getAppointmentDate())
                     .status(appointment.getStatus())
@@ -76,16 +76,16 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public AppointmentResponse createAppointment(AppointmentDTO appointmentDTO, String remoteUser) throws Exception {
         if (appointmentDTO.getAppointmentDate() == null) {
-            throw new IllegalArgumentException("Appointment date cannot be empty");
+            throw new IllegalArgumentException("Ngày hẹn không được để trống");
         }
         if (appointmentDTO.getAppointmentDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
-            throw new IllegalArgumentException("Appointment date must be in the future");
+            throw new IllegalArgumentException("Ngày hẹn phải là ngày trong tương lai");
         }
         if (appointmentDTO.getCustomerId() == null) {
-            throw new IllegalArgumentException("Customer ID cannot be empty");
+            throw new IllegalArgumentException("ID khách hàng không được để trống");
         }
         if (appointmentDTO.getWarehouseId() == null) {
-            throw new IllegalArgumentException("Warehouse ID cannot be empty");
+            throw new IllegalArgumentException("ID kho hàng không được để trống");
         }
 
         Appointment newAppointment = Appointment.builder()
@@ -94,21 +94,21 @@ public class AppointmentService implements IAppointmentService {
                 .build();
 
         User customer = userRepository.findById(appointmentDTO.getCustomerId())
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         if (customer.getRole().getId() != 1) {
-            throw new DataIntegrityViolationException("User is not a customer");
+            throw new DataIntegrityViolationException("Người dùng không phải là khách hàng");
         }
         newAppointment.setCustomer(customer);
 
         User sales = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         if (sales.getRole().getId() != 3) {
-            throw new DataIntegrityViolationException("User is not a salesman");
+            throw new DataIntegrityViolationException("Người dùng không phải là nhân viên bán hàng");
         }
         newAppointment.setSales(sales);
 
         Warehouse warehouse = warehouseRepository.findById(appointmentDTO.getWarehouseId())
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
         newAppointment.setWarehouse(warehouse);
 
         appointmentRepository.save(newAppointment);
@@ -129,17 +129,17 @@ public class AppointmentService implements IAppointmentService {
     @Transactional
     public AppointmentResponse updateAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception {
         if (appointmentDTO.getAppointmentDate() == null) {
-            throw new IllegalArgumentException("Appointment date cannot be empty");
+            throw new IllegalArgumentException("Ngày hẹn không được để trống");
         }
         if (appointmentDTO.getAppointmentDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
-            throw new IllegalArgumentException("Appointment date must be in the future");
+            throw new IllegalArgumentException("Ngày hẹn phải là ngày trong tương lai");
         }
         if (appointmentDTO.getStatus() == null) {
-            throw new IllegalArgumentException("Appointment status cannot be empty");
+            throw new IllegalArgumentException("Trạng thái cuộc hẹn không được để trống");
         }
 
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Appointment not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy cuộc hẹn"));
         appointment.setAppointmentDate(appointmentDTO.getAppointmentDate());
         appointment.setStatus(appointmentDTO.getStatus());
 
@@ -160,7 +160,7 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public void deleteAppointment(Long id) throws Exception {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy cuộc hẹn"));
         appointment.setDeleted(true);
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
@@ -183,13 +183,13 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public AppointmentResponse createAppointmentByCustomer(AppointmentDTO appointmentDTO, String remoteUser) throws Exception {
         if (appointmentDTO.getAppointmentDate() == null) {
-            throw new IllegalArgumentException("Appointment date cannot be empty");
+            throw new IllegalArgumentException("Ngày hẹn không được để trống");
         }
         if (appointmentDTO.getAppointmentDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
-            throw new IllegalArgumentException("Appointment date must be in the future");
+            throw new IllegalArgumentException("Ngày hẹn phải là ngày trong tương lai");
         }
         if (appointmentDTO.getWarehouseId() == null) {
-            throw new IllegalArgumentException("Warehouse ID cannot be empty");
+            throw new IllegalArgumentException("ID kho hàng không được để trống");
         }
 
         Appointment newAppointment = Appointment.builder()
@@ -198,14 +198,14 @@ public class AppointmentService implements IAppointmentService {
                 .build();
 
         User customer = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         if (customer.getRole().getId() != 1) {
-            throw new DataIntegrityViolationException("User is not a customer");
+            throw new DataIntegrityViolationException("Người dùng không phải là khách hàng");
         }
         newAppointment.setCustomer(customer);
 
         Warehouse warehouse = warehouseRepository.findById(appointmentDTO.getWarehouseId())
-                .orElseThrow(() -> new DataNotFoundException("Warehouse not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
         newAppointment.setWarehouse(warehouse);
 
         appointmentRepository.save(newAppointment);
@@ -221,7 +221,7 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public Page<AppointmentResponse> getAppointmentBySalesId(String remoteUser, PageRequest pageRequest) throws Exception {
         User user = userRepository.findByEmail(remoteUser)
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         return appointmentRepository.findBySalesId(user.getId(), pageRequest).map(appointment -> {
             return AppointmentResponse.builder()
                     .id(appointment.getId())
@@ -237,11 +237,11 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Appointment not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy cuộc hẹn"));
         User sales = userRepository.findById(appointmentDTO.getSalesId())
-                .orElseThrow(() -> new DataNotFoundException("User not found"));
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         if (sales.getRole().getId() != 3) {
-            throw new DataIntegrityViolationException("User is not a salesman");
+            throw new DataIntegrityViolationException("Người dùng không phải là nhân viên bán hàng");
         }
         appointment.setSales(sales);
 

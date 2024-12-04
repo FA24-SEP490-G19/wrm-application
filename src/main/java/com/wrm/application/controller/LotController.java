@@ -76,7 +76,7 @@ public class LotController {
     public ResponseEntity<?> deleteLot(@PathVariable Long id) {
         try {
             lotService.deleteLot(id);
-            return ResponseEntity.ok("Lot deleted successfully");
+            return ResponseEntity.ok("Xóa lô hàng thành công");
         } catch (DataNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {

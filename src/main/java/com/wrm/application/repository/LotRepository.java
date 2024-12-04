@@ -29,6 +29,9 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
         AND l.isDeleted = false
     """)
     List<Lot> findAvailableLotsByWarehouseId(@Param("warehouseId") Long warehouseId);
+
+    @Query("SELECT l FROM Lot l WHERE l.warehouse.id = :warehouseId AND l.isDeleted = false")
+    List<Lot> findLotsByWarehouseId(@Param("warehouseId") Long warehouseId);
 }
 
 
