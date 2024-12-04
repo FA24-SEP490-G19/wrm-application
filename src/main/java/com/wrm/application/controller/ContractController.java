@@ -73,7 +73,7 @@ public class ContractController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create contract");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Tạo hợp đồng thất bại");
         }
     }
 
@@ -97,11 +97,11 @@ public class ContractController {
     public ResponseEntity<String> deleteContract(@PathVariable Long contractId) {
         try {
             contractService.deleteContract(contractId);
-            return ResponseEntity.ok("Contract deleted successfully");
+            return ResponseEntity.ok("Xóa hợp đồng thành công");
         } catch (DataNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete contract");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Xóa hợp đồng thất bại");
         }
     }
 

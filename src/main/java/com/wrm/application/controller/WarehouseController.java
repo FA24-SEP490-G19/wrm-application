@@ -111,7 +111,7 @@ public class WarehouseController {
     public ResponseEntity<?> deleteWarehouse(@PathVariable Long id) {
         try {
             warehouseService.deleteWarehouse(id);
-            return ResponseEntity.ok("Warehouse deleted successfully");
+            return ResponseEntity.ok("Xóa kho thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

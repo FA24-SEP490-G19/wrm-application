@@ -40,7 +40,7 @@ public class VnpayController {
     public ResponseEntity<List<PaymentResponse>> getCustomerPayments() throws DataNotFoundException {
 
             User user = userRepository.findByEmail("sale@gmail.com")
-                    .orElseThrow(() -> new DataNotFoundException("User not found"));
+                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
             List<PaymentResponse> payments = paymentService.getPaymentsByCustomer(user.getEmail());
             return ResponseEntity.ok(payments);
 

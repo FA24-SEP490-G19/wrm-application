@@ -15,12 +15,12 @@ import java.util.List;
 public class ContractDTO {
     private Long id;
 
-    @NotNull(message = "Contract signing date cannot be null")
+    @NotNull(message = "Ngày ký hợp đồng không được để trống")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonProperty("signed_date")
     private LocalDateTime signedDate;
 
-    @NotNull(message = "Contract expiry date cannot be null")
+    @NotNull(message = "Ngày hết hạn hợp đồng không được để trống")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @JsonProperty("expiry_date")
     private LocalDateTime expiryDate;
@@ -34,7 +34,7 @@ public class ContractDTO {
     @JsonProperty("last_modified_date")
     private LocalDateTime lastModifiedDate;
 
-    @Size(max = 5, message = "Maximum of 5 images allowed")
+    @Size(max = 5, message = "Tối đa chỉ cho phép 5 hình ảnh")
     private List<String> images;
 
 }

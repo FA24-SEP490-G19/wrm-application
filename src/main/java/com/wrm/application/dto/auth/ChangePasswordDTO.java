@@ -8,12 +8,12 @@ import jakarta.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChangePasswordDTO {
-    @NotBlank(message = "Old password is required")
+    @NotBlank(message = "Mật khẩu cũ không được để trống")
     private String oldPassword;
 
-    @NotBlank(message = "New password is required")
+    @NotBlank(message = "Mật khẩu mới không được để trống")
     private String newPassword;
 
-    @NotBlank(message = "Confirm password is required")
+    @NotBlank(message = "Xác nhận mật khẩu không được để trống")
     private String confirmPassword;
 }

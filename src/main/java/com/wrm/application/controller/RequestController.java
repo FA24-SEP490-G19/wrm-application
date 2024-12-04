@@ -34,10 +34,10 @@ public class RequestController {
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) {
         if (page < 0) {
-            return ResponseEntity.badRequest().body("Page number cannot be negative");
+            return ResponseEntity.badRequest().body("Số trang không thể là số âm");
         }
         if (limit <= 0) {
-            return ResponseEntity.badRequest().body("Limit must be greater than zero");
+            return ResponseEntity.badRequest().body("Giới hạn trang phải lớn hơn không");
         }
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
@@ -60,10 +60,10 @@ public class RequestController {
             @RequestParam("limit") int limit,
             HttpServletRequest req) throws Exception {
         if (page < 0) {
-            return ResponseEntity.badRequest().body("Page number cannot be negative");
+            return ResponseEntity.badRequest().body("Số trang không thể là số âm");
         }
         if (limit <= 0) {
-            return ResponseEntity.badRequest().body("Limit must be greater than zero");
+            return ResponseEntity.badRequest().body("Giới hạn trang phải lớn hơn không");
         }
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
@@ -94,7 +94,7 @@ public class RequestController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body("Invalid user data");
+                return ResponseEntity.badRequest().body("Thông tin không hợp lệ");
             }
             RequestResponse request = requestService.createRequest(requestDTO, req.getRemoteUser());
             return ResponseEntity.ok(request);
@@ -113,7 +113,7 @@ public class RequestController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body("Invalid appointment data");
+                return ResponseEntity.badRequest().body("Thông tin không hợp lệ");
             }
             AdminRequestResponse request = requestService.updateRequest(id, adminReplyDTO);
             return ResponseEntity.ok(request);
@@ -127,7 +127,7 @@ public class RequestController {
     public ResponseEntity<?> deleteRequest(@PathVariable Long id) throws Exception {
         try {
             requestService.deleteRequest(id);
-            return ResponseEntity.ok("Request deleted successfully");
+            return ResponseEntity.ok("Xóa yêu cầu thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

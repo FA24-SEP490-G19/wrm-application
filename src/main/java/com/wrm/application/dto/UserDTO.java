@@ -23,22 +23,22 @@ public class UserDTO {
     private Long id;
 
     @JsonProperty("fullname")
-    @NotBlank(message = "Full name is required")
+    @NotBlank(message = "Vui lòng nhập họ và tên")
     private String fullName;
 
-    @Email(message = "Email should be valid")
-    @NotBlank(message = "Email is required")
+    @Email(message = "Email không hợp lệ")
+    @NotBlank(message = "Vui lòng nhập email")
     private String email;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Vui lòng nhập mật khẩu")
     private String password;
 
-    @NotBlank(message = "Retype password is required")
+    @NotBlank(message = "Vui lòng nhập lại mật khẩu")
     @JsonProperty("retype_password")
     private String retypePassword;
 
-    @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone number is invalid")
-    @NotNull(message = "Phone number is required")
+    @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Số điện thoại không hợp lệ")
+    @NotNull(message = "Vui lòng nhập số điện thoại")
     @JsonProperty("phone_number")
     private String phoneNumber;
 
@@ -50,6 +50,6 @@ public class UserDTO {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @NotNull(message = "Role ID is required")
+    @NotNull(message = "Vui lòng chọn vai trò")
     private Long roleId;
 }
