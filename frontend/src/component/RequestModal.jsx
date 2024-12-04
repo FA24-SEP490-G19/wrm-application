@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { useAuth } from "../../../context/AuthContext.jsx";
 
 const REQUEST_TYPES = [
-    { id: 1, content: "Service Feedback Request", role_id: 1 },
+    { id: 1, content: "Yêu cầu phản hồi dịch vụ", role_id: 1 },
     { id: 2, content: "Create New Customer Account Request", role_id: 3 },
     { id: 3, content: "Revenue Report Request", role_id: 3 },
     { id: 4, content: "Promotional Material Request", role_id: 3 },

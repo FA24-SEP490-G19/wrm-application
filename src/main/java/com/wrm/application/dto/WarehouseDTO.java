@@ -18,28 +18,28 @@ import java.util.List;
 @NoArgsConstructor
 public class WarehouseDTO {
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name must be less than 100 characters")
+    @NotBlank(message = "Vui lòng nhập tên kho")
+    @Size(max = 100, message = "Tên kho không được vượt quá 100 ký tự")
     private String name;
 
-    @NotBlank(message = "Address is required")
-    @Size(max = 255, message = "Address must be less than 255 characters")
+    @NotBlank(message = "Vui lòng nhập địa chỉ kho")
+    @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
     private String address;
 
-    @Positive(message = "Size must be greater than 0")
+    @Positive(message = "Kích thước kho phải là số dương")
     private float size;
 
     @Enumerated(EnumType.STRING)
     private WarehouseStatus status;
 
-    @Size(max = 500, message = "Description must be less than 500 characters")
+    @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
     private String description;
 
     @JsonProperty("warehouse_manager_id")
-    @NotNull(message = "Warehouse Manager ID is required")
+    @NotNull(message = "Vui lòng chọn người quản lý kho")
     private Long warehouseManagerId;
 
-    @Size(max = 1000, message = "Maximum of 5 images allowed")
+    @Size(max = 1000, message = "Chỉ được phép tối đa 5 hình ảnh")
     private List<String> images;
 
     @JsonProperty("thumbnail")
@@ -47,6 +47,6 @@ public class WarehouseDTO {
 
     @JsonProperty("lot_items")
     private List<LotDTO> lotItems;
-    private List<String> existingImages;  // filenames of images to keep
+    private List<String> existingImages;
 
 }

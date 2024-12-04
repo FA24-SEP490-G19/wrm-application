@@ -20,6 +20,6 @@ public class ContractUpdateDTO {
 
     private LocalDateTime expiryDate;
 
-    @Size(max = 10, message = "Maximum of 10 images allowed")
-    private List<@Size(max = 500, message = "Image must be a valid base64 string under 500 characters") String> images;
+    @Size(max = 10, message = "Tối đa chỉ cho phép 10 hình ảnh")
+    private List<@Size(max = 500, message = "Hình ảnh phải là chuỗi base64 hợp lệ và không vượt quá 500 ký tự") String> images;
 }

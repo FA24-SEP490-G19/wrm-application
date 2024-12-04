@@ -341,7 +341,7 @@ const ProfileCRUD = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Gender
                                 </label>
-                                {renderField('Gender', 'gender', formData.gender, 'select', genderOptions)}
+                                {renderField('Gender', 'gender', formData.gender, '', genderOptions)}
                             </div>
 
                             {/* Status */}

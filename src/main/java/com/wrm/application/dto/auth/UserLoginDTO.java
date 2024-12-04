@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserLoginDTO {
-    @NotBlank(message = "Email is required")
+    @NotBlank(message = "Email không được để trống")
     private String email;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
 }

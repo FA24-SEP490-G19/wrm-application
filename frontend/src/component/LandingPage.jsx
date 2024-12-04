@@ -67,19 +67,28 @@ const WarehouseLandingPage = () => {
         const warehouse = warehouses[currentImageIndex];
         const images = [];
 
-        if (warehouse.thumbnail) {
+        if (warehouse?.thumbnail) {
             images.push(`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${warehouse.thumbnail.split('\\').pop()}`);
         }
 
-        if (warehouse.warehouseImages) {
+        if (warehouse?.warehouseImages?.length) {
             warehouse.warehouseImages.forEach(img => {
-                const imageName = img.image_url.split('\\').pop();
-                images.push(`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${imageName}`);
+                if (img?.image_url) {
+                    const imageName = img.image_url.split('\\').pop();
+                    images.push(`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${imageName}`);
+                }
             });
         }
 
         return images;
     };
+
+
+    const getWarehouseImage = (warehouse) => {
+        if (!warehouse?.thumbnail) return '/api/placeholder/400/320';
+        return `${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${warehouse.thumbnail.split('\\').pop()}`;
+    };
+
     const scrollToSection = (sectionId) => {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -233,7 +242,7 @@ const WarehouseLandingPage = () => {
                         </div>
                     </section>
 
-                    {/* Featured Warehouses */}
+                    {/* Featured Warehouses section with null check */}
                     <section id="warehouses" className="py-20">
                         <div className="text-center mb-12">
                             <h2 className="text-4xl font-bold text-white mb-4">Kho Bãi Nổi Bật</h2>
@@ -245,7 +254,7 @@ const WarehouseLandingPage = () => {
                                      className="bg-white/10 backdrop-blur-md rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105">
                                     <div className="relative h-48">
                                         <img
-                                            src={`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${warehouse.thumbnail.split('\\').pop()}`}
+                                            src={getWarehouseImage(warehouse)}
                                             alt={warehouse.name}
                                             className="w-full h-full object-cover"
                                         />
@@ -255,17 +264,16 @@ const WarehouseLandingPage = () => {
                                         </div>
                                     </div>
                                     <div className="p-6">
-                                        <h3 className="text-xl font-bold text-white mb-2">{warehouse.name}</h3>
-                                        <p className="text-gray-300 mb-4">{warehouse.description}</p>
+                                        <h3 className="text-xl font-bold text-white mb-2">{warehouse.name || 'Chưa có tên'}</h3>
+                                        <p className="text-gray-300 mb-4">{warehouse.description || 'Chưa có mô tả'}</p>
                                         <div className="flex items-center text-gray-200 mb-4">
                                             <MapPin size={16} className="mr-2"/>
-                                            <span>{warehouse.address}</span>
+                                            <span>{warehouse.address || 'Chưa có địa chỉ'}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-yellow-400 font-bold">
-                                                {warehouse.size.toLocaleString()} m²
-                                            </span>
-
+                                        <span className="text-yellow-400 font-bold">
+                                            {(warehouse.size || 0).toLocaleString()} m²
+                                        </span>
                                         </div>
                                     </div>
                                 </div>
@@ -356,7 +364,7 @@ const WarehouseLandingPage = () => {
                                     ]
                                 },
                                 {
-                                    title: 'Gói Doanh Nghiệp',
+                                    title: 'Gói Linh Hoạt',
                                     price: 'Liên hệ',
                                     period: '',
                                     highlight: false,

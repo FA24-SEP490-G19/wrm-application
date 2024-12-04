@@ -12,14 +12,13 @@ import java.util.*;
 
 @Service
 public class VNPAYService {
-
     public String createOrder(HttpServletRequest request, int amount, String orderInfor, String urlReturn){
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String vnp_IpAddr = VNPAYConfig.getIpAddress(request);
         String vnp_TmnCode = VNPAYConfig.vnp_TmnCode;
         String orderType = "order-type";
-        String vnp_TxnRef = VNPAYConfig.getRandomNumber(8);
+        String vnp_TxnRef = PaymentService.vnp_TxnRef ;
 
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnp_Version);

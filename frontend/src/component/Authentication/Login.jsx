@@ -10,9 +10,27 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const [emailError, setEmailError] = useState('');
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+            setEmailError('Email không được để trống');
+            return false;
+        }
+        if (!emailRegex.test(email)) {
+            setEmailError('Email không đúng định dạng');
+            return false;
+        }
+        setEmailError('');
+        return true;
+    };
+
     const { login } = useAuth();
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateEmail(email)) return;
+
         setError('');
         setIsLoading(true);
 
@@ -46,10 +64,7 @@ const LoginPage = () => {
                 />
                 <div className="absolute inset-0 bg-blue-900 bg-opacity-50" />
 
-                <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-12 z-10">
-                    <h1 className="text-5xl font-bold mb-4 text-center">KhoLưuTrữVN</h1>
-                    <p className="text-2xl text-center">Dịch vụ cho thuê kho bãi hàng đầu Việt Nam</p>
-                </div>
+
             </div>
 
             {/* Right side with login form */}
@@ -61,14 +76,15 @@ const LoginPage = () => {
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                             <input
-                                type="email"
+                                type="text"
                                 id="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className={`w-full px-3 py-2 border ${emailError ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                                 placeholder="example@email.com"
                                 required
                             />
+                            {emailError && <p className="mt-1 text-sm text-red-500">{emailError}</p>}
                         </div>
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
@@ -93,7 +109,7 @@ const LoginPage = () => {
                         </div>
                         <div className="flex items-center justify-between">
 
-                            <a href="/#" className="text-sm text-blue-600 hover:underline">Quên mật khẩu?</a>
+                            <a href="/forgot" className="text-sm text-blue-600 hover:underline">Quên mật khẩu?</a>
                         </div>
                         <button
                             type="submit"

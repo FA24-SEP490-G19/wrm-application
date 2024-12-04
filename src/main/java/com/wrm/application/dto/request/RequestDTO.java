@@ -14,10 +14,10 @@ import lombok.*;
 @NoArgsConstructor
 public class RequestDTO {
     @JsonProperty("type_id")
-    @NotNull(message = "Type ID is required")
+    @NotNull(message = "Vui lòng chọn loại yêu cầu")
     private Long typeId;
 
-    @NotBlank(message = "Description is required")
+    @NotBlank(message = "Vui lòng nhập mô tả")
     private String description;
 
     @JsonProperty("user_id")
