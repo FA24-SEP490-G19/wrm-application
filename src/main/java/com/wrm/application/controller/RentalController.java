@@ -1,11 +1,9 @@
 package com.wrm.application.controller;
 
 import com.wrm.application.dto.RentalDTO;
-import com.wrm.application.response.rental.RentalDetailResponse;
 import com.wrm.application.response.rental.RentalListResponse;
 import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.impl.RentalService;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

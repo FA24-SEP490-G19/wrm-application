@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.IOException;
 import java.util.List;
@@ -64,6 +66,11 @@ public class VnpayController {
         return ResponseEntity.ok(paymentUrl);
     }
 
-
+    @PostMapping("/auto-create-payment")
+    public ResponseEntity<Void> autoCreatePayment(@RequestParam int amount, @RequestParam String orderInfo, @RequestParam Long id) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        paymentService.createPayment(amount, orderInfo, request, id);
+        return ResponseEntity.ok().build();
+    }
 
 }

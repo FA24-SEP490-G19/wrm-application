@@ -37,4 +37,7 @@ public interface IMailService {
 
     @Async
     void sendVerificationEmail(String email, String token) throws MessagingException;
+
+    @Async
+    void sendPaymentDueNotification(String to, Rental rental) throws MessagingException;
 }

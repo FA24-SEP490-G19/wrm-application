@@ -40,6 +40,8 @@ public class WebSecurityConfig {
                                     "/warehouses").permitAll()
                             .requestMatchers(POST,
                                     "/warehouses/payment-requests").permitAll()
+                            .requestMatchers(POST,
+                                    "/warehouses/auto-create-payment").permitAll()
                             .requestMatchers(GET,
                                     "/warehouses/**").permitAll()
                             .requestMatchers(GET,
