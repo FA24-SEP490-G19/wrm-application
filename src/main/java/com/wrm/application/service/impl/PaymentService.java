@@ -50,14 +50,13 @@ public class PaymentService {
         // Find and update payment record
         Payment payment = paymentRepository.findByTransactionRef(transactionRef)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
-
         payment.setTransactionNo(request.getParameter("vnp_TransactionNo"));
         payment.setBankCode(request.getParameter("vnp_BankCode"));
         payment.setCardType(request.getParameter("vnp_CardType"));
         payment.setPaymentStatus(paymentStatus == 1 ? "SUCCESS" : "FAILED");
 
         payment = paymentRepository.save(payment);
-        response.sendRedirect("http://localhost:5174/payment-return" );
+        response.sendRedirect("http://localhost:5173/payment-return" );
 
         return PaymentResponse.builder()
                 .orderInfo(payment.getOrderInfo())

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Clock } from 'lucide-react';
+import { MessageCircleHeart, Clock, } from 'lucide-react';
 
 const PaymentSuccess = () => {
     const navigate = useNavigate();
@@ -19,15 +19,15 @@ const PaymentSuccess = () => {
                 {/* Success Icon */}
                 <div className="flex justify-center">
                     <div className="bg-green-100 rounded-full p-3">
-                        <CheckCircle className="w-16 h-16 text-green-500 animate-bounce" />
+                        <MessageCircleHeart className="w-16 h-16 text-green-500 animate-bounce" />
                     </div>
                 </div>
 
                 {/* Success Message */}
                 <div className="text-center space-y-3">
-                    <h1 className="text-2xl font-bold text-gray-800">Thanh toán thành công!</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">Thông báo</h1>
                     <p className="text-gray-600">
-                        Cảm ơn bạn đã thanh toán.
+                        Cảm ơn bạn đã trải nghiệm dịch vụ thanh toán của VNPAY
                     </p>
                 </div>
 

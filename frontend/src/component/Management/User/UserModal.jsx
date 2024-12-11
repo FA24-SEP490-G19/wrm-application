@@ -10,7 +10,7 @@ const UserModal = ({ isOpen, onClose, mode, userData, onSubmit }) => {
         password: '',
         retype_password: '',
         address: '',
-        gender: '',
+        gender: 'MALE',
         roleId: '1',
         phone_number: ''
     });
@@ -30,8 +30,8 @@ const UserModal = ({ isOpen, onClose, mode, userData, onSubmit }) => {
                     password: '',
                     retype_password: '',
                     address: '',
-                    gender: '',
-                    roleId: '',
+                    gender: 'MALE',
+                    roleId: '1',
                     phone_number: ''
                 });
             }
