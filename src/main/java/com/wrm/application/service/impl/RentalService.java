@@ -310,7 +310,7 @@ public class RentalService implements IRentalService {
         });
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // Chạy vào lúc 00:00 hàng ngày
+    @Scheduled(cron = "0 0 0 * * ?")
     public void autoUpdateExpiredRentals() {
         rentalRepository.findExpiredRentals(LocalDateTime.now()).forEach(rental -> {
             rental.setStatus(RentalStatus.EXPIRED);
@@ -318,17 +318,12 @@ public class RentalService implements IRentalService {
         });
     }
 
-    @Scheduled(cron = "0 30 * * * ?") // Thay đổi theo thời gian bạn muốn
+    @Scheduled(cron = "0 0 0 * * ?")
     public void scheduleRentalPayments() throws MessagingException {
         RestTemplate restTemplate = new RestTemplate();
-
         // Lặp qua danh sách rentals để tạo thanh toán
         List<Rental> rentals = rentalRepository.findAll();
         for (Rental rental : rentals) {
-
-            String customerEmail = rental.getCustomer().getEmail();
-            mailService.sendPaymentDueNotification(customerEmail, rental);
-
             if (shouldCreatePaymentForRental(rental, LocalDate.now())) {
                 int amount = (int) rental.getPrice();
                 String orderInfo = "Payment for rental ID " + rental.getId();
@@ -340,6 +335,9 @@ public class RentalService implements IRentalService {
                         null,
                         Void.class
                 );
+
+                String customerEmail = rental.getCustomer().getEmail();
+                mailService.sendPaymentDueNotification(customerEmail, rental);
             }
         }
     }
@@ -369,5 +367,41 @@ public class RentalService implements IRentalService {
         }
 
         return false; // Trường hợp không thuộc loại thuê nào
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?") // Chạy hàng ngày lúc 00:00
+    public void updateAndNotifyOverdueRentals() throws MessagingException {
+        List<Rental> rentals = rentalRepository.findAll();
+        LocalDate today = LocalDate.now();
+
+        for (Rental rental : rentals) {
+            if (rental.getStatus() == RentalStatus.ACTIVE && isOverdue(rental, today)) {
+                // Chuyển trạng thái thành "QUA_HAN_THANH_TOAN"
+                rental.setStatus(RentalStatus.OVERDUE);
+                rentalRepository.save(rental);
+
+                // Gửi email thông báo quá hạn
+                mailService.sendOverdueNotification(rental);
+            }
+        }
+    }
+
+    private boolean isOverdue(Rental rental, LocalDate today) {
+        LocalDate startDate = rental.getStartDate().toLocalDate();
+        LocalDate endDate = rental.getEndDate().toLocalDate();
+
+        if (rental.getRentalType() == RentalType.FLEXIBLE) {
+            // Quá hạn nếu hôm nay > endDate
+            return today.isAfter(endDate);
+        } else if (rental.getRentalType() == RentalType.MONTHLY) {
+            // Quá hạn nếu hôm nay > deadline thanh toán + 7 ngày
+            long monthsElapsed = ChronoUnit.MONTHS.between(startDate.withDayOfMonth(1), today.withDayOfMonth(1));
+            if (monthsElapsed >= 0) {
+                LocalDate monthlyPaymentDeadline = startDate.plusMonths(monthsElapsed).plusDays(7);
+                return today.isAfter(monthlyPaymentDeadline);
+            }
+        }
+
+        return false;
     }
 }

@@ -4,5 +4,6 @@ public enum RentalStatus {
     PENDING,
     ACTIVE,
     EXPIRED,
+    OVERDUE,
     TERMINATED
 }

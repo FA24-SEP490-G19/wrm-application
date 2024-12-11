@@ -40,4 +40,7 @@ public interface IMailService {
 
     @Async
     void sendPaymentDueNotification(String to, Rental rental) throws MessagingException;
+
+    @Async
+    void sendOverdueNotification(Rental rental) throws MessagingException;
 }

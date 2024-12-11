@@ -297,4 +297,20 @@ public class MailService implements IMailService {
 
         sendEmail(to, subject, htmlContent);
     }
+
+    @Async
+    @Override
+    public void sendOverdueNotification(Rental rental) throws MessagingException {
+        String email = rental.getCustomer().getEmail();
+        String subject = "Thông báo hợp đồng quá hạn";
+        String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
+                + "<h2 style='color: red;'>Thông báo hợp đồng quá hạn</h2>"
+                + "<p>Kính gửi " + rental.getCustomer().getFullName() + ",</p>"
+                + "<p>Hợp đồng thuê của bạn cho lô hàng <strong>#" + rental.getLot().getId() + "</strong> đã quá hạn thanh toán.</p>"
+                + "<p>Vui lòng thanh toán sớm nhất để tránh các rủi ro hoặc chi phí phát sinh.</p>"
+                + "<p>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
+                + "</div>";
+
+        sendEmail(email, subject, htmlContent);
+    }
 }
