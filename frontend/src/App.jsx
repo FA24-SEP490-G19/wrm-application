@@ -38,6 +38,7 @@ import ResetPassword from "./component/ResetPassword.jsx";
 function App() {
     return (
         <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/landing" element={<LandingPage />} />
                 <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
             <Route path="/register" element={<AuthRoute><RegisterPage /></AuthRoute>} />
