@@ -3,6 +3,7 @@ package com.wrm.application.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.wrm.application.constant.enums.RentalStatus;
+import com.wrm.application.constant.enums.RentalType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -43,6 +44,13 @@ public class Rental extends BaseModel{
     @OneToOne
     @JoinColumn(name = "contract_id", nullable = false)
     private Contract contract;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rental_type")
+    private RentalType rentalType;
+
+    @Column(name = "price")
+    private float price;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     @Column(name = "start_date", nullable = false)

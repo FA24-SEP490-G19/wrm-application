@@ -2,6 +2,7 @@ package com.wrm.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.RentalStatus;
+import com.wrm.application.constant.enums.RentalType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
@@ -36,6 +37,12 @@ public class RentalDTO {
 
     @JsonProperty("contract_id")
     private Long contractId;
+
+    @Enumerated(EnumType.STRING)
+    @JsonProperty("rental_type")
+    private RentalType rentalType;
+
+    private float price;
 
     @JsonProperty("start_date")
     private LocalDateTime startDate;

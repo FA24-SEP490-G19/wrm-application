@@ -3,6 +3,7 @@ package com.wrm.application.response.rental;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.RentalStatus;
+import com.wrm.application.constant.enums.RentalType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
@@ -33,6 +34,11 @@ public class RentalResponse {
 
     @JsonProperty("contract_id")
     private Long contractId;
+
+    @JsonProperty("rental_type")
+    private RentalType rentalType;
+
+    private float price;
 
     @JsonProperty("start_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")

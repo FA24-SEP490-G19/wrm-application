@@ -2,23 +2,30 @@ package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.LotStatus;
 import com.wrm.application.constant.enums.RentalStatus;
+import com.wrm.application.constant.enums.RentalType;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.*;
 import com.wrm.application.repository.*;
-import com.wrm.application.response.rental.RentalDetailResponse;
 import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IRentalService;
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -30,6 +37,7 @@ public class RentalService implements IRentalService {
     private final LotRepository lotRepository;
     private final ContractRepository contractRepository;
     private final IMailService mailService;
+    private final PaymentService paymentService;
 
     @Override
     public Page<RentalResponse> getAllRentals(PageRequest pageRequest) {
@@ -42,6 +50,8 @@ public class RentalService implements IRentalService {
                     .lotId(rental.getLot().getId())
                     .additionalServiceId(rental.getAdditionalService().getId())
                     .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
                     .startDate(rental.getStartDate())
                     .endDate(rental.getEndDate())
                     .status(rental.getStatus())
@@ -62,6 +72,8 @@ public class RentalService implements IRentalService {
                     .lotId(rental.getLot().getId())
                     .additionalServiceId(rental.getAdditionalService().getId())
                     .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
                     .startDate(rental.getStartDate())
                     .endDate(rental.getEndDate())
                     .status(rental.getStatus())
@@ -119,6 +131,8 @@ public class RentalService implements IRentalService {
                 .sales(sales)
                 .customer(customer)
                 .contract(contract)
+                .rentalType(rentalDTO.getRentalType())
+                .price(rentalDTO.getPrice())
                 .startDate(contract.getSignedDate())
                 .endDate(contract.getExpiryDate())
                 .additionalService(additionalService)
@@ -140,6 +154,8 @@ public class RentalService implements IRentalService {
                 .lotId(newRental.getLot().getId())
                 .additionalServiceId(newRental.getAdditionalService().getId())
                 .contractId(newRental.getContract().getId())
+                .rentalType(newRental.getRentalType())
+                .price(newRental.getPrice())
                 .startDate(newRental.getStartDate())
                 .endDate(newRental.getEndDate())
                 .status(newRental.getStatus())
@@ -183,6 +199,8 @@ public class RentalService implements IRentalService {
                 .lotId(rental.getLot().getId())
                 .additionalServiceId(rental.getAdditionalService().getId())
                 .contractId(rental.getContract().getId())
+                .rentalType(rental.getRentalType())
+                .price(rental.getPrice())
                 .startDate(rental.getStartDate())
                 .endDate(rental.getEndDate())
                 .status(rental.getStatus())
@@ -194,7 +212,12 @@ public class RentalService implements IRentalService {
         Rental rental = rentalRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy thông tin thuê"));
         rental.setDeleted(true);
+        rental.setStatus(RentalStatus.TERMINATED);
         rentalRepository.save(rental);
+
+        Contract contract = rental.getContract();
+        contract.setDeleted(true);
+        contractRepository.save(contract);
     }
 
     @Override
@@ -210,6 +233,8 @@ public class RentalService implements IRentalService {
                     .lotId(rental.getLot().getId())
                     .additionalServiceId(rental.getAdditionalService().getId())
                     .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
                     .startDate(rental.getStartDate())
                     .endDate(rental.getEndDate())
                     .status(rental.getStatus())
@@ -229,6 +254,8 @@ public class RentalService implements IRentalService {
                 .lotId(rental.getLot().getId())
                 .additionalServiceId(rental.getAdditionalService().getId())
                 .contractId(rental.getContract().getId())
+                .rentalType(rental.getRentalType())
+                .price(rental.getPrice())
                 .startDate(rental.getStartDate())
                 .endDate(rental.getEndDate())
                 .status(rental.getStatus())
@@ -252,6 +279,8 @@ public class RentalService implements IRentalService {
                     .lotId(rental.getLot().getId())
                     .additionalServiceId(rental.getAdditionalService().getId())
                     .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
                     .startDate(rental.getStartDate())
                     .endDate(rental.getEndDate())
                     .status(rental.getStatus())
@@ -272,6 +301,8 @@ public class RentalService implements IRentalService {
                     .lotId(rental.getLot().getId())
                     .additionalServiceId(rental.getAdditionalService().getId())
                     .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
                     .startDate(rental.getStartDate())
                     .endDate(rental.getEndDate())
                     .status(rental.getStatus())
@@ -279,11 +310,98 @@ public class RentalService implements IRentalService {
         });
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // Chạy vào lúc 00:00 hàng ngày
+    @Scheduled(cron = "0 0 0 * * ?")
     public void autoUpdateExpiredRentals() {
         rentalRepository.findExpiredRentals(LocalDateTime.now()).forEach(rental -> {
             rental.setStatus(RentalStatus.EXPIRED);
             rentalRepository.save(rental);
         });
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void scheduleRentalPayments() throws MessagingException {
+        RestTemplate restTemplate = new RestTemplate();
+        // Lặp qua danh sách rentals để tạo thanh toán
+        List<Rental> rentals = rentalRepository.findAll();
+        for (Rental rental : rentals) {
+            if (shouldCreatePaymentForRental(rental, LocalDate.now())) {
+                int amount = (int) rental.getPrice();
+                String orderInfo = "Hóa đơn thanh toán cho lô hàng " + rental.getLot().getDescription() + " tại kho hàng " + rental.getWarehouse().getName();
+                Long userId = rental.getCustomer().getId();
+
+                // Gửi request đến endpoint auto-create-payment
+                restTemplate.postForEntity(
+                        "http://localhost:8080/warehouses/auto-create-payment?amount=" + amount + "&orderInfo=" + orderInfo + "&id=" + userId,
+                        null,
+                        Void.class
+                );
+
+                String customerEmail = rental.getCustomer().getEmail();
+                mailService.sendPaymentDueNotification(customerEmail, rental);
+            }
+        }
+    }
+
+    private boolean shouldCreatePaymentForRental(Rental rental, LocalDate today) {
+        LocalDate startDate = rental.getStartDate().toLocalDate();
+        LocalDate endDate = rental.getEndDate().toLocalDate();
+
+        if (rental.getRentalType() == RentalType.MONTHLY) {
+            // Kiểm tra nếu là thuê theo tháng và đến hạn thanh toán
+            if (today.isBefore(startDate)) {
+                return false; // Chưa đến ngày bắt đầu thuê
+            }
+            if (today.equals(startDate.plusDays(20))) {
+                return true;
+            }
+
+            // Các chu kỳ sau: Tạo thanh toán trước 10 ngày của mỗi chu kỳ
+            long monthsElapsed = ChronoUnit.MONTHS.between(startDate.withDayOfMonth(1), today.withDayOfMonth(1));
+            if (monthsElapsed > 0) {
+                LocalDate dueDate = startDate.plusMonths(monthsElapsed).minusDays(10);
+                return today.equals(dueDate);
+            }
+        } else if (rental.getRentalType() == RentalType.FLEXIBLE) {
+            // Kiểm tra nếu là thuê linh hoạt và đến hạn thanh toán
+            return today.isEqual(endDate);
+        }
+
+        return false; // Trường hợp không thuộc loại thuê nào
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?") // Chạy hàng ngày lúc 00:00
+    public void updateAndNotifyOverdueRentals() throws MessagingException {
+        List<Rental> rentals = rentalRepository.findAll();
+        LocalDate today = LocalDate.now();
+
+        for (Rental rental : rentals) {
+            if (rental.getStatus() == RentalStatus.ACTIVE && isOverdue(rental, today)) {
+                // Chuyển trạng thái thành "QUA_HAN_THANH_TOAN"
+                rental.setStatus(RentalStatus.OVERDUE);
+                rentalRepository.save(rental);
+
+                // Gửi email thông báo quá hạn
+                mailService.sendOverdueNotification(rental);
+            }
+        }
+    }
+
+    private boolean isOverdue(Rental rental, LocalDate today) {
+        LocalDate startDate = rental.getStartDate().toLocalDate();
+        LocalDate endDate = rental.getEndDate().toLocalDate();
+
+        if (rental.getRentalType() == RentalType.FLEXIBLE) {
+            // Quá hạn nếu hôm nay > endDate
+            return today.isAfter(endDate);
+        } else if (rental.getRentalType() == RentalType.MONTHLY) {
+            // Quá hạn nếu hôm nay > deadline thanh toán + 7 ngày
+            long monthsElapsed = ChronoUnit.MONTHS.between(startDate.withDayOfMonth(1), today.withDayOfMonth(1));
+            if (monthsElapsed >= 0) {
+                LocalDate monthlyPaymentDeadline = startDate.plusMonths(monthsElapsed).plusDays(7);
+                return today.isAfter(monthlyPaymentDeadline);
+            }
+        }
+
+        return false;
     }
 }

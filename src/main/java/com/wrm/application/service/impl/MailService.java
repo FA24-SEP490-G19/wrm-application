@@ -1,5 +1,6 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.constant.enums.RentalType;
 import com.wrm.application.model.Appointment;
 import com.wrm.application.model.Rental;
 import com.wrm.application.model.Request;
@@ -270,6 +271,46 @@ public class MailService implements IMailService {
                 + "</div>"
                 + "</div>"
                 + "</div>";
+        sendEmail(email, subject, htmlContent);
+    }
+
+    @Async
+    @Override
+    public void sendPaymentDueNotification(String to, Rental rental) throws MessagingException {
+        String subject = "Thông báo đến hạn thanh toán";
+        String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
+                + "<h2 style='color: #4a90e2;'>Thông báo đến hạn thanh toán</h2>"
+                + "<p>Kính gửi " + rental.getCustomer().getFullName() + ",</p>";
+
+        if (rental.getRentalType() == RentalType.MONTHLY) {
+            htmlContent += "<p>Hợp đồng thuê hàng tháng của bạn cho lô hàng <strong>#" + rental.getLot().getId() + "</strong> "
+                    + "đã đến hạn thanh toán. Vui lòng thanh toán trước ngày <strong>" + rental.getStartDate().plusDays(37).toLocalDate() + "</strong>.</p>";
+        } else if (rental.getRentalType() == RentalType.FLEXIBLE) {
+            htmlContent += "<p>Hợp đồng thuê linh hoạt của bạn cho lô hàng <strong>#" + rental.getLot().getId() + "</strong> "
+                    + "sẽ kết thúc vào ngày <strong>" + rental.getEndDate().toLocalDate() + "</strong>. Vui lòng thực hiện thanh toán.</p>";
+        }
+
+        htmlContent += "<p style='color: #888; font-size: 12px;'>Nếu bạn đã thực hiện thanh toán, vui lòng bỏ qua email này.</p>"
+                + "<hr style='border: none; border-top: 1px solid #eee;'/>"
+                + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
+                + "</div>";
+
+        sendEmail(to, subject, htmlContent);
+    }
+
+    @Async
+    @Override
+    public void sendOverdueNotification(Rental rental) throws MessagingException {
+        String email = rental.getCustomer().getEmail();
+        String subject = "Thông báo hợp đồng quá hạn";
+        String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
+                + "<h2 style='color: red;'>Thông báo hợp đồng quá hạn</h2>"
+                + "<p>Kính gửi " + rental.getCustomer().getFullName() + ",</p>"
+                + "<p>Hợp đồng thuê của bạn cho lô hàng <strong>#" + rental.getLot().getId() + "</strong> đã quá hạn thanh toán.</p>"
+                + "<p>Vui lòng thanh toán sớm nhất để tránh các rủi ro hoặc chi phí phát sinh.</p>"
+                + "<p>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
+                + "</div>";
+
         sendEmail(email, subject, htmlContent);
     }
 }
