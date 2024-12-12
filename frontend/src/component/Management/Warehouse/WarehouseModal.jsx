@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload, X as XIcon,Plus,Image, Trash2} from 'lucide-react';
 import {ManagerNotHaveWarehouse} from "../../../service/WareHouse.js";
+import DraggableLotsGrid from "./DraggableLotsGrid.jsx";
+import ResizableLotGrid from "./ResizableLotGrid.jsx";
 
 const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
@@ -631,48 +633,17 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                         </div>
                                     </div>
                                     {/* Lots List */}
-                                    {formData.lot_items.length > 0  && (
-                                        <div className="space-y-2">
+                                    {formData.lot_items.length > 0 && (
+                                        <div className="space-y-4">
                                             <h4 className="font-medium text-gray-700">Danh sách lô đã thêm</h4>
-                                            <div className="border rounded-xl overflow-hidden">
-                                                <table className="min-w-full divide-y divide-gray-200">
-                                                    <thead className="bg-gray-50">
-                                                    <tr>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mô
-                                                            tả
-                                                        </th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kích
-                                                            thước
-                                                        </th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giá</th>
-                                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Thao
-                                                            tác
-                                                        </th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody className="bg-white divide-y divide-gray-200">
-                                                    {formData.lot_items.map((lot, index) => (
-                                                        <tr key={index}>
-                                                            <td className="px-6 py-4 text-sm text-gray-900">{lot.description}</td>
-                                                            <td className="px-6 py-4 text-sm text-gray-900">{lot.size} m²</td>
-                                                            <td className="px-6 py-4 text-sm text-gray-900">{lot.price}</td>
-                                                            <td className="px-6 py-4 text-right">
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleRemoveLot(index)}
-                                                                    className="text-red-600 hover:text-red-800"
-                                                                >
-                                                                    <Trash2 className="w-5 h-5"/>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                    </tbody>
-                                                </table>
+                                            <div className="border rounded-xl p-4">
+                                                <ResizableLotGrid
+                                                    lots={formData.lot_items}
+                                                    onRemove={handleRemoveLot}
+                                                />
                                             </div>
                                             <div className="text-sm text-gray-500">
-                                                Tổng diện
-                                                tích:  {formData.lot_items.reduce((sum, lot) => sum + parseFloat(lot.size), 0).toLocaleString('de-DE')} m²
+                                                Tổng diện tích: {formData.lot_items.reduce((sum, lot) => sum + parseFloat(lot.size), 0).toLocaleString('de-DE')} m²
                                             </div>
                                         </div>
                                     )}
