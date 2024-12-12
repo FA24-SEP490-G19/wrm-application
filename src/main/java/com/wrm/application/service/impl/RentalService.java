@@ -326,7 +326,7 @@ public class RentalService implements IRentalService {
         for (Rental rental : rentals) {
             if (shouldCreatePaymentForRental(rental, LocalDate.now())) {
                 int amount = (int) rental.getPrice();
-                String orderInfo = "Payment for rental ID " + rental.getId();
+                String orderInfo = "Hóa đơn thanh toán cho lô hàng " + rental.getLot().getDescription() + " tại kho hàng " + rental.getWarehouse().getName();
                 Long userId = rental.getCustomer().getId();
 
                 // Gửi request đến endpoint auto-create-payment

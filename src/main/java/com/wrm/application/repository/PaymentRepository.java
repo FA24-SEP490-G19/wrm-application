@@ -18,28 +18,18 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByUserId(Long userId);
 
-//    @Query("SELECT FUNCTION('MONTH', FUNCTION('STR_TO_DATE', p.paymentTime, '%Y-%m-%d %H:%i:%s')) AS month, " +
-//            "SUM(p.amount) AS totalRevenue " +
-//            "FROM Payment p " +
-//            "WHERE FUNCTION('YEAR', FUNCTION('STR_TO_DATE', p.paymentTime, '%Y-%m-%d %H:%i:%s')) = :year " +
-//            "AND p.paymentStatus = 'SUCCESS' " +
-//            "GROUP BY FUNCTION('MONTH', FUNCTION('STR_TO_DATE', p.paymentTime, '%Y-%m-%d %H:%i:%s')) " +
-//            "ORDER BY FUNCTION('MONTH', FUNCTION('STR_TO_DATE', p.paymentTime, '%Y-%m-%d %H:%i:%s'))")
-//    List<Object[]> findMonthlyRevenueForYear(@Param("year") int year);
-//
-//    @Query("SELECT FUNCTION('QUARTER', FUNCTION('STR_TO_DATE', p.paymentTime, '%Y-%m-%d %H:%i:%s')) AS quarter, " +
-//            "SUM(p.amount) AS totalRevenue " +
-//            "FROM Payment p " +
-//            "WHERE FUNCTION('YEAR', FUNCTION('STR_TO_DATE', p.paymentTime, '%Y-%m-%d %H:%i:%s')) = :year " +
-//            "AND p.paymentStatus = 'SUCCESS' " +
-//            "GROUP BY FUNCTION('QUARTER', FUNCTION('STR_TO_DATE', p.paymentTime, '%Y-%m-%d %H:%i:%s')) " +
-//            "ORDER BY FUNCTION('QUARTER', FUNCTION('STR_TO_DATE', p.paymentTime, '%Y-%m-%d %H:%i:%s'))")
-//    List<Object[]> findQuarterlyRevenueForYear(@Param("year") int year);
-//
-//    @Query("SELECT FUNCTION('YEAR', STR_TO_DATE(p.paymentTime, '%Y-%m-%d %H:%i:%s')) AS year, " +
-//            "SUM(p.amount) AS totalRevenue " +
-//            "FROM Payment p WHERE p.paymentStatus = 'SUCCESS' " +
-//            "GROUP BY FUNCTION('YEAR', STR_TO_DATE(p.paymentTime, '%Y-%m-%d %H:%i:%s')) " +
-//            "ORDER BY FUNCTION('YEAR', STR_TO_DATE(p.paymentTime, '%Y-%m-%d %H:%i:%s'))")
-//    List<Object[]> findYearlyRevenue();
+    @Query("SELECT MONTH(p.paymentTime) AS month, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p WHERE YEAR(p.paymentTime) = :year AND p.paymentStatus = 'SUCCESS' " +
+            "GROUP BY MONTH(p.paymentTime) ORDER BY MONTH(p.paymentTime)")
+    List<Object[]> findMonthlyRevenueForYear(@Param("year") int year);
+
+    @Query("SELECT QUARTER(p.paymentTime) AS quarter, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p WHERE YEAR(p.paymentTime) = :year AND p.paymentStatus = 'SUCCESS' " +
+            "GROUP BY QUARTER(p.paymentTime) ORDER BY QUARTER(p.paymentTime)")
+    List<Object[]> findQuarterlyRevenueForYear(@Param("year") int year);
+
+    @Query("SELECT YEAR(p.paymentTime) AS year, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p WHERE p.paymentStatus = 'SUCCESS' " +
+            "GROUP BY YEAR(p.paymentTime) ORDER BY YEAR(p.paymentTime)")
+    List<Object[]> findYearlyRevenue();
 }

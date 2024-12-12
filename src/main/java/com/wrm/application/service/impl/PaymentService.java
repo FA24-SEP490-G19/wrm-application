@@ -30,7 +30,7 @@ public class PaymentService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Payment payment = Payment.builder()
-                .paymentTime(String.valueOf(LocalDateTime.now()))
+                .paymentTime(LocalDateTime.now())
                 .transactionRef(vnp_TxnRef)
                 .amount((double) amount)
                 .orderInfo(orderInfo)
