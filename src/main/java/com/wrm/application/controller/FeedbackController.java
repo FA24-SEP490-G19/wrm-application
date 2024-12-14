@@ -54,4 +54,15 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.getFeedbackByCustomer(req.getRemoteUser()));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> deleteFeedback(@PathVariable Long id) {
+        try {
+            feedbackService.deleteFeedback(id);
+            return ResponseEntity.ok("Ẩn feedback thành công");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

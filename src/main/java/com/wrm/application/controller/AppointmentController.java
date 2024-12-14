@@ -77,7 +77,7 @@ public class AppointmentController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_SALES')")
-    public ResponseEntity<?> updateAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
+    public ResponseEntity<?> updateAppointmentBySales(@PathVariable Long id, @Valid @RequestBody AppointmentDTO appointmentDTO, BindingResult result) {
         try {
             if (result.hasErrors()) {
                 List<String> errorMessage = result.getFieldErrors()
@@ -98,7 +98,7 @@ public class AppointmentController {
     public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
         try {
             appointmentService.deleteAppointment(id);
-            return ResponseEntity.ok("Appointment deleted successfully");
+            return ResponseEntity.ok("Xóa lịch hẹn thành công");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -180,5 +180,25 @@ public class AppointmentController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/unassigned")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<AppointmentListResponse> getUnassignedAppointments(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<AppointmentResponse> appointmentPage = appointmentService.getUnassignedAppointments(pageRequest);
+
+        int totalPage = appointmentPage.getTotalPages();
+
+        List<AppointmentResponse> appointments = appointmentPage.getContent();
+
+        return ResponseEntity.ok().body(AppointmentListResponse.builder()
+                .appointments(appointments)
+                .totalPages(totalPage)
+                .build());
     }
 }

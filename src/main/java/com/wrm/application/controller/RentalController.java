@@ -196,6 +196,27 @@ public class RentalController {
                 .totalPages(totalPage)
                 .build());
     }
+
+    @GetMapping("/expiring")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
+    public ResponseEntity<RentalListResponse> getAllExpiringRentals(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalResponse> rentalPage;
+
+        rentalPage = rentalService.getAllExpiringRentals(pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
 }
 
 

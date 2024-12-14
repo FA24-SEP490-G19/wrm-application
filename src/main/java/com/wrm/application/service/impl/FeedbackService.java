@@ -1,6 +1,7 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.dto.FeedbackDTO;
+import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.Feedback;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
@@ -10,11 +11,9 @@ import com.wrm.application.repository.WarehouseRepository;
 import com.wrm.application.response.feedback.FeedbackListResponse;
 import com.wrm.application.response.feedback.FeedbackResponse;
 import com.wrm.application.service.IFeedbackService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,7 +91,11 @@ public class FeedbackService implements IFeedbackService {
         );
     }
 
-
-
-
+    @Override
+    public void deleteFeedback(Long feedbackId) throws Exception {
+        Feedback feedback = feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy feedback"));
+        feedback.setDeleted(true);
+        feedbackRepository.save(feedback);
+    }
 }

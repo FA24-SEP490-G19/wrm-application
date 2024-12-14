@@ -26,4 +26,6 @@ public interface IRentalService {
     Page<RentalResponse> getByWarehouseId(String remoteUser, PageRequest pageRequest) throws Exception;
 
     Page<RentalResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception;
+
+    Page<RentalResponse> getAllExpiringRentals(PageRequest pageRequest);
 }

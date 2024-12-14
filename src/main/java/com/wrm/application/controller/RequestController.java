@@ -53,6 +53,56 @@ public class RequestController {
                 .build());
     }
 
+    @GetMapping("/pending")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllPendingRequests(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        if (page < 0) {
+            return ResponseEntity.badRequest().body("Số trang không thể là số âm");
+        }
+        if (limit <= 0) {
+            return ResponseEntity.badRequest().body("Giới hạn trang phải lớn hơn không");
+        }
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<AdminRequestResponse> requestPage = requestService.getAllPendingRequests(pageRequest);
+
+        int totalPage = requestPage.getTotalPages();
+
+        List<AdminRequestResponse> requests = requestPage.getContent();
+        return ResponseEntity.ok(AdminRequestListResponse.builder()
+                .requests(requests)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/processed")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllProcessedRequests(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        if (page < 0) {
+            return ResponseEntity.badRequest().body("Số trang không thể là số âm");
+        }
+        if (limit <= 0) {
+            return ResponseEntity.badRequest().body("Giới hạn trang phải lớn hơn không");
+        }
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<AdminRequestResponse> requestPage = requestService.getAllProcessedRequests(pageRequest);
+
+        int totalPage = requestPage.getTotalPages();
+
+        List<AdminRequestResponse> requests = requestPage.getContent();
+        return ResponseEntity.ok(AdminRequestListResponse.builder()
+                .requests(requests)
+                .totalPages(totalPage)
+                .build());
+    }
+
     @GetMapping("my-request")
     @PreAuthorize("hasRole('ROLE_SALES') OR hasRole('ROLE_USER') OR hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> getMyRequests(

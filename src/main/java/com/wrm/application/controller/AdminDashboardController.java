@@ -57,4 +57,22 @@ public class AdminDashboardController {
         List<TopEntityByRevenueDTO> results = adminDashboardService.getTopSalesByRevenue();
         return ResponseEntity.ok(results);
     }
+
+    @GetMapping("/count/pending-requests")
+    public ResponseEntity<Integer> countPendingRequests() {
+        int count = adminDashboardService.countPendingRequests();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/count/expiring-rentals")
+    public ResponseEntity<Integer> countExpiringRentals() {
+        int count = adminDashboardService.countExpiringRentals();
+        return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/count/unassigned-appointments")
+    public ResponseEntity<Integer> countUnassignedAppointments() {
+        int count = adminDashboardService.countUnassignedAppointments();
+        return ResponseEntity.ok(count);
+    }
 }

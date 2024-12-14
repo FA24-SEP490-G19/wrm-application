@@ -44,6 +44,12 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN TRUE ELSE FALSE END FROM Rental r WHERE r.lot.id = :lotId AND r.status = 'ACTIVE' AND r.isDeleted = false")
     boolean existsActiveRentalByLotId(@Param("lotId") Long lotId);
 
-    @Query("SELECT r FROM Rental r WHERE r.status = 'ACTIVE' AND r.endDate < :currentDate")
+    @Query("SELECT r FROM Rental r WHERE r.status = 'ACTIVE' AND r.endDate < :currentDate AND r.isDeleted = false")
     List<Rental> findExpiredRentals(@Param("currentDate") LocalDateTime currentDate);
+
+    @Query("SELECT r FROM Rental r WHERE r.endDate BETWEEN :today AND :endDate AND r.status = 'ACTIVE' AND r.isDeleted = false")
+    Page<Rental> findExpiringRentals(@Param("today") LocalDateTime today, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+
+    @Query("SELECT COUNT(r) FROM Rental r WHERE r.endDate BETWEEN :today AND :endDate AND r.status = 'ACTIVE' AND r.isDeleted = false")
+    int countExpiringRentals(@Param("today") LocalDateTime today, @Param("endDate") LocalDateTime endDate);
 }

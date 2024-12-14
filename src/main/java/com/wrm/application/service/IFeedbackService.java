@@ -16,4 +16,6 @@ public interface IFeedbackService {
     List<FeedbackListResponse> getFeedbackByCustomer(String email);
 
     FeedbackResponse addFeedback(FeedbackDTO feedbackDTO, String remoteUser);
+
+    void deleteFeedback(Long feedbackId) throws Exception;
 }

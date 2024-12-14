@@ -11,6 +11,10 @@ public interface IRequestService {
 
     Page<AdminRequestResponse> getAllRequests(PageRequest pageRequest);
 
+    Page<AdminRequestResponse> getAllPendingRequests(PageRequest pageRequest);
+
+    Page<AdminRequestResponse> getAllProcessedRequests(PageRequest pageRequest);
+
     Page<RequestResponse> getAllMyRequests(String remoteUser, PageRequest pageRequest) throws Exception;
 
     RequestResponse getRequestById(Long id) throws Exception;

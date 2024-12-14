@@ -17,4 +17,10 @@ public interface IAdminDashboardService {
     List<TopEntityByRevenueDTO> getTopWarehousesByRevenue();
 
     List<TopEntityByRevenueDTO> getTopSalesByRevenue();
+
+    int countPendingRequests();
+
+    int countExpiringRentals();
+
+    int countUnassignedAppointments();
 }

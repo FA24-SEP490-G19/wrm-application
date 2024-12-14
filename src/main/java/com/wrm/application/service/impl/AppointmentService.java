@@ -258,4 +258,18 @@ public class AppointmentService implements IAppointmentService {
                 .status(appointment.getStatus())
                 .build();
     }
+
+    @Override
+    public Page<AppointmentResponse> getUnassignedAppointments(PageRequest pageRequest) {
+        return appointmentRepository.findUnassignedAppointments(pageRequest).map(appointment -> {
+            return AppointmentResponse.builder()
+                    .id(appointment.getId())
+                    .customerId(appointment.getCustomer().getId())
+                    .salesId(appointment.getSales() != null ? appointment.getSales().getId() : null)
+                    .warehouseId(appointment.getWarehouse().getId())
+                    .appointmentDate(appointment.getAppointmentDate())
+                    .status(appointment.getStatus())
+                    .build();
+        });
+    }
 }

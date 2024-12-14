@@ -68,7 +68,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -195,7 +195,7 @@ public class RentalService implements IRentalService {
                 .customerId(rental.getCustomer().getId())
                 .warehouseId(rental.getWarehouse().getId())
                 .lotId(rental.getLot().getId())
-                .additionalServiceId(rental.getAdditionalService().getId())
+                .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                 .contractId(rental.getContract().getId())
                 .rentalType(rental.getRentalType())
                 .price(rental.getPrice())
@@ -229,7 +229,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -250,7 +250,7 @@ public class RentalService implements IRentalService {
                 .customerId(rental.getCustomer().getId())
                 .warehouseId(rental.getWarehouse().getId())
                 .lotId(rental.getLot().getId())
-                .additionalServiceId(rental.getAdditionalService().getId())
+                .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                 .contractId(rental.getContract().getId())
                 .rentalType(rental.getRentalType())
                 .price(rental.getPrice())
@@ -275,7 +275,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -298,7 +298,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -402,5 +402,27 @@ public class RentalService implements IRentalService {
         }
 
         return false;
+    }
+
+    @Override
+    public Page<RentalResponse> getAllExpiringRentals(PageRequest pageRequest) {
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime endDate = today.plusDays(10);
+        return rentalRepository.findExpiringRentals(today, endDate, pageRequest).map(rental -> {
+            return RentalResponse.builder()
+                    .id(rental.getId())
+                    .salesId(rental.getSales().getId())
+                    .customerId(rental.getCustomer().getId())
+                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
+                    .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
+                    .status(rental.getStatus())
+                    .build();
+        });
     }
 }
