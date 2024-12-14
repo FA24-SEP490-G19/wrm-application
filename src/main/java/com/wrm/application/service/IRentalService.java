@@ -24,4 +24,6 @@ public interface IRentalService {
     RentalResponse getRentalById(Long id) throws Exception;
 
     Page<RentalResponse> getByWarehouseId(String remoteUser, PageRequest pageRequest) throws Exception;
+
+    Page<RentalResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception;
 }

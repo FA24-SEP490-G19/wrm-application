@@ -6,7 +6,7 @@ import com.wrm.application.response.request.AdminRequestListResponse;
 import com.wrm.application.response.request.AdminRequestResponse;
 import com.wrm.application.response.request.RequestListResponse;
 import com.wrm.application.response.request.RequestResponse;
-import com.wrm.application.service.impl.RequestService;
+import com.wrm.application.service.IRequestService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/requests")
 public class RequestController {
-    private final RequestService requestService;
+    private final IRequestService requestService;
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

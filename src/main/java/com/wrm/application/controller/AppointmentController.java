@@ -3,7 +3,7 @@ package com.wrm.application.controller;
 import com.wrm.application.dto.AppointmentDTO;
 import com.wrm.application.response.appointment.AppointmentListResponse;
 import com.wrm.application.response.appointment.AppointmentResponse;
-import com.wrm.application.service.impl.AppointmentService;
+import com.wrm.application.service.IAppointmentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/appointments")
 public class AppointmentController {
-    private final AppointmentService appointmentService;
+    private final IAppointmentService appointmentService;
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

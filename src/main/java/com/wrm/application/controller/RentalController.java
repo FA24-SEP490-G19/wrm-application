@@ -3,6 +3,7 @@ package com.wrm.application.controller;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.response.rental.RentalListResponse;
 import com.wrm.application.response.rental.RentalResponse;
+import com.wrm.application.service.IRentalService;
 import com.wrm.application.service.impl.RentalService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/rentals")
 public class RentalController {
-    private final RentalService rentalService;
+    private final IRentalService rentalService;
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")

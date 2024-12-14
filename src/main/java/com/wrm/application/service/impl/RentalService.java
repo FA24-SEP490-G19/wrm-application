@@ -11,13 +11,11 @@ import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IRentalService;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -288,6 +286,7 @@ public class RentalService implements IRentalService {
         });
     }
 
+    @Override
     public Page<RentalResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
         User customer = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));

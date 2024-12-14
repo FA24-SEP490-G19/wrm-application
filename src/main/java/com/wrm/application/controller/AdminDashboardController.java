@@ -1,6 +1,7 @@
 package com.wrm.application.controller;
 
-import com.wrm.application.dto.AdminRevenueStats;
+import com.wrm.application.dto.dashboard.RevenueStatsDTO;
+import com.wrm.application.dto.dashboard.TopEntityByRevenueDTO;
 import com.wrm.application.service.IAdminDashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +18,43 @@ public class AdminDashboardController {
 
     @GetMapping("/revenue/monthly")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<AdminRevenueStats>> getMonthlyRevenueForYear(@RequestParam int year) {
-        List<AdminRevenueStats> stats = adminDashboardService.getMonthlyRevenueForYear(year);
+    public ResponseEntity<List<RevenueStatsDTO>> getMonthlyRevenueForYear(@RequestParam int year) {
+        List<RevenueStatsDTO> stats = adminDashboardService.getMonthlyRevenueForYear(year);
         return ResponseEntity.ok(stats);
     }
 
     @GetMapping("/revenue/quarterly")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<AdminRevenueStats>> getQuarterlyRevenueForYear(@RequestParam int year) {
-        List<AdminRevenueStats> stats = adminDashboardService.getQuarterlyRevenueForYear(year);
+    public ResponseEntity<List<RevenueStatsDTO>> getQuarterlyRevenueForYear(@RequestParam int year) {
+        List<RevenueStatsDTO> stats = adminDashboardService.getQuarterlyRevenueForYear(year);
         return ResponseEntity.ok(stats);
     }
 
     @GetMapping("/revenue/yearly")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<AdminRevenueStats>> getYearlyRevenue() {
-        List<AdminRevenueStats> stats = adminDashboardService.getYearlyRevenue();
+    public ResponseEntity<List<RevenueStatsDTO>> getYearlyRevenue() {
+        List<RevenueStatsDTO> stats = adminDashboardService.getYearlyRevenue();
         return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/top-customers")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<TopEntityByRevenueDTO>> getTopCustomersByRevenue() {
+        List<TopEntityByRevenueDTO> results = adminDashboardService.getTopCustomersByRevenue();
+        return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/top-warehouses")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<TopEntityByRevenueDTO>> getTopWarehousesByRevenue() {
+        List<TopEntityByRevenueDTO> results = adminDashboardService.getTopWarehousesByRevenue();
+        return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/top-sales")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<TopEntityByRevenueDTO>> getTopSalesByRevenue() {
+        List<TopEntityByRevenueDTO> results = adminDashboardService.getTopSalesByRevenue();
+        return ResponseEntity.ok(results);
     }
 }

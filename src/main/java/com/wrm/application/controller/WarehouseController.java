@@ -4,6 +4,7 @@ import com.wrm.application.dto.WarehouseDTO;
 import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseListResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
+import com.wrm.application.service.IWarehouseService;
 import com.wrm.application.service.impl.WarehouseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/warehouses")
 public class WarehouseController {
-    private final WarehouseService warehouseService;
+    private final IWarehouseService warehouseService;
 
     @GetMapping("")
     public ResponseEntity<WarehouseListResponse> getAllWarehouses(
