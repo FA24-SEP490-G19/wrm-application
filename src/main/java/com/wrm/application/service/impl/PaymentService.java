@@ -22,7 +22,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final VNPAYService vnPayService;
     private final UserRepository userRepository;
-    public static  String vnp_TxnRef = VNPAYConfig.getRandomNumber(8);
+    public static String vnp_TxnRef = VNPAYConfig.getRandomNumber(8);
 
     public String createPayment(int amount, String orderInfo, HttpServletRequest request,Long id) {
         // Create initial payment record with PENDING status

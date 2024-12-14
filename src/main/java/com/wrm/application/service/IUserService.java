@@ -10,16 +10,19 @@ import java.util.List;
 public interface IUserService {
     UserResponse createUser(UserDTO userDTO) throws Exception;
 
+    void verifyEmail(String token) throws Exception;
+
     String login(String email, String password) throws Exception;
 
     User getUserByEmail(String email) throws Exception;
+
     List<UserDTO> getManagerHaveNotWarehouse();
+
     void changePassword(String email, ChangePasswordDTO changePasswordDTO) throws Exception;
 
     void resetPassword(String email) throws Exception;
 
     UserDTO getUserById(Long id) throws Exception;
-
 
     List<UserDTO> getAllCustomers();
 

@@ -11,13 +11,11 @@ import com.wrm.application.response.rental.RentalResponse;
 import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IRentalService;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -70,7 +68,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -197,7 +195,7 @@ public class RentalService implements IRentalService {
                 .customerId(rental.getCustomer().getId())
                 .warehouseId(rental.getWarehouse().getId())
                 .lotId(rental.getLot().getId())
-                .additionalServiceId(rental.getAdditionalService().getId())
+                .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                 .contractId(rental.getContract().getId())
                 .rentalType(rental.getRentalType())
                 .price(rental.getPrice())
@@ -231,7 +229,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -252,7 +250,7 @@ public class RentalService implements IRentalService {
                 .customerId(rental.getCustomer().getId())
                 .warehouseId(rental.getWarehouse().getId())
                 .lotId(rental.getLot().getId())
-                .additionalServiceId(rental.getAdditionalService().getId())
+                .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                 .contractId(rental.getContract().getId())
                 .rentalType(rental.getRentalType())
                 .price(rental.getPrice())
@@ -277,7 +275,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -288,6 +286,7 @@ public class RentalService implements IRentalService {
         });
     }
 
+    @Override
     public Page<RentalResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception {
         User customer = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
@@ -299,7 +298,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -403,5 +402,27 @@ public class RentalService implements IRentalService {
         }
 
         return false;
+    }
+
+    @Override
+    public Page<RentalResponse> getAllExpiringRentals(PageRequest pageRequest) {
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime endDate = today.plusDays(10);
+        return rentalRepository.findExpiringRentals(today, endDate, pageRequest).map(rental -> {
+            return RentalResponse.builder()
+                    .id(rental.getId())
+                    .salesId(rental.getSales().getId())
+                    .customerId(rental.getCustomer().getId())
+                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
+                    .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
+                    .status(rental.getStatus())
+                    .build();
+        });
     }
 }

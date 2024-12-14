@@ -3,6 +3,7 @@ package com.wrm.application.controller;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.response.rental.RentalListResponse;
 import com.wrm.application.response.rental.RentalResponse;
+import com.wrm.application.service.IRentalService;
 import com.wrm.application.service.impl.RentalService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/rentals")
 public class RentalController {
-    private final RentalService rentalService;
+    private final IRentalService rentalService;
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
@@ -186,6 +187,27 @@ public class RentalController {
                 page, limit,
                 Sort.by("createdDate").descending());
         Page<RentalResponse> rentalPage = rentalService.getHistoryByCustomerId(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/expiring")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
+    public ResponseEntity<RentalListResponse> getAllExpiringRentals(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalResponse> rentalPage;
+
+        rentalPage = rentalService.getAllExpiringRentals(pageRequest);
 
         int totalPage = rentalPage.getTotalPages();
 

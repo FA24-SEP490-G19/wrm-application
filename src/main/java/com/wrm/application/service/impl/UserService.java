@@ -1,6 +1,5 @@
 package com.wrm.application.service.impl;
 
-import com.wrm.application.constant.enums.UserGender;
 import com.wrm.application.model.Token;
 import com.wrm.application.repository.TokenRepository;
 import com.wrm.application.repository.WarehouseRepository;
@@ -102,6 +101,7 @@ public class UserService implements IUserService {
                 .build();
     }
 
+    @Override
     public void verifyEmail(String token) throws Exception {
         String email = jwtTokenUtil.getSubject(token);
         User user = userRepository.findByEmail(email)

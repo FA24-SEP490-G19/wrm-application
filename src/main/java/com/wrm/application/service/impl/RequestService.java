@@ -43,6 +43,32 @@ public class RequestService implements IRequestService {
     }
 
     @Override
+    public Page<AdminRequestResponse> getAllPendingRequests(PageRequest pageRequest) {
+        return requestRepository.findAllPendingRequests(pageRequest).map(request ->
+                AdminRequestResponse.builder()
+                        .id(request.getId())
+                        .userId(request.getUser().getId())
+                        .type(request.getType().getContent())
+                        .description(request.getDescription())
+                        .status(request.getStatus())
+                        .adminResponse(request.getAdminResponse())
+                        .build());
+    }
+
+    @Override
+    public Page<AdminRequestResponse> getAllProcessedRequests(PageRequest pageRequest) {
+        return requestRepository.findAllProcessedRequests(pageRequest).map(request ->
+                AdminRequestResponse.builder()
+                        .id(request.getId())
+                        .userId(request.getUser().getId())
+                        .type(request.getType().getContent())
+                        .description(request.getDescription())
+                        .status(request.getStatus())
+                        .adminResponse(request.getAdminResponse())
+                        .build());
+    }
+
+    @Override
     public Page<RequestResponse> getAllMyRequests(String remoteUser, PageRequest pageRequest) throws Exception {
         User user = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));

@@ -6,7 +6,7 @@ import com.wrm.application.response.request.AdminRequestListResponse;
 import com.wrm.application.response.request.AdminRequestResponse;
 import com.wrm.application.response.request.RequestListResponse;
 import com.wrm.application.response.request.RequestResponse;
-import com.wrm.application.service.impl.RequestService;
+import com.wrm.application.service.IRequestService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/requests")
 public class RequestController {
-    private final RequestService requestService;
+    private final IRequestService requestService;
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -43,6 +43,56 @@ public class RequestController {
                 page, limit,
                 Sort.by("createdDate").descending());
         Page<AdminRequestResponse> requestPage = requestService.getAllRequests(pageRequest);
+
+        int totalPage = requestPage.getTotalPages();
+
+        List<AdminRequestResponse> requests = requestPage.getContent();
+        return ResponseEntity.ok(AdminRequestListResponse.builder()
+                .requests(requests)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllPendingRequests(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        if (page < 0) {
+            return ResponseEntity.badRequest().body("Số trang không thể là số âm");
+        }
+        if (limit <= 0) {
+            return ResponseEntity.badRequest().body("Giới hạn trang phải lớn hơn không");
+        }
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<AdminRequestResponse> requestPage = requestService.getAllPendingRequests(pageRequest);
+
+        int totalPage = requestPage.getTotalPages();
+
+        List<AdminRequestResponse> requests = requestPage.getContent();
+        return ResponseEntity.ok(AdminRequestListResponse.builder()
+                .requests(requests)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/processed")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllProcessedRequests(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        if (page < 0) {
+            return ResponseEntity.badRequest().body("Số trang không thể là số âm");
+        }
+        if (limit <= 0) {
+            return ResponseEntity.badRequest().body("Giới hạn trang phải lớn hơn không");
+        }
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<AdminRequestResponse> requestPage = requestService.getAllProcessedRequests(pageRequest);
 
         int totalPage = requestPage.getTotalPages();
 

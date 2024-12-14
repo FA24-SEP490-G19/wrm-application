@@ -1,6 +1,7 @@
 package com.wrm.application.repository;
 
 import com.wrm.application.model.Payment;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,4 +33,51 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "FROM Payment p WHERE p.paymentStatus = 'SUCCESS' " +
             "GROUP BY YEAR(p.paymentTime) ORDER BY YEAR(p.paymentTime)")
     List<Object[]> findYearlyRevenue();
+
+    @Query("SELECT MONTH(p.paymentTime) AS month, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p " +
+            "JOIN Rental r ON r.customer.id = p.user.id " +
+            "WHERE YEAR(p.paymentTime) = :year AND p.paymentStatus = 'SUCCESS' AND r.sales.id = :salesId " +
+            "GROUP BY MONTH(p.paymentTime) " +
+            "ORDER BY MONTH(p.paymentTime)")
+    List<Object[]> findMonthlyRevenueForSales(@Param("year") int year, @Param("salesId") Long salesId);
+
+    @Query("SELECT QUARTER(p.paymentTime) AS quarter, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p " +
+            "JOIN Rental r ON r.customer.id = p.user.id " +
+            "WHERE YEAR(p.paymentTime) = :year AND p.paymentStatus = 'SUCCESS' AND r.sales.id = :salesId " +
+            "GROUP BY QUARTER(p.paymentTime) " +
+            "ORDER BY QUARTER(p.paymentTime)")
+    List<Object[]> findQuarterlyRevenueForSales(@Param("year") int year, @Param("salesId") Long salesId);
+
+    @Query("SELECT YEAR(p.paymentTime) AS year, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p " +
+            "JOIN Rental r ON r.customer.id = p.user.id " +
+            "WHERE p.paymentStatus = 'SUCCESS' AND r.sales.id = :salesId " +
+            "GROUP BY YEAR(p.paymentTime) " +
+            "ORDER BY YEAR(p.paymentTime)")
+    List<Object[]> findYearlyRevenueForSales(@Param("salesId") Long salesId);
+
+    @Query("SELECT p.user.id, p.user.fullName, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p " +
+            "WHERE p.paymentStatus = 'SUCCESS' " +
+            "GROUP BY p.user.id " +
+            "ORDER BY totalRevenue DESC")
+    List<Object[]> findTopCustomersByRevenue(Pageable pageable);
+
+    @Query("SELECT r.warehouse.id, r.warehouse.name, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p " +
+            "JOIN Rental r ON r.customer.id = p.user.id " +
+            "WHERE p.paymentStatus = 'SUCCESS' " +
+            "GROUP BY r.warehouse.id " +
+            "ORDER BY totalRevenue DESC")
+    List<Object[]> findTopWarehousesByRevenue(Pageable pageable);
+
+    @Query("SELECT r.sales.id, r.sales.fullName, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p " +
+            "JOIN Rental r ON r.customer.id = p.user.id " +
+            "WHERE p.paymentStatus = 'SUCCESS' " +
+            "GROUP BY r.sales.id " +
+            "ORDER BY totalRevenue DESC")
+    List<Object[]> findTopSalesByRevenue(Pageable pageable);
 }

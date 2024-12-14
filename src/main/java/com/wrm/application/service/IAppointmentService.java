@@ -26,4 +26,6 @@ public interface IAppointmentService {
     Page<AppointmentResponse> getAppointmentBySalesId(String remoteUser, PageRequest pageRequest) throws Exception;
 
     AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception;
+
+    Page<AppointmentResponse> getUnassignedAppointments(PageRequest pageRequest);
 }

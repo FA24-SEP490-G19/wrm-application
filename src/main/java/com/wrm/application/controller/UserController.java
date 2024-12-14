@@ -8,6 +8,8 @@ import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.model.User;
 import com.wrm.application.response.user.UserResponse;
+import com.wrm.application.service.ITokenService;
+import com.wrm.application.service.IUserService;
 import com.wrm.application.service.impl.TokenService;
 import com.wrm.application.service.impl.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +29,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
-    private final TokenService tokenService;
+    private final IUserService userService;
+    private final ITokenService tokenService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO, BindingResult result) throws Exception {

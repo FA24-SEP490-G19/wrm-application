@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +47,7 @@ public class TokenService implements ITokenService {
     }
 
     @Transactional
+    @Override
     public void revokeToken(String token) {
         Token existingToken = tokenRepository.findByToken(token);
         if (existingToken != null) {

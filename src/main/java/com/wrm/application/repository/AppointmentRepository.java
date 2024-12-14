@@ -23,4 +23,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("SELECT a FROM Appointment a WHERE a.sales.id = ?1 AND a.isDeleted = false")
     Page<Appointment> findBySalesId(Long id, Pageable pageable);
+
+    @Query("SELECT a FROM Appointment a WHERE a.sales.id IS NULL AND a.isDeleted = false")
+    Page<Appointment> findUnassignedAppointments(Pageable pageable);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.sales.id IS NULL AND a.isDeleted = false")
+    int countUnassignedAppointments();
 }
