@@ -198,7 +198,7 @@ public class RentalController {
     }
 
     @GetMapping("/expiring")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<RentalListResponse> getAllExpiringRentals(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit) throws Exception {
@@ -208,6 +208,72 @@ public class RentalController {
         Page<RentalResponse> rentalPage;
 
         rentalPage = rentalService.getAllExpiringRentals(pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/sales/expiring")
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<RentalListResponse> getAllExpiringRentalsForSales(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("endDate").descending());
+        Page<RentalResponse> rentalPage;
+
+        rentalPage = rentalService.getAllExpiringRentalsForSales(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/sales/signed")
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<RentalListResponse> getSignedRentalsInAMonthForSales(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<RentalResponse> rentalPage;
+
+        rentalPage = rentalService.getSignedRentalsInAMonthForSales(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/warehouse/expiring")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResponseEntity<RentalListResponse> getAllExpiringRentalsForWarehouse(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("endDate").descending());
+        Page<RentalResponse> rentalPage;
+
+        rentalPage = rentalService.getAllExpiringRentalsForWarehouse(req.getRemoteUser(), pageRequest);
 
         int totalPage = rentalPage.getTotalPages();
 

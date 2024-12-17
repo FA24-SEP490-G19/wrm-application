@@ -364,8 +364,7 @@ public class RentalService implements IRentalService {
             // Kiểm tra nếu là thuê linh hoạt và đến hạn thanh toán
             return today.isEqual(endDate);
         }
-
-        return false; // Trường hợp không thuộc loại thuê nào
+        return false;
     }
 
     @Scheduled(cron = "0 0 0 * * ?") // Chạy hàng ngày lúc 00:00
@@ -409,6 +408,81 @@ public class RentalService implements IRentalService {
         LocalDateTime today = LocalDate.now().atStartOfDay();
         LocalDateTime endDate = today.plusDays(10);
         return rentalRepository.findExpiringRentals(today, endDate, pageRequest).map(rental -> {
+            return RentalResponse.builder()
+                    .id(rental.getId())
+                    .salesId(rental.getSales().getId())
+                    .customerId(rental.getCustomer().getId())
+                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
+                    .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
+                    .status(rental.getStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<RentalResponse> getAllExpiringRentalsForSales(String remoteUser, PageRequest pageRequest) throws Exception {
+        User sales = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime endDate = today.plusDays(10);
+        return rentalRepository.findRentalsByDateRangeForSales(today, endDate, sales.getId(), pageRequest).map(rental -> {
+            return RentalResponse.builder()
+                    .id(rental.getId())
+                    .salesId(rental.getSales().getId())
+                    .customerId(rental.getCustomer().getId())
+                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
+                    .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
+                    .status(rental.getStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<RentalResponse> getSignedRentalsInAMonthForSales(String remoteUser, PageRequest pageRequest) throws Exception {
+        User sales = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
+        return rentalRepository.findRentalsByDateRangeForSales(startOfMonth, endOfMonth, sales.getId(), pageRequest).map(rental -> {
+            return RentalResponse.builder()
+                    .id(rental.getId())
+                    .salesId(rental.getSales().getId())
+                    .customerId(rental.getCustomer().getId())
+                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
+                    .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
+                    .status(rental.getStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<RentalResponse> getAllExpiringRentalsForWarehouse(String remoteUser, PageRequest pageRequest) throws Exception {
+        User manager = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+
+        Warehouse warehouse = warehouseRepository.findByManagerId(manager.getId())
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime endDate = today.plusDays(10);
+        return rentalRepository.findExpiringRentalsForWarehouse(today, endDate, warehouse.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()
                     .id(rental.getId())
                     .salesId(rental.getSales().getId())

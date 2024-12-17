@@ -201,4 +201,67 @@ public class AppointmentController {
                 .totalPages(totalPage)
                 .build());
     }
+
+    @GetMapping("/pending")
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<AppointmentListResponse> getPendingAppointmentsBySales(
+            HttpServletRequest req,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit
+    ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<AppointmentResponse> appointmentPage = appointmentService.getPendingAppointments(pageRequest, req.getRemoteUser());
+
+        int totalPage = appointmentPage.getTotalPages();
+
+        List<AppointmentResponse> appointments = appointmentPage.getContent();
+        return ResponseEntity.ok(AppointmentListResponse.builder()
+                .appointments(appointments)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/sales/upcoming")
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<AppointmentListResponse> getUpcomingAppointmentsForSales(
+            HttpServletRequest req,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit
+    ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("appointmentDate").descending());
+        Page<AppointmentResponse> appointmentPage = appointmentService.getUpcomingAppointmentsForSales(pageRequest, req.getRemoteUser());
+
+        int totalPage = appointmentPage.getTotalPages();
+
+        List<AppointmentResponse> appointments = appointmentPage.getContent();
+        return ResponseEntity.ok(AppointmentListResponse.builder()
+                .appointments(appointments)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/warehouse/upcoming")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResponseEntity<AppointmentListResponse> getUpcomingAppointmentsForWarehouse(
+            HttpServletRequest req,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit
+    ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("appointmentDate").descending());
+        Page<AppointmentResponse> appointmentPage = appointmentService.getUpcomingAppointmentsForWarehouse(pageRequest, req.getRemoteUser());
+
+        int totalPage = appointmentPage.getTotalPages();
+
+        List<AppointmentResponse> appointments = appointmentPage.getContent();
+        return ResponseEntity.ok(AppointmentListResponse.builder()
+                .appointments(appointments)
+                .totalPages(totalPage)
+                .build());
+    }
 }

@@ -10,4 +10,12 @@ public interface ISalesDashboardService {
     List<RevenueStatsDTO> getQuarterlyRevenueForSales(int year, String remoteUser) throws Exception;
 
     List<RevenueStatsDTO> getYearlyRevenueForSales(String remoteUser) throws Exception;
+
+    int countPendingAppointmentsForSales(String remoteUser) throws Exception;
+
+    int countExpiringRentals(String remoteUser) throws Exception;
+
+    int countSignedRentalsInAMonth(String remoteUser) throws Exception;
+
+    int countUpcomingAppointmentsForSales(String remoteUser) throws Exception;
 }

@@ -28,4 +28,10 @@ public interface IRentalService {
     Page<RentalResponse> getHistoryByCustomerId(String remoteUser, PageRequest pageRequest) throws Exception;
 
     Page<RentalResponse> getAllExpiringRentals(PageRequest pageRequest);
+
+    Page<RentalResponse> getAllExpiringRentalsForSales(String remoteUser, PageRequest pageRequest) throws Exception;
+
+    Page<RentalResponse> getSignedRentalsInAMonthForSales(String remoteUser, PageRequest pageRequest) throws Exception;
+
+    Page<RentalResponse> getAllExpiringRentalsForWarehouse(String remoteUser, PageRequest pageRequest) throws Exception;
 }

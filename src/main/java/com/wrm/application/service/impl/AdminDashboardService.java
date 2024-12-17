@@ -84,7 +84,7 @@ public class AdminDashboardService implements IAdminDashboardService {
     public int countExpiringRentals() {
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime endDate = today.plusDays(10);
-        return rentalRepository.countExpiringRentals(today, endDate);
+        return rentalRepository.countRentalsByDateRange(today, endDate);
     }
 
     @Override
