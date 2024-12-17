@@ -28,4 +28,8 @@ public interface IAppointmentService {
     AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception;
 
     Page<AppointmentResponse> getUnassignedAppointments(PageRequest pageRequest);
+
+    Page<AppointmentResponse> getPendingAppointments(PageRequest pageRequest, String remoteUser) throws Exception;
+
+    Page<AppointmentResponse> getUpcomingAppointmentsForSales(PageRequest pageRequest, String remoteUser) throws Exception;
 }

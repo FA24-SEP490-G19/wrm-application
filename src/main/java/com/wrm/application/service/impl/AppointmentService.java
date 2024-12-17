@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -262,6 +263,40 @@ public class AppointmentService implements IAppointmentService {
     @Override
     public Page<AppointmentResponse> getUnassignedAppointments(PageRequest pageRequest) {
         return appointmentRepository.findUnassignedAppointments(pageRequest).map(appointment -> {
+            return AppointmentResponse.builder()
+                    .id(appointment.getId())
+                    .customerId(appointment.getCustomer().getId())
+                    .salesId(appointment.getSales() != null ? appointment.getSales().getId() : null)
+                    .warehouseId(appointment.getWarehouse().getId())
+                    .appointmentDate(appointment.getAppointmentDate())
+                    .status(appointment.getStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<AppointmentResponse> getPendingAppointments(PageRequest pageRequest, String remoteUser) throws Exception {
+        User sales = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+        return appointmentRepository.findPendingAppointmentsForSales(sales.getId(), pageRequest).map(appointment -> {
+            return AppointmentResponse.builder()
+                    .id(appointment.getId())
+                    .customerId(appointment.getCustomer().getId())
+                    .salesId(appointment.getSales() != null ? appointment.getSales().getId() : null)
+                    .warehouseId(appointment.getWarehouse().getId())
+                    .appointmentDate(appointment.getAppointmentDate())
+                    .status(appointment.getStatus())
+                    .build();
+        });
+    }
+
+    @Override
+    public Page<AppointmentResponse> getUpcomingAppointmentsForSales(PageRequest pageRequest, String remoteUser) throws Exception {
+        User sales = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+        LocalDateTime today = LocalDate.now().atStartOfDay();;
+        LocalDateTime tenDaysLater = today.plusDays(10);
+        return appointmentRepository.findUpcomingAppointmentsForSales(sales.getId(), today, tenDaysLater, pageRequest).map(appointment -> {
             return AppointmentResponse.builder()
                     .id(appointment.getId())
                     .customerId(appointment.getCustomer().getId())

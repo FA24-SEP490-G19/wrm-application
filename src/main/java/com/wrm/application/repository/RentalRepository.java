@@ -50,6 +50,12 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("SELECT r FROM Rental r WHERE r.endDate BETWEEN :today AND :endDate AND r.status = 'ACTIVE' AND r.isDeleted = false")
     Page<Rental> findExpiringRentals(@Param("today") LocalDateTime today, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
-    @Query("SELECT COUNT(r) FROM Rental r WHERE r.endDate BETWEEN :today AND :endDate AND r.status = 'ACTIVE' AND r.isDeleted = false")
-    int countExpiringRentals(@Param("today") LocalDateTime today, @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT COUNT(r) FROM Rental r WHERE r.endDate BETWEEN :startDate AND :endDate AND r.status = 'ACTIVE' AND r.isDeleted = false")
+    int countRentalsByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COUNT(r) FROM Rental r WHERE r.endDate BETWEEN :startDate AND :endDate AND r.status = 'ACTIVE' AND r.sales.id = :salesId AND r.isDeleted = false")
+    int countRentalsByDateRangeForSales(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Long salesId);
+
+    @Query("SELECT r FROM Rental r WHERE r.endDate BETWEEN :startDate AND :endDate AND r.status = 'ACTIVE' AND r.sales.id = :salesId AND r.isDeleted = false")
+    Page<Rental> findRentalsByDateRangeForSales(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Long salesId, Pageable pageable);
 }
