@@ -226,7 +226,7 @@ public class RentalController {
             HttpServletRequest req) throws Exception {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
-                Sort.by("createdDate").descending());
+                Sort.by("endDate").descending());
         Page<RentalResponse> rentalPage;
 
         rentalPage = rentalService.getAllExpiringRentalsForSales(req.getRemoteUser(), pageRequest);
@@ -252,6 +252,28 @@ public class RentalController {
         Page<RentalResponse> rentalPage;
 
         rentalPage = rentalService.getSignedRentalsInAMonthForSales(req.getRemoteUser(), pageRequest);
+
+        int totalPage = rentalPage.getTotalPages();
+
+        List<RentalResponse> rentals = rentalPage.getContent();
+        return ResponseEntity.ok(RentalListResponse.builder()
+                .rentals(rentals)
+                .totalPages(totalPage)
+                .build());
+    }
+
+    @GetMapping("/warehouse/expiring")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResponseEntity<RentalListResponse> getAllExpiringRentalsForWarehouse(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            HttpServletRequest req) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("endDate").descending());
+        Page<RentalResponse> rentalPage;
+
+        rentalPage = rentalService.getAllExpiringRentalsForWarehouse(req.getRemoteUser(), pageRequest);
 
         int totalPage = rentalPage.getTotalPages();
 

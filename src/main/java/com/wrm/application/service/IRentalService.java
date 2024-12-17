@@ -32,4 +32,6 @@ public interface IRentalService {
     Page<RentalResponse> getAllExpiringRentalsForSales(String remoteUser, PageRequest pageRequest) throws Exception;
 
     Page<RentalResponse> getSignedRentalsInAMonthForSales(String remoteUser, PageRequest pageRequest) throws Exception;
+
+    Page<RentalResponse> getAllExpiringRentalsForWarehouse(String remoteUser, PageRequest pageRequest) throws Exception;
 }

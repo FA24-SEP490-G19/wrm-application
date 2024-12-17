@@ -42,4 +42,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("SELECT a FROM Appointment a WHERE a.sales.id = :salesId AND a.appointmentDate BETWEEN :startDate AND :endDate AND a.status = 'ACCEPTED' AND a.isDeleted = false")
     Page<Appointment> findUpcomingAppointmentsForSales(@Param("salesId") Long salesId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.warehouse.id = :warehouseId AND a.appointmentDate BETWEEN :today AND :endDate AND a.status = 'ACCEPTED' AND a.isDeleted = false")
+    int countUpcomingAppointmentsForWarehouse(@Param("warehouseId") Long warehouseId, @Param("today") LocalDateTime today, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT a FROM Appointment a WHERE a.warehouse.id = :warehouseId AND a.appointmentDate BETWEEN :today AND :endDate AND a.status = 'ACCEPTED' AND a.isDeleted = false")
+    Page<Appointment> findUpcomingAppointmentsForWarehouse(@Param("warehouseId") Long warehouseId, @Param("today") LocalDateTime today, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 }

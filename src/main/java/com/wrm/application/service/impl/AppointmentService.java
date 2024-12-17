@@ -307,4 +307,26 @@ public class AppointmentService implements IAppointmentService {
                     .build();
         });
     }
+
+    @Override
+    public Page<AppointmentResponse> getUpcomingAppointmentsForWarehouse(PageRequest pageRequest, String remoteUser) throws Exception {
+        User manager = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+
+        Warehouse warehouse = warehouseRepository.findByManagerId(manager.getId())
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+
+        LocalDateTime today = LocalDate.now().atStartOfDay();;
+        LocalDateTime tenDaysLater = today.plusDays(10);
+        return appointmentRepository.findUpcomingAppointmentsForSales(warehouse.getId(), today, tenDaysLater, pageRequest).map(appointment -> {
+            return AppointmentResponse.builder()
+                    .id(appointment.getId())
+                    .customerId(appointment.getCustomer().getId())
+                    .salesId(appointment.getSales() != null ? appointment.getSales().getId() : null)
+                    .warehouseId(appointment.getWarehouse().getId())
+                    .appointmentDate(appointment.getAppointmentDate())
+                    .status(appointment.getStatus())
+                    .build();
+        });
+    }
 }

@@ -472,4 +472,31 @@ public class RentalService implements IRentalService {
                     .build();
         });
     }
+
+    @Override
+    public Page<RentalResponse> getAllExpiringRentalsForWarehouse(String remoteUser, PageRequest pageRequest) throws Exception {
+        User manager = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+
+        Warehouse warehouse = warehouseRepository.findByManagerId(manager.getId())
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        LocalDateTime endDate = today.plusDays(10);
+        return rentalRepository.findExpiringRentalsForWarehouse(today, endDate, warehouse.getId(), pageRequest).map(rental -> {
+            return RentalResponse.builder()
+                    .id(rental.getId())
+                    .salesId(rental.getSales().getId())
+                    .customerId(rental.getCustomer().getId())
+                    .warehouseId(rental.getWarehouse().getId())
+                    .lotId(rental.getLot().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
+                    .contractId(rental.getContract().getId())
+                    .rentalType(rental.getRentalType())
+                    .price(rental.getPrice())
+                    .startDate(rental.getStartDate())
+                    .endDate(rental.getEndDate())
+                    .status(rental.getStatus())
+                    .build();
+        });
+    }
 }
