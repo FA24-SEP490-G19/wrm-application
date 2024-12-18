@@ -13,6 +13,7 @@ import {useToast} from '../context/ToastProvider';
 import AppointmentModal1 from './Management/Appointment/AppointmentModal1';
 import FeedbackForm from './FeedbackForm';
 import {useAuth} from "../context/AuthContext.jsx";
+import ProportionalWarehouseLotGrid from "./ProportionalWarehouseLotGrid.jsx";
 
 // LOT_STATUS_CONFIG remains the same...
 const LOT_STATUS_CONFIG = {
@@ -470,7 +471,7 @@ const WarehouseDetail = () => {
                             <h2 className="text-xl font-bold text-gray-900">Sơ đồ lô hàng</h2>
                         </div>
 
-                        <WarehouseLotGrid
+                        <ProportionalWarehouseLotGrid
                             lots={lots}
                             onLotSelect={setSelectedLot}
                             selectedLot={selectedLot}

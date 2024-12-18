@@ -71,6 +71,13 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
     };
 
 // Add function to remove lot
+    const handleLotsChange = (updatedLots) => {
+        setFormData(prev => ({
+            ...prev,
+            lot_items: updatedLots
+        }));
+    };
+
     const handleRemoveLot = (index) => {
         setFormData(prev => ({
             ...prev,
@@ -640,6 +647,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                                 <ResizableLotGrid
                                                     lots={formData.lot_items}
                                                     onRemove={handleRemoveLot}
+                                                    onChange={handleLotsChange}
                                                 />
                                             </div>
                                             <div className="text-sm text-gray-500">
