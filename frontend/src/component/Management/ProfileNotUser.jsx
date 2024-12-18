@@ -176,7 +176,6 @@ const ProfileCRUD = () => {
                     className={inputClasses}
                     disabled={disabled}
                 >
-                    <option value="">Select {label}</option>
                     {options.map(option => (
                         <option key={option.value} value={option.value}>
                             {option.label}
