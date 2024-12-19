@@ -244,6 +244,14 @@ const MyFeedBack = () => {
                                                     Quản lý đánh giá
                                                 </a>
                                                 <a
+                                                    href="/payment_user"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Quản lý thanh toán
+                                                </a>
+                                                <a
                                                     href="/reset"
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"

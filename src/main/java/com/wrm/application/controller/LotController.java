@@ -18,7 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.validation.FieldError;
 
 
 import java.util.List;
@@ -53,8 +52,8 @@ public class LotController {
     }
 
 //    @GetMapping("/{id}")
-//    public ResponseEntity<LotResponse> getLotById(@PathVariable Long id) throws Exception {
-//        return ResponseEntity.ok(lotService.getLotById(id));
+//    public ResponseEntity<LotResponse> getLotByWarehouseId(@PathVariable Long id) throws Exception {
+//        return ResponseEntity.ok(lotService.getLotByWarehouseID(id));
 //    }
 
     @PutMapping("/update/{id}")

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Search, Plus, Loader2, Edit2, Trash2
+    Search, Plus, Loader2, Edit2, Trash2,Eye
 } from 'lucide-react';
 import RentalModal from "./RentalModal.jsx";
 
@@ -17,6 +17,8 @@ import {
     updateRentalStatus
 } from "../../service/Reatal.js";
 import CRMLayout from "../Management/Crm.jsx";
+import ContractModal from "../Management/Contract/ContractModal.jsx";
+import {createContract, updateContract} from "../../service/Contract.js";
 
 const RentalList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -24,15 +26,17 @@ const RentalList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { showToast } = useToast();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
+    const [isContractModalOpen, setIsContractModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedRental, setSelectedRental] = useState(null);
+    const [selectedContract, setSelectedContract] = useState(null);
     const [customersData, setCustomersData] = useState({});
     const [warehousesData, setWarehousesData] = useState({});
     const [loadingRelatedData, setLoadingRelatedData] = useState(false);
     const { customer } = useAuth();
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5; // Number of items per page
+    const itemsPerPage = 5;
 
     // Calculate pagination values
     const lastItemIndex = currentPage * itemsPerPage;
@@ -145,15 +149,57 @@ const RentalList = () => {
     };
 
     const handleAddRental = () => {
+        // Close contract modal if it's open
+        if (isContractModalOpen) {
+            setIsContractModalOpen(false);
+        }
         setModalMode('create');
         setSelectedRental(null);
-        setIsModalOpen(true);
+        setIsRentalModalOpen(true);
     };
 
-    const handleEditRental = (rental) => {
-        setModalMode('edit');
-        setSelectedRental(rental);
-        setIsModalOpen(true);
+    const handleAddContract = () => {
+        // Close rental modal if it's open
+        if (isRentalModalOpen) {
+            setIsRentalModalOpen(false);
+        }
+        setModalMode('create');
+        setSelectedContract(null);
+        setIsContractModalOpen(true);
+    };
+
+    const handleViewContract = (rental) => {
+        // Close rental modal if it's open
+        if (isRentalModalOpen) {
+            setIsRentalModalOpen(false);
+        }
+        setModalMode('view');
+        setSelectedContract(rental);
+        setIsContractModalOpen(true);
+    };
+
+    const handleContractModalSubmit = async (contractData) => {
+        try {
+            let response;
+            if (modalMode === 'create') {
+                response = await createContract(contractData);
+                setIsContractModalOpen(false);  // Close modal before showing toast
+                showToast('Thêm mới hợp đồng thành công', 'success');
+            } else {
+                response = await updateContract(selectedContract.id, contractData);
+                setIsContractModalOpen(false);  // Close modal before showing toast
+                showToast('Cập nhật hợp đồng thành công', 'success');
+            }
+            fetchRentals();
+        } catch (error) {
+            showToast(`Thao tác thất bại: ${error.message}`, 'error');
+        }
+    };
+    const toastCustomStyle = {
+        position: 'fixed',
+        zIndex: 9999,  // Higher than modal z-index
+        top: '1rem',
+        right: '1rem',
     };
 
     const handleDeleteRental = async (rentalId) => {
@@ -187,12 +233,21 @@ const RentalList = () => {
                 await updateRentalStatus(selectedRental.id, rentalData.status);
                 showToast('Cập nhật đơn thuê kho thành công', 'success');
             }
-            setIsModalOpen(false);
+            setIsRentalModalOpen(false);
             fetchRentals();
         } catch (error) {
             const errorMessage = error.response.data ;
             showToast(errorMessage, 'error');
         }
+    };
+    const handleRentalModalClose = () => {
+        setIsRentalModalOpen(false);
+        setSelectedRental(null);
+    };
+
+    const handleContractModalClose = () => {
+        setIsContractModalOpen(false);
+        setSelectedContract(null);
     };
 
     const statusColors = {
@@ -236,16 +291,24 @@ const RentalList = () => {
                     <p className="text-gray-600">Quản lý các đơn thuê kho trong hệ thống</p>
                 </div>
                 {customer.role === "ROLE_SALES" && (
-                    <button
-                        onClick={handleAddRental}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
-                    >
-                        <Plus className="w-4 h-4"/>
-                        Thêm đơn thuê kho
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={handleAddRental}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
+                        >
+                            <Plus className="w-4 h-4"/>
+                            Thêm đơn thuê kho
+                        </button>
+                        <button
+                            onClick={handleAddContract}
+                            className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 flex items-center gap-2"
+                        >
+                            <Plus className="w-4 h-4"/>
+                            Thêm hợp đồng
+                        </button>
+                    </div>
                 )}
             </div>
-
             <div className="flex flex-col sm:flex-row gap-4">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
@@ -282,6 +345,7 @@ const RentalList = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Thời hạn hợp đồng
                             </th>
+
                             {customer.role === "ROLE_ADMIN" ? (
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Thao tác
@@ -442,12 +506,21 @@ const RentalList = () => {
             </div>
 
             <RentalModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isRentalModalOpen}
+                onClose={() => setIsRentalModalOpen(false)}
                 mode={modalMode}
                 rentalData={selectedRental}
                 onSubmit={handleModalSubmit}
             />
+
+            <ContractModal
+                isOpen={isContractModalOpen}
+                onClose={() => setIsContractModalOpen(false)}
+                mode={modalMode}
+                contractData={selectedContract}
+                onSubmit={handleContractModalSubmit}
+            />
+
         </div>
     );
 };

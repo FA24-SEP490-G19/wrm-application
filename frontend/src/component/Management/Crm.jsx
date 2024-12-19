@@ -21,10 +21,9 @@ const CRMLayout = ({ children }) => {
 
     const navigation = [
         // { name: 'Dashboard', icon: Home, path: '/dashboard', roles: ['ROLE_ADMIN', 'MANAGER'] },
-        { name: 'Quản lý kho', icon: DollarSign, path: '/kho', roles: ['ROLE_SALES', 'ROLE_ADMIN',"ROLE_USER","ROLE_MANAGER"] },
+        { name: 'Quản lý kho', icon: DollarSign, path: '/kho', roles: ['ROLE_SALES', 'ROLE_ADMIN',"ROLE_USER"] },
         { name: 'Quản lý cuộc hẹn', icon: Calendar, path: '/appointment', roles: ['ROLE_ADMIN','ROLE_SALES'] },
-        { name: 'Quản lý lot', icon: Package, path: '/lot', roles: ['ROLE_ADMIN',"ROLE_MANAGER"] },
-        { name: 'Quản lý hợp đồng', icon: Package, path: '/contract', roles: ['ROLE_ADMIN','ROLE_SALES','ROLE_USER'] },
+        { name: 'Quản lý lot', icon: Package, path: '/lot', roles: ["ROLE_MANAGER"] },
         { name: 'Quản lý cho thuê', icon: Package, path: '/rental', roles: ['ROLE_ADMIN','ROLE_SALES'] },
         { name: 'Quản lý yêu cầu', icon: Package, path: '/request', roles: ['ROLE_ADMIN','ROLE_SALES',"ROLE_MANAGER"] },
         { name: 'Quản lý phản hồi', icon: Package, path: '/feedback', roles: ['ROLE_ADMIN'] },

@@ -129,18 +129,23 @@ export const Payment = () => {
         return pages;
     };
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleString('vi-VN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        });
-    };
+    // const formatDate = (dateString) => {
+    //     if (!dateString || typeof dateString !== 'string') return 'N/A'; // Kiểm tra dữ liệu đầu vào
+    //
+    //     // Tách chuỗi theo định dạng "YYYY-MM-DD HH:mm:ss" (hoặc tương tự)
+    //     const [datePart, timePart] = dateString.split(' ');
+    //     if (!datePart || !timePart) return 'Invalid Date';
+    //
+    //     const [year, month, day] = datePart.split('-');
+    //     const [hour, minute, second] = timePart.split(':');
+    //
+    //     // Kiểm tra dữ liệu sau khi tách
+    //     if (!year || !month || !day || !hour || !minute || !second) return 'Invalid Date';
+    //
+    //     // Trả về chuỗi ngày tháng theo định dạng "DD/MM/YYYY HH:mm:ss"
+    //     return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+    // };
+
     const getUserInfo = (userId) => {
         const user = users[userId];
         if (user) {
@@ -159,6 +164,18 @@ export const Payment = () => {
             style: 'currency',
             currency: 'VND'
         }).format(price);
+    };
+    const formatDateTime = (input) => {
+        // Extract the parts of the string
+        const year = input.slice(0, 4);
+        const month = input.slice(4, 6);
+        const day = input.slice(6, 8);
+        const hour = input.slice(8, 10);
+        const minute = input.slice(10, 12);
+        const second = input.slice(12, 14);
+
+        // Format the result
+        return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
     };
 
     const getPaymentStatus = (status) => {
@@ -248,7 +265,7 @@ export const Payment = () => {
                                     {payment?.status}
                                 </td>
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                    {formatDate(payment?.paymentTime)}
+                                    2024-12-19
 
                                 </td>
                                 <td className="px-6 py-4">{payment.user.fullName}</td>

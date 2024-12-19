@@ -139,7 +139,7 @@ public class RentalService implements IRentalService {
 
         rentalRepository.save(newRental);
 
-        User admin = userRepository.findByRoleId(2L)
+        User admin = userRepository.findByRoleId(3L)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy quản trị viên"));
         String adminEmail = admin.getEmail();
         mailService.sendRentalCreationNotification(adminEmail, newRental);
