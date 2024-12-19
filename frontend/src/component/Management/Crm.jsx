@@ -21,7 +21,7 @@ const CRMLayout = ({ children }) => {
 
     const navigation = [
         // { name: 'Dashboard', icon: Home, path: '/dashboard', roles: ['ROLE_ADMIN', 'MANAGER'] },
-        { name: 'Quản lý kho', icon: DollarSign, path: '/kho', roles: ['ROLE_SALES', 'ROLE_ADMIN',"ROLE_USER"] },
+        { name: 'Quản lý kho', icon: DollarSign, path: '/kho', roles: [ 'ROLE_ADMIN'] },
         { name: 'Quản lý cuộc hẹn', icon: Calendar, path: '/appointment', roles: ['ROLE_ADMIN','ROLE_SALES'] },
         { name: 'Quản lý lot', icon: Package, path: '/lot', roles: ["ROLE_MANAGER"] },
         { name: 'Quản lý cho thuê', icon: Package, path: '/rental', roles: ['ROLE_ADMIN','ROLE_SALES'] },

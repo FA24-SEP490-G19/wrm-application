@@ -297,15 +297,6 @@ const RequestList = () => {
                                             </button>
                                         ) : (
                                             <>
-                                                {request.status === 'PENDING' && (
-                                                    <button
-                                                        onClick={() => handleEditRequest(request)}
-                                                        className="text-indigo-600 hover:text-indigo-900"
-                                                        title="Chỉnh sửa"
-                                                    >
-                                                        <Edit2 className="w-5 h-5"/>
-                                                    </button>
-                                                )}
                                                 <button
                                                     onClick={() => handleDeleteRequest(request.id)}
                                                     className="text-red-600 hover:text-red-900"

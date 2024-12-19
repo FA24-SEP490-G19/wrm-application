@@ -162,9 +162,31 @@ const WarehouseRental = () => {
                             </a>
 
 
-                            {customer?.role !== "ROLE_USER" && (
+                            {customer?.role === "ROLE_SALES" && (
+                                <a
+                                    href="/appointment"
+                                    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                >
+                                    <LayoutDashboard className="w-4 h-4 mr-2"/>
+                                    DashBoard
+                                </a>
+                            )}
+
+                            {customer?.role === "ROLE_ADMIN" && (
                                 <a
                                     href="/kho"
+                                    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
+                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                >
+                                    <LayoutDashboard className="w-4 h-4 mr-2"/>
+                                    DashBoard
+                                </a>
+                            )}
+
+                            {customer?.role === "ROLE_MANAGER" && (
+                                <a
+                                    href="/lot"
                                     className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
                                          hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
                                 >
