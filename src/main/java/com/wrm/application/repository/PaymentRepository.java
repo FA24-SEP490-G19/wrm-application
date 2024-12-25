@@ -80,4 +80,19 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "GROUP BY r.sales.id " +
             "ORDER BY totalRevenue DESC")
     List<Object[]> findTopSalesByRevenue(Pageable pageable);
+
+    @Query("SELECT MONTH(p.paymentTime) AS month, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p WHERE YEAR(p.paymentTime) = :year AND p.paymentStatus = 'SUCCESS' AND p.user.id = :userId " +
+            "GROUP BY MONTH(p.paymentTime) ORDER BY MONTH(p.paymentTime)")
+    List<Object[]> findMonthlyRevenueByCustomer(@Param("year") int year, @Param("userId") Long userId);
+
+    @Query("SELECT QUARTER(p.paymentTime) AS quarter, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p WHERE YEAR(p.paymentTime) = :year AND p.paymentStatus = 'SUCCESS' AND p.user.id = :userId " +
+            "GROUP BY QUARTER(p.paymentTime) ORDER BY QUARTER(p.paymentTime)")
+    List<Object[]> findQuarterlyRevenueByCustomer(@Param("year") int year, @Param("userId") Long userId);
+
+    @Query("SELECT YEAR(p.paymentTime) AS year, SUM(p.amount) AS totalRevenue " +
+            "FROM Payment p WHERE p.paymentStatus = 'SUCCESS' AND p.user.id = :userId " +
+            "GROUP BY YEAR(p.paymentTime) ORDER BY YEAR(p.paymentTime)")
+    List<Object[]> findYearlyRevenueByCustomer(@Param("userId") Long userId);
 }

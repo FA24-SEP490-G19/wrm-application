@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface LotRepository extends JpaRepository<Lot, Long> {
 
+    @Query("SELECT l FROM Lot l WHERE l.id = :lotId AND l.isDeleted = false")
     Optional<Lot> findLotById(Long lotId);
 
 

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -96,11 +97,10 @@ public class ContractService implements IContractService {
         if (contractDTO.getExpiryDate() == null) {
             throw new IllegalArgumentException("Ngày hết hạn hợp đồng không được để trống");
         }
-        long daysBetween = ChronoUnit.DAYS.between(
-                contractDTO.getSignedDate().toLocalDate(),
-                contractDTO.getExpiryDate().toLocalDate()
-        );
-        if (daysBetween < 7) {
+        LocalDate signedDate = contractDTO.getSignedDate().toLocalDate();
+        LocalDate expiryDate = contractDTO.getExpiryDate().toLocalDate();
+
+        if (!expiryDate.isAfter(signedDate.plusDays(7))) {
             throw new IllegalArgumentException("Thời gian thuê phải tối thiểu 1 tuần");
         }
 

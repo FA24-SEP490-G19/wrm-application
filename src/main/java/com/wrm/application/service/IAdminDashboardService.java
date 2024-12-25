@@ -23,4 +23,10 @@ public interface IAdminDashboardService {
     int countExpiringRentals();
 
     int countUnassignedAppointments();
+
+    List<RevenueStatsDTO> getMonthlyRevenueByCustomer(int year, Long userId);
+
+    List<RevenueStatsDTO> getQuarterlyRevenueByCustomer(int year, Long userId);
+
+    List<RevenueStatsDTO> getYearlyRevenueByCustomer(Long userId);
 }
