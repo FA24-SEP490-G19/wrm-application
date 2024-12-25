@@ -11,11 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ContractImageDTO {
     private Long id;
-
-    @JsonProperty("contract_img_link")
-    private List<String> contractImageLinks;
-
-    @JsonProperty("contract_id")
+    private String contractImgLink;
     private Long contractId;
-
 }

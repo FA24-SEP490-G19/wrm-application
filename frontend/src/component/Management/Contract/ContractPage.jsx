@@ -10,6 +10,7 @@ import {
 } from '../../../service/Contract.js';
 import axios from "axios";
 import {useAuth} from "../../../context/AuthContext.jsx";
+import ImageViewer from "./ImageViewer.jsx";
 
 const ContractList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -21,11 +22,19 @@ const ContractList = () => {
     const [modalMode, setModalMode] = useState('create');
     const [selectedContract, setSelectedContract] = useState(null);
     const { customer } = useAuth();
-
+    const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+    const [selectedImages, setSelectedImages] = useState([]);
     useEffect(() => {
         fetchContracts();
     }, []);
-
+    const handleViewImages = (contract) => {
+        if (contract.contractImageLinks && contract.contractImageLinks.length > 0) {
+            setSelectedImages(contract.contractImageLinks);
+            setIsImageViewerOpen(true);
+        } else {
+            showToast('Không có hình ảnh cho hợp đồng này', 'info');
+        }
+    };
     const getAuthConfig = () => ({
         headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -214,6 +223,27 @@ const ContractList = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                                     {formatDateTime(contract.expiryDate)}
                                 </td>
+                                <td className="px-6 py-4 text-right">
+                                    <div className="flex justify-end space-x-2">
+                                        <button
+                                            onClick={() => handleViewImages(contract)}
+                                            className="p-1 text-gray-600 hover:text-gray-800"
+                                            title="Xem hình ảnh"
+                                        >
+                                            <Eye className="w-5 h-5"/>
+                                        </button>
+
+                                        {customer.role === "ROLE_SALES" || customer.role === "ROLE_ADMIN" ? (
+                                            <button
+                                                onClick={() => handleEditContract(contract)}
+                                                className="p-1 text-blue-600 hover:text-blue-800"
+                                                title="Sửa hợp đồng"
+                                            >
+                                                <Edit2 className="w-5 h-5"/>
+                                            </button>
+                                        ) : ""}
+                                    </div>
+                                </td>
 
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end space-x-2">
@@ -221,14 +251,21 @@ const ContractList = () => {
                                         {customer.role === "ROLE_SALES" || customer.role === "ROLE_ADMIN" ? (
 
                                             <button
-                                            onClick={() => handleEditContract(contract)}
-                                            className="p-1 text-blue-600 hover:text-blue-800"
-                                            title="Sửa hợp đồng"
-                                        >
-                                            <Edit2 className="w-5 h-5"/>
-                                        </button>
-                                            ) : ""}
+                                                onClick={() => handleEditContract(contract)}
+                                                className="p-1 text-blue-600 hover:text-blue-800"
+                                                title="Sửa hợp đồng"
+                                            >
+                                                <Edit2 className="w-5 h-5"/>
+                                            </button>
+                                        ) : ""}
 
+
+                                        {/* Image Viewer */}
+                                        <ImageViewer
+                                            images={selectedImages}
+                                            isOpen={isImageViewerOpen}
+                                            onClose={() => setIsImageViewerOpen(false)}
+                                        />
                                     </div>
                                 </td>
                             </tr>

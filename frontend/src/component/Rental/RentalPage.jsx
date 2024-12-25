@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
     Search, Plus, Loader2, Edit2, Trash2,Eye
 } from 'lucide-react';
@@ -19,6 +19,8 @@ import {
 import CRMLayout from "../Management/Crm.jsx";
 import ContractModal from "../Management/Contract/ContractModal.jsx";
 import {createContract, updateContract} from "../../service/Contract.js";
+import ImageViewer from "../Management/Contract/ImageViewer.jsx";
+import axios from "axios";
 
 const RentalList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,10 +39,46 @@ const RentalList = () => {
     const { customer } = useAuth();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
+    const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+    const [selectedImages, setSelectedImages] = useState([]);
+    const [selectedContractId, setSelectedContractId] = useState(null);  // Add this line
 
     // Calculate pagination values
     const lastItemIndex = currentPage * itemsPerPage;
     const firstItemIndex = lastItemIndex - itemsPerPage;
+    const [contractImages, setContractImages] = useState({});
+    const getAuthConfig = () => ({
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+    });
+    const fetchContractImages = async (contractId) => {
+        try {
+            // First get the image IDs
+            const response = await axios.get(
+                `http://localhost:8080/contracts/${contractId}/images`,
+                getAuthConfig()
+            );
+            const imageIds = response.data;
+
+            // Keep track of image URLs with their auth config
+            const imageUrls = imageIds.map(imageId => ({
+                url: `http://localhost:8080/contracts/images/${imageId}`,
+                config: getAuthConfig()
+            }));
+
+            setContractImages(prev => ({
+                ...prev,
+                [contractId]: imageUrls
+            }));
+
+            return imageUrls;
+        } catch (error) {
+            console.error('Error fetching contract images:', error);
+            return [];
+        }
+    };
+
 
     useEffect(() => {
         fetchRentals();
@@ -51,6 +89,44 @@ const RentalList = () => {
             fetchRelatedData();
         }
     }, [rentals]);
+    const handleViewContractImages = async (rental) => {
+        if (!rental.contract_id) {
+            showToast('Không có hợp đồng cho đơn thuê này', 'info');
+            return;
+        }
+
+        try {
+            let images;
+            if (contractImages[rental.contract_id]) {
+                images = contractImages[rental.contract_id];
+            } else {
+                images = await fetchContractImages(rental.contract_id);
+            }
+
+            if (images && images.length > 0) {
+                setSelectedImages(images);
+                setSelectedContractId(rental.contract_id); // Add this state
+                setIsImageViewerOpen(true);
+            } else {
+                showToast('Không có hình ảnh cho hợp đồng này', 'info');
+            }
+        } catch (error) {
+            showToast('Không thể tải hình ảnh hợp đồng', 'error');
+        }
+    };
+    // Add this function to refresh images after updates
+    const handleImagesUpdate = useCallback(async () => {
+        if (selectedContractId) {
+            const updatedImages = await fetchContractImages(selectedContractId);
+            setSelectedImages(updatedImages);
+
+            // Update the cached images
+            setContractImages(prev => ({
+                ...prev,
+                [selectedContractId]: updatedImages
+            }));
+        }
+    }, [selectedContractId]);
     const getPageNumbers = () => {
         const pages = [];
         const maxVisiblePages = 5; // Maximum number of visible page buttons
@@ -408,8 +484,16 @@ const RentalList = () => {
                                         {rental.start_date}
                                     </td>
 
+
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end space-x-2">
+                                            <button
+                                                onClick={() => handleViewContractImages(rental)}
+                                                className="p-1 text-gray-600 hover:text-gray-800"
+                                                title="Xem hình ảnh"
+                                            >
+                                                <Eye className="w-5 h-5"/>
+                                            </button>
 
                                             {customer.role === "ROLE_ADMIN" && rental.status === 'PENDING' && (
                                                 <>
@@ -427,14 +511,25 @@ const RentalList = () => {
                                                     </button>
                                                 </>
                                             )}
-                                            {customer.role === "ROLE_ADMIN" ? (
+                                            {customer.role === "ROLE_ADMIN" && (
                                                 <button
                                                     onClick={() => handleDeleteRental(rental.id)}
                                                     className="text-red-600 hover:text-red-900"
                                                 >
                                                     <Trash2 className="w-5 h-5"/>
                                                 </button>
-                                            ) : ""}
+                                            )}
+
+                                            <ImageViewer
+                                                images={selectedImages}
+                                                isOpen={isImageViewerOpen}
+                                                onClose={() => {
+                                                    setIsImageViewerOpen(false);
+                                                    setSelectedContractId(null);  // Reset the selected contract ID
+                                                }}
+                                                contractId={selectedContractId}
+                                                onImagesUpdate={handleImagesUpdate}
+                                            />
                                         </div>
                                     </td>
                                 </tr>
