@@ -45,12 +45,11 @@ public class PayOSPaymentService {
         return paymentRepository.findAll();
     }
 
-    public List<Payment> getAllPaymentsByUser(String email)  {
+    public List<Payment> getAllPaymentsByUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
-        User user =  userRepository.findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return null ;
-
-
+        return paymentRepository.findByUserId(user.getId());
     }
 
     public Payment updatePayment(Long id, Payment paymentDetails) {

@@ -265,7 +265,7 @@ export const Payment = () => {
                                     {payment?.status}
                                 </td>
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                    2024-12-19
+                                    2024-12-25
 
                                 </td>
                                 <td className="px-6 py-4">{payment.user.fullName}</td>
