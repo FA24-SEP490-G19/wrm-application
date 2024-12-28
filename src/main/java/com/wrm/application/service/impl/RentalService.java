@@ -109,7 +109,7 @@ public class RentalService implements IRentalService {
         if (!lot.getWarehouse().getId().equals(rentalDTO.getWarehouseId())) {
             throw new DataIntegrityViolationException("Lô không thuộc về kho hàng đã chỉ định");
         }
-        if(rentalRepository.existsByLotId(rentalDTO.getLotId())){
+        if (rentalRepository.existsByLotId(rentalDTO.getLotId())) {
             throw new DataIntegrityViolationException("Lô đã được thuê");
         }
 
@@ -134,7 +134,7 @@ public class RentalService implements IRentalService {
                 .startDate(contract.getSignedDate())
                 .endDate(contract.getExpiryDate())
                 .additionalService(additionalService)
-                .status(RentalStatus.PENDING)
+                .status(RentalStatus.ACTIVE)
                 .build();
 
         rentalRepository.save(newRental);
@@ -172,18 +172,7 @@ public class RentalService implements IRentalService {
         rental.setStatus(rentalDTO.getStatus());
 
         rentalRepository.save(rental);
-
-        if (rentalDTO.getStatus() == RentalStatus.ACTIVE) {
-            Lot lot = rental.getLot();
-            lot.setStatus(LotStatus.RESERVED);
-            lotRepository.save(lot);
-
-            Warehouse warehouse = rental.getWarehouse();
-            User manager = warehouse.getWarehouseManager();
-            String managerEmail = manager.getEmail();
-            mailService.sendRentalStatusUpdateNotification(managerEmail, rental);
-        }
-        if (rentalDTO.getStatus() == RentalStatus.EXPIRED || rentalDTO.getStatus() == RentalStatus.TERMINATED) {
+        if (rentalDTO.getStatus() == RentalStatus.TERMINATED) {
             Lot lot = rental.getLot();
             lot.setStatus(LotStatus.AVAILABLE);
             lotRepository.save(lot);
@@ -314,6 +303,10 @@ public class RentalService implements IRentalService {
         rentalRepository.findExpiredRentals(LocalDateTime.now()).forEach(rental -> {
             rental.setStatus(RentalStatus.EXPIRED);
             rentalRepository.save(rental);
+
+            Lot lot = rental.getLot();
+            lot.setStatus(LotStatus.AVAILABLE);
+            lotRepository.save(lot);
         });
     }
 
@@ -390,12 +383,12 @@ public class RentalService implements IRentalService {
 
         if (rental.getRentalType() == RentalType.FLEXIBLE) {
             // Quá hạn nếu hôm nay > endDate
-            return today.isAfter(endDate);
+            return today.isAfter(endDate.plusDays(3));
         } else if (rental.getRentalType() == RentalType.MONTHLY) {
             // Quá hạn nếu hôm nay > deadline thanh toán + 7 ngày
             long monthsElapsed = ChronoUnit.MONTHS.between(startDate.withDayOfMonth(1), today.withDayOfMonth(1));
             if (monthsElapsed >= 0) {
-                LocalDate monthlyPaymentDeadline = startDate.plusMonths(monthsElapsed).plusDays(7);
+                LocalDate monthlyPaymentDeadline = startDate.plusMonths(monthsElapsed).plusDays(5);
                 return today.isAfter(monthlyPaymentDeadline);
             }
         }

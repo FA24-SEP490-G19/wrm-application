@@ -6,6 +6,7 @@ import com.wrm.application.service.IAdminDashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,20 +60,44 @@ public class AdminDashboardController {
     }
 
     @GetMapping("/count/pending-requests")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Integer> countPendingRequests() {
         int count = adminDashboardService.countPendingRequests();
         return ResponseEntity.ok(count);
     }
 
     @GetMapping("/count/expiring-rentals")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Integer> countExpiringRentals() {
         int count = adminDashboardService.countExpiringRentals();
         return ResponseEntity.ok(count);
     }
 
     @GetMapping("/count/unassigned-appointments")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Integer> countUnassignedAppointments() {
         int count = adminDashboardService.countUnassignedAppointments();
         return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/revenue/monthly/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RevenueStatsDTO>> getMonthlyRevenueByCustomer(@RequestParam int year, @PathVariable Long id) {
+        List<RevenueStatsDTO> stats = adminDashboardService.getMonthlyRevenueByCustomer(year, id);
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/revenue/quarterly/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RevenueStatsDTO>> getQuarterlyRevenueByCustomer(@RequestParam int year, @PathVariable Long id) {
+        List<RevenueStatsDTO> stats = adminDashboardService.getQuarterlyRevenueByCustomer(year, id);
+        return ResponseEntity.ok(stats);
+    }
+
+    @GetMapping("/revenue/yearly/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RevenueStatsDTO>> getYearlyRevenue(@PathVariable Long id) {
+        List<RevenueStatsDTO> stats = adminDashboardService.getYearlyRevenueByCustomer(id);
+        return ResponseEntity.ok(stats);
     }
 }

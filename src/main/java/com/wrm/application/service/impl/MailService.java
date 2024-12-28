@@ -4,6 +4,7 @@ import com.wrm.application.constant.enums.RentalType;
 import com.wrm.application.model.Appointment;
 import com.wrm.application.model.Rental;
 import com.wrm.application.model.Request;
+import com.wrm.application.model.User;
 import com.wrm.application.repository.RentalRepository;
 import com.wrm.application.service.IMailService;
 import jakarta.mail.MessagingException;
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -87,6 +89,10 @@ public class MailService implements IMailService {
     @Async
     @Override
     public void sendAppointmentConfirmationEmail(String to, Appointment appointment) throws MessagingException {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy 'lúc' HH:mm");
+        String formattedDate = appointment.getAppointmentDate().format(formatter);
+
         String subject = "Xác nhận lịch hẹn";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: #4a90e2;'>Xác nhận lịch hẹn</h2>"
@@ -97,7 +103,8 @@ public class MailService implements IMailService {
                 + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã lịch hẹn:</strong></td><td>" + appointment.getId() + "</td></tr>"
                 + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Khách hàng:</strong></td><td>" + appointment.getCustomer().getFullName() + "</td></tr>"
                 + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Kho hàng:</strong></td><td>" + appointment.getWarehouse().getName() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Ngày hẹn:</strong></td><td>" + appointment.getAppointmentDate() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Địa điểm:</strong></td><td>" + appointment.getWarehouse().getAddress() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Ngày hẹn:</strong></td><td>" + formattedDate + "</td></tr>"
                 + "<tr><td style='padding: 8px;'><strong>Trạng thái:</strong></td><td>" + appointment.getStatus() + "</td></tr>"
                 + "</table>"
                 + "</div>"
@@ -177,28 +184,6 @@ public class MailService implements IMailService {
                 + "</table>"
                 + "</div>"
                 + "<p>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
-                + "</div>";
-        sendEmail(to, subject, htmlContent);
-    }
-
-    @Async
-    @Override
-    public void sendRentalStatusUpdateNotification(String to, Rental rental) throws MessagingException {
-        String subject = "Cập nhật trạng thái hợp đồng thuê";
-        String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
-                + "<h2 style='color: #4a90e2;'>Thông báo trạng thái thuê</h2>"
-                + "<p>Xin chào Quản lý,</p>"
-                + "<p>Một yêu cầu thuê đã được tạo cho một lô hàng trong kho của bạn. Vui lòng truy cập trang quản lý thuê để kiểm tra và phê duyệt yêu cầu. Dưới đây là thông tin chi tiết:</p>"
-                + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
-                + "<table style='width: 100%; font-size: 16px; color: #333;'>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã hợp đồng thuê:</strong></td><td>" + rental.getId() + "</td></tr>"
-                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Khách hàng:</strong></td><td>" + rental.getCustomer().getFullName() + "</td></tr>"
-                + "<tr><td style='padding: 8px;'><strong>Trạng thái:</strong></td><td style='color: #4a90e2; font-weight: bold;'>" + rental.getStatus() + "</td></tr>"
-                + "</table>"
-                + "</div>"
-                + "<p style='color: #888; font-size: 12px;'>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ với đội ngũ quản trị.</p>"
-                + "<hr style='border: none; border-top: 1px solid #eee;'/>"
-                + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
                 + "</div>";
         sendEmail(to, subject, htmlContent);
     }
@@ -309,6 +294,26 @@ public class MailService implements IMailService {
                 + "<p>Hợp đồng thuê của bạn cho lô hàng <strong>#" + rental.getLot().getId() + "</strong> đã quá hạn thanh toán.</p>"
                 + "<p>Vui lòng thanh toán sớm nhất để tránh các rủi ro hoặc chi phí phát sinh.</p>"
                 + "<p>Trân trọng,<br/>Đội ngũ Warehouse Hub</p>"
+                + "</div>";
+
+        sendEmail(email, subject, htmlContent);
+    }
+
+    @Async
+    @Override
+    public void sendAccountCreationEmail(User user, String password) throws MessagingException {
+        String email = user.getEmail();
+        String subject = "Thông báo tài khoản mới";
+        String htmlContent = "<div style='font-family: Arial, sans-serif;'>"
+                + "<h2>Xin chào " + user.getFullName() + ",</h2>"
+                + "<p>Bạn đã được tạo một tài khoản trên hệ thống Warehouse Hub bởi quản trị viên.</p>"
+                + "<p>Thông tin tài khoản của bạn như sau:</p>"
+                + "<ul>"
+                + "<li><strong>Email:</strong> " + user.getEmail() + "</li>"
+                + "<li><strong>Mật khẩu:</strong> " + password + "</li>"
+                + "</ul>"
+                + "<p>Vui lòng đăng nhập và đổi mật khẩu sau khi đăng nhập lần đầu.</p>"
+                + "<p>Trân trọng,<br/>Đội ngũ hỗ trợ Warehouse Hub</p>"
                 + "</div>";
 
         sendEmail(email, subject, htmlContent);

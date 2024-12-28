@@ -91,4 +91,28 @@ public class AdminDashboardService implements IAdminDashboardService {
     public int countUnassignedAppointments() {
         return appointmentRepository.countUnassignedAppointments();
     }
+
+    @Override
+    public List<RevenueStatsDTO> getMonthlyRevenueByCustomer(int year, Long userId) {
+        List<Object[]> results = paymentRepository.findMonthlyRevenueByCustomer(year, userId);
+        return results.stream()
+                .map(row -> new RevenueStatsDTO((Integer) row[0], year, (Double) row[1]))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RevenueStatsDTO> getQuarterlyRevenueByCustomer(int year, Long userId) {
+        List<Object[]> results = paymentRepository.findQuarterlyRevenueByCustomer(year, userId);
+        return results.stream()
+                .map(row -> new RevenueStatsDTO((Integer) row[0], year, (Double) row[1]))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RevenueStatsDTO> getYearlyRevenueByCustomer(Long userId) {
+        List<Object[]> results = paymentRepository.findYearlyRevenueByCustomer(userId);
+        return results.stream()
+                .map(row -> new RevenueStatsDTO(null, (Integer) row[0], (Double) row[1]))
+                .collect(Collectors.toList());
+    }
 }
