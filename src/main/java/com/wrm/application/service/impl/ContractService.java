@@ -41,7 +41,7 @@ public class ContractService implements IContractService {
                             .id(contract.getId())
                             .signedDate(contract.getSignedDate())
                             .expiryDate(contract.getExpiryDate());
-                    return responseBuilder.build() ;
+                    return responseBuilder.build();
                 })
                 .collect(Collectors.toList());
     }
@@ -199,7 +199,7 @@ public class ContractService implements IContractService {
     public void deleteContract(Long contractId) throws Exception {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy hợp đồng với ID: " + contractId));
-       
+
         List<ContractImage> contractImages = contractImageRepository.findAllByContractId(contractId);
         for (ContractImage img : contractImages) {
             deleteImageFile(img.getContractImgLink());

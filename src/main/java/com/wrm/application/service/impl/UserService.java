@@ -121,6 +121,9 @@ public class UserService implements IUserService {
             throw new DataNotFoundException("Không tìm thấy người dùng");
         }
         User existingUser = user.get();
+        if (existingUser.getStatus() != UserStatus.ACTIVE) {
+            throw new PermissionDenyException("Tài khoản của bạn chưa được kích hoạt hoặc đã bị khóa.");
+        }
         if (!passwordEncoder.matches(password, existingUser.getPassword())) {
             throw new BadCredentialsException("Email hoặc mật khẩu không đúng");
         }
@@ -281,6 +284,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy role"));
         newUser.setRole(role);
 
+        mailService.sendAccountCreationEmail(newUser);
         return userRepository.save(newUser);
     }
 

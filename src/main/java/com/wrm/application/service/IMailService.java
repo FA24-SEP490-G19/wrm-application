@@ -3,6 +3,7 @@ package com.wrm.application.service;
 import com.wrm.application.model.Appointment;
 import com.wrm.application.model.Rental;
 import com.wrm.application.model.Request;
+import com.wrm.application.model.User;
 import jakarta.mail.MessagingException;
 import org.springframework.scheduling.annotation.Async;
 
@@ -27,9 +28,6 @@ public interface IMailService {
     void sendRentalCreationNotification(String to, Rental rental) throws MessagingException;
 
     @Async
-    void sendRentalStatusUpdateNotification(String to, Rental rental) throws MessagingException;
-
-    @Async
     void sendRequestCreationNotification(String to, Request request) throws MessagingException;
 
     @Async
@@ -43,4 +41,7 @@ public interface IMailService {
 
     @Async
     void sendOverdueNotification(Rental rental) throws MessagingException;
+
+    @Async
+    void sendAccountCreationEmail(User user) throws MessagingException;
 }

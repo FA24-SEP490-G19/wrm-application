@@ -45,7 +45,7 @@ public class LotService implements ILotService {
     public LotResponse getLotById(Long id) throws Exception {
         Lot lot = lotRepository.findLotById(id)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô hàng với ID: " + id));
-        if (lot.isDeleted()){
+        if (lot.isDeleted()) {
             throw new DataNotFoundException("Không tìm thấy lô hàng");
         }
         return LotResponse.builder()

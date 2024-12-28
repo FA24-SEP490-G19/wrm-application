@@ -141,6 +141,11 @@ public class AppointmentService implements IAppointmentService {
 
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy cuộc hẹn"));
+
+        if (appointmentDTO.getStatus() == AppointmentStatus.PENDING && appointment.getStatus() == AppointmentStatus.ACCEPTED) {
+            throw new IllegalArgumentException("Không thể chuyển trạng thái cuộc hẹn từ đã chấp nhận sang chờ xác nhận");
+        }
+
         appointment.setAppointmentDate(appointmentDTO.getAppointmentDate());
         appointment.setStatus(appointmentDTO.getStatus());
 
@@ -294,7 +299,8 @@ public class AppointmentService implements IAppointmentService {
     public Page<AppointmentResponse> getUpcomingAppointmentsForSales(PageRequest pageRequest, String remoteUser) throws Exception {
         User sales = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
-        LocalDateTime today = LocalDate.now().atStartOfDay();;
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        ;
         LocalDateTime tenDaysLater = today.plusDays(10);
         return appointmentRepository.findUpcomingAppointmentsForSales(sales.getId(), today, tenDaysLater, pageRequest).map(appointment -> {
             return AppointmentResponse.builder()
@@ -316,7 +322,8 @@ public class AppointmentService implements IAppointmentService {
         Warehouse warehouse = warehouseRepository.findByManagerId(manager.getId())
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
 
-        LocalDateTime today = LocalDate.now().atStartOfDay();;
+        LocalDateTime today = LocalDate.now().atStartOfDay();
+        ;
         LocalDateTime tenDaysLater = today.plusDays(10);
         return appointmentRepository.findUpcomingAppointmentsForSales(warehouse.getId(), today, tenDaysLater, pageRequest).map(appointment -> {
             return AppointmentResponse.builder()
