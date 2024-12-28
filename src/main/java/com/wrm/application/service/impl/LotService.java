@@ -41,22 +41,22 @@ public class LotService implements ILotService {
                 .build());
     }
 
-    @Override
-    public LotResponse getLotById(Long id) throws Exception {
-        Lot lot = lotRepository.findLotById(id)
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô hàng với ID: " + id));
-        if (lot.isDeleted()) {
-            throw new DataNotFoundException("Không tìm thấy lô hàng");
-        }
-        return LotResponse.builder()
-                .id(lot.getId())
-                .description(lot.getDescription())
-                .size(lot.getSize())
-                .status(lot.getStatus())
-                .warehouseId(lot.getWarehouse().getId())
-                .price(lot.getPrice())
-                .build();
-    }
+//    @Override
+//    public LotResponse getLotById(Long id) throws Exception {
+//        Lot lot = lotRepository.findLotById(id)
+//                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô hàng với ID: " + id));
+//        if (lot.isDeleted()) {
+//            throw new DataNotFoundException("Không tìm thấy lô hàng");
+//        }
+//        return LotResponse.builder()
+//                .id(lot.getId())
+//                .description(lot.getDescription())
+//                .size(lot.getSize())
+//                .status(lot.getStatus())
+//                .warehouseId(lot.getWarehouse().getId())
+//                .price(lot.getPrice())
+//                .build();
+//    }
 
     @Override
     public LotResponse updateLot(Long lotId, LotDTO lotDTO) throws Exception {

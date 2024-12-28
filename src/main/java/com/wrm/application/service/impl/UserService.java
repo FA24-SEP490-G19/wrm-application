@@ -284,7 +284,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy role"));
         newUser.setRole(role);
 
-        mailService.sendAccountCreationEmail(newUser);
+        mailService.sendAccountCreationEmail(newUser, userDTO.getPassword());
         return userRepository.save(newUser);
     }
 

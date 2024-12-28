@@ -301,7 +301,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendAccountCreationEmail(User user) throws MessagingException {
+    public void sendAccountCreationEmail(User user, String password) throws MessagingException {
         String email = user.getEmail();
         String subject = "Thông báo tài khoản mới";
         String htmlContent = "<div style='font-family: Arial, sans-serif;'>"
@@ -310,7 +310,7 @@ public class MailService implements IMailService {
                 + "<p>Thông tin tài khoản của bạn như sau:</p>"
                 + "<ul>"
                 + "<li><strong>Email:</strong> " + user.getEmail() + "</li>"
-                + "<li><strong>Mật khẩu:</strong> " + user.getPassword() + "</li>"
+                + "<li><strong>Mật khẩu:</strong> " + password + "</li>"
                 + "</ul>"
                 + "<p>Vui lòng đăng nhập và đổi mật khẩu sau khi đăng nhập lần đầu.</p>"
                 + "<p>Trân trọng,<br/>Đội ngũ hỗ trợ Warehouse Hub</p>"

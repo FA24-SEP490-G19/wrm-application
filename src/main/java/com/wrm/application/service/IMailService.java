@@ -43,5 +43,5 @@ public interface IMailService {
     void sendOverdueNotification(Rental rental) throws MessagingException;
 
     @Async
-    void sendAccountCreationEmail(User user) throws MessagingException;
+    void sendAccountCreationEmail(User user, String password) throws MessagingException;
 }
