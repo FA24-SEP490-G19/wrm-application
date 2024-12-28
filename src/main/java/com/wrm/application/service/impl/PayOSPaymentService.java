@@ -1,17 +1,14 @@
 package com.wrm.application.service.impl;
 
-import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.model.Payment;
 import com.wrm.application.model.QrRequest;
 import com.wrm.application.model.User;
 import com.wrm.application.repository.PaymentRepository;
 import com.wrm.application.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import vn.payos.PayOS;
-import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.PaymentData;
 
 import java.util.List;
@@ -27,7 +24,7 @@ public class PayOSPaymentService {
     }
 
     public void createPaymentRequest(QrRequest qrRequest) throws Exception {
-        PayOS payOS = new PayOS("f6ae0e42-d744-4e40-a33b-d95056a4dad4","984264ca-be6d-46b6-af3b-672d4f2c05b3","fc8bf4998b3096978f0b62350460d1809e46f46cf0a027cd8505a3d246ee66bd") ;
+        PayOS payOS = new PayOS("a6b09b90-c859-4703-89ae-cb1e974e7726","08d931fa-c25f-4237-b48e-78f3207890ea","04703adf1b81501b742e06b8a8897a838d23012f1a6aacb0d44d97dd2319a3f3") ;
 
         PaymentData paymentData = PaymentData.builder()
                 .orderCode(qrRequest.getOrderCode())
@@ -48,12 +45,11 @@ public class PayOSPaymentService {
         return paymentRepository.findAll();
     }
 
-    public List<Payment> getAllPaymentsByUser(String email)  {
+    public List<Payment> getAllPaymentsByUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
-        User user =  userRepository.findByEmail(email).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return null ;
-
-
+        return paymentRepository.findByUserId(user.getId());
     }
 
     public Payment updatePayment(Long id, Payment paymentDetails) {

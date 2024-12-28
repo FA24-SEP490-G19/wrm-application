@@ -1,6 +1,7 @@
 package com.wrm.application.controller;
 
 import com.wrm.application.dto.WarehouseDTO;
+import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseListResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,7 +55,6 @@ public class WarehouseController {
                 .totalPages(totalPages)
                 .build());
     }
-
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {
@@ -69,6 +70,58 @@ public class WarehouseController {
             return ResponseEntity.notFound().build();
         } catch (MalformedURLException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{warehouseId}/images")
+    public ResponseEntity<List<String>> getWarehouseImages(@PathVariable Long warehouseId) {
+        try {
+            List<String> imageIds = warehouseService.getWarehouseImageIds(warehouseId);
+            return ResponseEntity.ok(imageIds);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/{warehouseId}/images")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> addWarehouseImages(
+            @PathVariable Long warehouseId,
+            @RequestBody List<String> base64Images) {
+        try {
+            List<String> addedImageIds = warehouseService.addWarehouseImages(warehouseId, base64Images);
+            return ResponseEntity.ok(addedImageIds);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to add images: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{warehouseId}/images/{imageId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> deleteWarehouseImage(
+            @PathVariable Long warehouseId,
+            @PathVariable String imageId) {
+        try {
+            warehouseService.deleteWarehouseImage(warehouseId, imageId);
+            return ResponseEntity.ok("Image deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete image: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/{warehouseId}/images")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateWarehouseImages(
+            @PathVariable Long warehouseId,
+            @RequestBody List<String> base64Images) {
+        try {
+            List<String> updatedImageIds = warehouseService.updateWarehouseImages(warehouseId, base64Images);
+            return ResponseEntity.ok(updatedImageIds);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update images: " + e.getMessage());
         }
     }
 
@@ -99,7 +152,6 @@ public class WarehouseController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateWarehouse(@PathVariable Long id, @Valid @RequestBody WarehouseDTO warehouseDTO, BindingResult result) {
         try {
-
             WarehouseResponse warehouse = warehouseService.updateWarehouse(id, warehouseDTO);
             return ResponseEntity.ok(warehouse);
         } catch (Exception e) {

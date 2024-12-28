@@ -16,7 +16,7 @@ public interface ILotService {
 
     Page<LotResponse> getAllLots(PageRequest pageRequest);
 
-    LotResponse getLotById(Long id) throws Exception;
+//    LotResponse getLotByWarehouseID(Long id) throws Exception;
 
     LotResponse updateLot(Long lotId, LotDTO lotDTO) throws Exception;
 
@@ -25,4 +25,5 @@ public interface ILotService {
     LotResponse updateLotStatus(Long lotId,LotDTO lotDTO, String remoteUser) throws Exception;
 
     List<LotResponse> getAvailableLotsByWarehouseId(Long warehouseId);
+
 }

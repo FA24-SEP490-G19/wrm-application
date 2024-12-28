@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Star } from 'lucide-react';
+import {useAuth} from "../context/AuthContext.jsx";
 
 const FeedbackForm = ({ warehouseId, onSubmit }) => {
     const [rating, setRating] = useState(0);
     const [hoveredRating, setHoveredRating] = useState(0);
     const [comment, setComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { customer } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -40,6 +42,9 @@ const FeedbackForm = ({ warehouseId, onSubmit }) => {
     };
 
     return (
+
+        <>
+            {customer.role !== "ROLE_ADMIN" ? (
         <div className="w-full mt-6 bg-white rounded-lg shadow-lg">
             <div className="p-6 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900">Đánh giá kho</h2>
@@ -94,7 +99,11 @@ const FeedbackForm = ({ warehouseId, onSubmit }) => {
                     </button>
                 </form>
             </div>
+
         </div>
+                ) : ""}
+        </>
+
     );
 };
 

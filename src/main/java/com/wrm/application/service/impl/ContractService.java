@@ -1,5 +1,6 @@
 package com.wrm.application.service.impl;
 
+import com.wrm.application.dto.ContractImageDTO;
 import com.wrm.application.dto.contract.ContractDTO;
 import com.wrm.application.dto.contract.ContractUpdateDTO;
 import com.wrm.application.exception.DataNotFoundException;
@@ -12,7 +13,9 @@ import com.wrm.application.response.contract.UpdateContractResponse;
 import com.wrm.application.service.IContractService;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +34,8 @@ public class ContractService implements IContractService {
     private final RentalRepository rentalRepository;
     private final ContractImageRepository contractImageRepository;
     private final UserRepository userRepository;
+    @Value("${contract.images.path}")
+    private String imagePath;
 
     public List<ContractDetailResponse> getAvailableContracts() {
         List<Contract> contracts = contractRepository.findAvailableContracts();
@@ -44,6 +49,90 @@ public class ContractService implements IContractService {
                     return responseBuilder.build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public byte[] getContractImage(String imageId) throws DataNotFoundException {
+        try {
+            Path filePath = Paths.get(imagePath, imageId);
+            if (!Files.exists(filePath)) {
+                throw new DataNotFoundException("Image not found: " + imageId);
+            }
+            return Files.readAllBytes(filePath);
+        } catch (IOException e) {
+            throw new DataNotFoundException("Error reading image: " + imageId);
+        }
+    }
+
+    @Override
+    public List<String> getContractImageIds(Long contractId) throws DataNotFoundException {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+
+        return contractImageRepository.findAllByContractId(contractId)
+                .stream()
+                .map(ContractImage::getContractImgLink)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteContractImage(Long contractId, String imageId) throws DataNotFoundException, IOException {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+
+        ContractImage contractImage = contractImageRepository.findByContractImgLink(imageId)
+                .orElseThrow(() -> new DataNotFoundException("Image not found: " + imageId));
+
+        if (!contractImage.getContract().getId().equals(contractId)) {
+            throw new IllegalArgumentException("Image does not belong to this contract");
+        }
+
+        // Delete physical file
+        Path filePath = Paths.get(imagePath, imageId);
+        Files.deleteIfExists(filePath);
+
+        // Delete database record
+        contractImageRepository.delete(contractImage);
+    }
+    @Override
+    public List<String> addContractImages(Long contractId, List<String> base64Images) throws DataNotFoundException, IOException {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+
+        List<ContractImage> newImages = new ArrayList<>();
+        List<String> imageIds = new ArrayList<>();
+
+        for (String base64Image : base64Images) {
+            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+            String fileName = saveImageContractToFileSystem(imageBytes);
+            imageIds.add(fileName);
+
+            ContractImage contractImage = ContractImage.builder()
+                    .contract(contract)
+                    .contractImgLink(fileName)
+                    .build();
+            newImages.add(contractImage);
+        }
+
+        contractImageRepository.saveAll(newImages);
+        return imageIds;
+    }
+
+    @Override
+    @Transactional
+    public List<String> updateContractImages(Long contractId, List<String> base64Images) throws DataNotFoundException, IOException {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new DataNotFoundException("Contract not found with ID: " + contractId));
+
+        // Delete existing images
+        List<ContractImage> existingImages = contractImageRepository.findAllByContractId(contractId);
+        for (ContractImage img : existingImages) {
+            deleteImageFile(img.getContractImgLink());
+        }
+        contractImageRepository.deleteAllByContractId(contractId);
+
+        // Add new images
+        return addContractImages(contractId, base64Images);
     }
 
     @Override
@@ -85,6 +174,7 @@ public class ContractService implements IContractService {
         } else if (!"USER".equals(currentUser.getRole().getRoleName())) {
             throw new PermissionDenyException("Người dùng không được phép xem thông tin chi tiết hợp đồng.");
         }
+
 
         return responseBuilder.build();
     }
@@ -146,7 +236,7 @@ public class ContractService implements IContractService {
         Path path = Paths.get("C:\\image\\" + fileName);
         Files.createDirectories(path.getParent());
         Files.write(path, imageBytes);
-        return path.toString();
+        return fileName;
     }
 
     @Override

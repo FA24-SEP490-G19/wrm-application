@@ -21,9 +21,11 @@ const RentalDetailList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { showToast } = useToast();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isRentalModalOpen, setIsRentalModalOpen] = useState(false);
+    const [isContractModalOpen, setIsContractModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedRental, setSelectedRental] = useState(null);
+    const [selectedContract, setSelectedContract] = useState(null);
     const [totalPages, setTotalPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
     const [warehousesData, setWarehousesData] = useState({});
@@ -115,13 +117,26 @@ const RentalDetailList = () => {
     const handleAddRental = () => {
         setModalMode('create');
         setSelectedRental(null);
-        setIsModalOpen(true);
+        setIsRentalModalOpen(true);
     };
 
-    const handleEditRental = (rental) => {
-        setModalMode('edit');
-        setSelectedRental(rental);
-        setIsModalOpen(true);
+    const handleAddContract = () => {
+        setModalMode('create');
+        setSelectedContract(null);
+        setIsContractModalOpen(true);
+    };
+
+    const handleViewContract = async (contractId) => {
+        try {
+            const contract = contractData[contractId];
+            if (contract) {
+                setSelectedContract(contract);
+                setModalMode('view');
+                setIsContractModalOpen(true);
+            }
+        } catch (error) {
+            showToast('Không thể tải thông tin hợp đồng', 'error');
+        }
     };
 
 

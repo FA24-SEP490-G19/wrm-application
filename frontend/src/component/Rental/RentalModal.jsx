@@ -158,11 +158,12 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
     return (
         <>
             <div
-                className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm transition-opacity z-40"
+                className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm transition-opacity"
+                style={{zIndex: 40}}
                 onClick={onClose}
             />
 
-            <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="fixed inset-0 overflow-y-auto" style={{zIndex: 41}}>
                 <div className="flex min-h-screen items-center justify-center p-4">
                     <div className="bg-white rounded-xl w-full max-w-3xl shadow-xl transform transition-all">
                         <div className="p-6">

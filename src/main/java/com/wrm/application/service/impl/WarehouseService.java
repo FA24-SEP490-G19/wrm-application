@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -188,7 +189,7 @@ public class WarehouseService implements IWarehouseService {
         Path path = Paths.get("C:\\image\\" + fileName);
         Files.createDirectories(path.getParent());
         Files.write(path, imageBytes);
-        return path.toString();
+        return fileName;
     }
 
     @Override
@@ -205,17 +206,24 @@ public class WarehouseService implements IWarehouseService {
         if (warehouseDTO.getStatus() == null) {
             throw new IllegalArgumentException("Trạng thái kho hàng không được để trống");
         }
-        String thumbnailFileName = null;
+
+        // Only process thumbnail if a new one is provided
         if (warehouseDTO.getThumbnail() != null && !warehouseDTO.getThumbnail().isEmpty()) {
-            byte[] thumbnailBytes = Base64.getDecoder().decode(warehouseDTO.getThumbnail());
-            thumbnailFileName = saveImageToFileSystem(thumbnailBytes); // Lưu ảnh và lấy đường dẫn
+            try {
+                byte[] thumbnailBytes = Base64.getDecoder().decode(warehouseDTO.getThumbnail());
+                String thumbnailFileName = saveImageToFileSystem(thumbnailBytes);
+                warehouse.setThumbnail(thumbnailFileName);
+            } catch (IllegalArgumentException e) {
+                // If not valid base64, assume it's an existing file path
+                warehouse.setThumbnail(warehouseDTO.getThumbnail());
+            }
         }
+
         warehouse.setName(warehouseDTO.getName());
         warehouse.setDescription(warehouseDTO.getDescription());
         warehouse.setStatus(warehouseDTO.getStatus());
         warehouse.setSize(warehouseDTO.getSize());
         warehouse.setAddress(warehouseDTO.getAddress());
-        warehouse.setThumbnail(thumbnailFileName);
 
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()
@@ -267,5 +275,80 @@ public class WarehouseService implements IWarehouseService {
     @Override
     public Page<WarehouseResponse> getAllWarehousesImageByWarehouseId(PageRequest pageRequest) {
         return null;
+    }
+
+    @Override
+    public List<String> getWarehouseImageIds(Long warehouseId) throws DataNotFoundException {
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+
+        return warehouseImageRepository.findAllByWarehouseId(warehouseId)
+                .stream()
+                .map(WarehouseImage::getImageUrl)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public List<String> addWarehouseImages(Long warehouseId, List<String> base64Images) throws DataNotFoundException, IOException {
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+
+        List<WarehouseImage> newImages = new ArrayList<>();
+        List<String> imageIds = new ArrayList<>();
+
+        for (String base64Image : base64Images) {
+            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+            String fileName = saveImageToFileSystem(imageBytes);
+            imageIds.add(fileName);
+
+            WarehouseImage warehouseImage = WarehouseImage.builder()
+                    .warehouse(warehouse)
+                    .imageUrl(fileName)
+                    .build();
+            newImages.add(warehouseImage);
+        }
+
+        warehouseImageRepository.saveAll(newImages);
+        return imageIds;
+    }
+
+    @Override
+    @Transactional
+    public void deleteWarehouseImage(Long warehouseId, String imageId) throws DataNotFoundException, IOException {
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+
+        WarehouseImage warehouseImage = warehouseImageRepository.findByImageUrl(imageId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy hình ảnh"));
+
+        if (!warehouseImage.getWarehouse().getId().equals(warehouseId)) {
+            throw new IllegalArgumentException("Hình ảnh không thuộc về kho hàng này");
+        }
+
+        // Delete physical file
+        Path filePath = Paths.get("C:\\image\\" + imageId);
+        Files.deleteIfExists(filePath);
+
+        // Delete database record
+        warehouseImageRepository.delete(warehouseImage);
+    }
+
+    @Override
+    @Transactional
+    public List<String> updateWarehouseImages(Long warehouseId, List<String> base64Images) throws DataNotFoundException, IOException {
+        Warehouse warehouse = warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+
+        // Delete existing images
+        List<WarehouseImage> existingImages = warehouseImageRepository.findAllByWarehouseId(warehouseId);
+        for (WarehouseImage img : existingImages) {
+            Path filePath = Paths.get("C:\\image\\" + img.getImageUrl());
+            Files.deleteIfExists(filePath);
+        }
+        warehouseImageRepository.deleteAllByWarehouseId(warehouseId);
+
+        // Add new images
+        return addWarehouseImages(warehouseId, base64Images);
     }
 }

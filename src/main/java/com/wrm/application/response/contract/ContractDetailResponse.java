@@ -2,6 +2,7 @@ package com.wrm.application.response.contract;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wrm.application.dto.ContractImageDTO;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,8 @@ public class ContractDetailResponse {
 
     @JsonProperty("contract_images")
     private List<String> contractImageLinks;
+
+
 
     private String warehouseName;
     private String warehouseAddress;

@@ -14,12 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vn.payos.type.CheckoutResponseData;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/warehouses")  // This is the correct way
+@RequestMapping("/payment")  //
 public class PaymentController {
     private final PayOSPaymentService payOSPaymentService;
 
@@ -41,9 +39,20 @@ public class PaymentController {
     }
 
 
-    @GetMapping("/payment-requests/user")
-    public  List<Payment> getAllPaymentsByUser(HttpServletRequest req) throws Exception{
-        return payOSPaymentService.getAllPaymentsByUser(req.getRemoteUser());
+    @GetMapping("/payment-requests/confirm/user")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<?> getAllPaymentsByUser(HttpServletRequest req) {
+        try {
+            String email = req.getRemoteUser();
+            if (email == null) {
+                return ResponseEntity.badRequest().body("User not authenticated");
+            }
+
+            List<Payment> payments = payOSPaymentService.getAllPaymentsByUser(email);
+            return ResponseEntity.ok(payments);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error fetching payments: " + e.getMessage());
+        }
     }
 
     @PutMapping("/payment-requests/{id}")

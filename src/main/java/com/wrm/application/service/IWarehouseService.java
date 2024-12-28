@@ -1,10 +1,14 @@
 package com.wrm.application.service;
 
 import com.wrm.application.dto.WarehouseDTO;
+import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+
+import java.io.IOException;
+import java.util.List;
 
 public interface IWarehouseService {
     Page<WarehouseResponse> getAllWarehouses(PageRequest pageRequest);
@@ -21,4 +25,12 @@ public interface IWarehouseService {
 
 
     Page<WarehouseResponse> getAllWarehousesImageByWarehouseId(PageRequest pageRequest);
+
+    void deleteWarehouseImage(Long warehouseId, String imageId) throws DataNotFoundException, IOException;
+
+    List<String> updateWarehouseImages(Long warehouseId, List<String> base64Images) throws DataNotFoundException, IOException;
+
+    List<String> addWarehouseImages(Long warehouseId, List<String> base64Images) throws DataNotFoundException, IOException;
+
+    List<String> getWarehouseImageIds(Long warehouseId) throws DataNotFoundException;
 }
