@@ -1,7 +1,15 @@
 // RevenueCharts.jsx
 import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
+const formatCurrency = (value) => {
+    if (value >= 1000000000) {
+        return `${(value / 1000000000).toFixed(1)} tỷ`;
+    }
+    if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)} triệu`;
+    }
+    return `${value.toLocaleString()} VNĐ`;
+};
 export const RevenueCharts = ({ monthlyRevenue, quarterlyRevenue, yearlyRevenue }) => {
     const [viewType, setViewType] = useState('monthly');
 
@@ -109,19 +117,20 @@ export const RevenueCharts = ({ monthlyRevenue, quarterlyRevenue, yearlyRevenue 
                 {hasData ? (
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={transformedData}>
-                            <CartesianGrid strokeDasharray="3 3" />
+                            <CartesianGrid strokeDasharray="3 3"/>
                             <XAxis
                                 dataKey="period"
-                                interval={0} // Show all labels
-                                angle={-45} // Rotate labels for better readability
+                                interval={0}
+                                angle={-45}
                                 textAnchor="end"
-                                height={60} // Increase height to accommodate rotated labels
+                                height={60}
                             />
                             <YAxis
-                                tickFormatter={(value) => `${value.toLocaleString()} VNĐ`}
+                                width={80}  // Increased width for labels
+                                tickFormatter={formatCurrency}  // Use compact format
                             />
                             <Tooltip
-                                formatter={(value) => `${value.toLocaleString()} VNĐ`}
+                                formatter={(value) => formatCurrency(value)}  // Use same format in tooltip
                                 contentStyle={{
                                     background: 'white',
                                     border: '1px solid #e5e7eb',
@@ -132,14 +141,14 @@ export const RevenueCharts = ({ monthlyRevenue, quarterlyRevenue, yearlyRevenue 
                                     fontWeight: 'bold'
                                 }}
                             />
-                            <Legend />
+                            <Legend/>
                             <Line
                                 type="monotone"
                                 name="Doanh Thu"
                                 dataKey="revenue"
                                 stroke="#2563eb"
                                 strokeWidth={2}
-                                dot={{ r: 4 }}
+                                dot={{r: 4}}
                             />
                         </LineChart>
                     </ResponsiveContainer>

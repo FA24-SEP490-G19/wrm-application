@@ -2,6 +2,16 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+const formatCurrency = (value) => {
+    if (value >= 1000000000) {
+        return `${(value / 1000000000).toFixed(1)} tỷ`;
+    }
+    if (value >= 1000000) {
+        return `${(value / 1000000).toFixed(1)} triệu`;
+    }
+    return `${value.toLocaleString()} VNĐ`;
+};
+
 const TopPerformers = ({ topCustomers, topWarehouses, topSales }) => {
     const transformData = (data) => {
         if (!Array.isArray(data)) return [];
@@ -45,18 +55,16 @@ const TopPerformers = ({ topCustomers, topWarehouses, topSales }) => {
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis
                                             type="number"
-                                            label={{
-                                                value: 'Doanh Thu (VNĐ)',
-                                                position: 'bottom'
-                                            }}
+                                            tickFormatter={formatCurrency}
+                                            width={80}
                                         />
                                         <YAxis
                                             type="category"
                                             dataKey="name"
-                                            width={100}
+                                            width={120}
                                         />
                                         <Tooltip
-                                            formatter={(value) => `${value.toLocaleString()} VNĐ`}
+                                            formatter={(value) => formatCurrency(value)}
                                             contentStyle={{
                                                 background: 'white',
                                                 border: '1px solid #e5e7eb',
@@ -78,7 +86,6 @@ const TopPerformers = ({ topCustomers, topWarehouses, topSales }) => {
                                 </div>
                             )}
                         </div>
-
                     </div>
                 );
             })}
