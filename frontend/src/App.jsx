@@ -7,7 +7,6 @@ import LandingPage from "./component/LandingPage.jsx";
 import ChangePassword from "./component/Authentication/ChangePassword.jsx";
 import ProfileCRUD from "./component/Profile.jsx";
 import WarehouseList from "./component/WarehouseList.jsx";
-import CRMDashboard from "./component/Management/Crm.jsx";
 import DashboardPage from "./component/Management/DashboardPage.jsx";
 import CustomersPage from "./component/Management/User/CustomersPage.jsx";
 import WarehousePage from "./component/Management/Warehouse/WarehousePage.jsx";
@@ -15,7 +14,6 @@ import ProtectedRoute from "./component/Shared/ProtectedRoute.jsx";
 import AppointmentPage from "./component/Management/Appointment/AppointmentPage.jsx";
 import LotsPage from "./component/Management/Lot/LotsPage.jsx";
 import WarehouseDetail from "./component/WareHouseDetail.jsx";
-import ContractModal from "./component/Management/Contract/ContractModal.jsx";
 import {ContractPage} from "./component/Management/Contract/ContractPage.jsx";
 import RentalPage from "./component/Rental/RentalPage.jsx";
 import RequestPage from "./component/Management/Request/RequestPage.jsx";
@@ -34,6 +32,7 @@ import {AuthRoute} from "./component/Shared/AuthRoute.jsx";
 import WarehouseDetailForGuess from "./component/Shared/WareHouseDetailForGuess.jsx";
 import PaymentSuccess from "./component/PaymentSuccess.jsx";
 import ResetPassword from "./component/ResetPassword.jsx";
+import AdminDashboard from "./component/Dashboard/AdminDashboard.jsx";
 
 function App() {
     return (
@@ -69,6 +68,7 @@ function App() {
             <Route path="/feedback" element={<ProtectedRoute><FeedBackPage/> </ProtectedRoute>} />
             <Route path="/payment" element={<ProtectedRoute><PaymentList/> </ProtectedRoute>} />
             <Route path="/payment_user" element={<ProtectedRoute><MyPaymentPage /></ProtectedRoute>} />
+            <Route path="/statistical" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
 
                 <Route path="/payment-return" element={<ProtectedRoute><PaymentSuccess/> </ProtectedRoute>} />
             <Route path="/forgot" element={<ResetPassword/> } />
