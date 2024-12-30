@@ -103,6 +103,7 @@ export const getExpiringRentals = async () => {
     }
 };
 
+
 export const getUnassignedAppointments = async () => {
     try {
         const response = await axios.get(
