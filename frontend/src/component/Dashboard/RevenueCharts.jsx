@@ -9,21 +9,69 @@ export const RevenueCharts = ({ monthlyRevenue, quarterlyRevenue, yearlyRevenue 
         const ensureArray = (data) => Array.isArray(data) ? data : [];
 
         switch (viewType) {
-            case 'monthly':
-                return ensureArray(monthlyRevenue).map(item => ({
-                    period: `Tháng ${item?.period || item?.month || 'N/A'}`,
-                    revenue: Number(item?.revenue || item?.amount || 0)
+            case 'monthly': {
+                // Create an array for all 12 months
+                const allMonths = Array.from({ length: 12 }, (_, i) => ({
+                    period: `Tháng ${i + 1}`,
+                    revenue: 0
                 }));
-            case 'quarterly':
-                return ensureArray(quarterlyRevenue).map(item => ({
-                    period: `Quý ${item?.period || item?.quarter || 'N/A'}`,
-                    revenue: Number(item?.revenue || item?.amount || 0)
+
+                // Map the actual data to the corresponding months
+                const dataMap = new Map(
+                    ensureArray(monthlyRevenue).map(item => [
+                        Number(item?.period || item?.month || 0),
+                        Number(item?.revenue || item?.amount || 0)
+                    ])
+                );
+
+                // Fill in the actual revenue data where it exists
+                return allMonths.map((month, index) => ({
+                    period: month.period,
+                    revenue: dataMap.get(index + 1) || 0
                 }));
-            case 'yearly':
-                return ensureArray(yearlyRevenue).map(item => ({
-                    period: `Năm ${item?.period || item?.year || 'N/A'}`,
-                    revenue: Number(item?.revenue || item?.amount || 0)
+            }
+            case 'quarterly': {
+                // Create an array for all 4 quarters
+                const allQuarters = Array.from({ length: 4 }, (_, i) => ({
+                    period: `Quý ${i + 1}`,
+                    revenue: 0
                 }));
+
+                const dataMap = new Map(
+                    ensureArray(quarterlyRevenue).map(item => [
+                        Number(item?.period || item?.quarter || 0),
+                        Number(item?.revenue || item?.amount || 0)
+                    ])
+                );
+
+                return allQuarters.map((quarter, index) => ({
+                    period: quarter.period,
+                    revenue: dataMap.get(index + 1) || 0
+                }));
+            }
+            case 'yearly': {
+                const currentYear = new Date().getFullYear();
+                const yearsToShow = 5; // Show last 5 years
+                const allYears = Array.from({ length: yearsToShow }, (_, i) => ({
+                    period: `Năm ${currentYear - (yearsToShow - 1) + i}`,
+                    revenue: 0
+                }));
+
+                const dataMap = new Map(
+                    ensureArray(yearlyRevenue).map(item => [
+                        Number(item?.period || item?.year || 0),
+                        Number(item?.revenue || item?.amount || 0)
+                    ])
+                );
+
+                return allYears.map(yearItem => {
+                    const year = parseInt(yearItem.period.split(' ')[1]);
+                    return {
+                        period: yearItem.period,
+                        revenue: dataMap.get(year) || 0
+                    };
+                });
+            }
             default:
                 return [];
         }
@@ -35,7 +83,6 @@ export const RevenueCharts = ({ monthlyRevenue, quarterlyRevenue, yearlyRevenue 
         yearly: 'Theo Năm'
     };
 
-    // Check if we have any valid data to display
     const hasData = transformedData.length > 0;
 
     return (
@@ -63,8 +110,16 @@ export const RevenueCharts = ({ monthlyRevenue, quarterlyRevenue, yearlyRevenue 
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={transformedData}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="period" />
-                            <YAxis />
+                            <XAxis
+                                dataKey="period"
+                                interval={0} // Show all labels
+                                angle={-45} // Rotate labels for better readability
+                                textAnchor="end"
+                                height={60} // Increase height to accommodate rotated labels
+                            />
+                            <YAxis
+                                tickFormatter={(value) => `${value.toLocaleString()} VNĐ`}
+                            />
                             <Tooltip
                                 formatter={(value) => `${value.toLocaleString()} VNĐ`}
                                 contentStyle={{
@@ -72,6 +127,9 @@ export const RevenueCharts = ({ monthlyRevenue, quarterlyRevenue, yearlyRevenue 
                                     border: '1px solid #e5e7eb',
                                     borderRadius: '6px',
                                     padding: '8px'
+                                }}
+                                labelStyle={{
+                                    fontWeight: 'bold'
                                 }}
                             />
                             <Legend />

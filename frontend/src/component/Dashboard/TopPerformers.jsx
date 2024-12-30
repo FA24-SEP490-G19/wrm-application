@@ -8,7 +8,7 @@ const TopPerformers = ({ topCustomers, topWarehouses, topSales }) => {
 
         return data.map(item => ({
             name: item?.name || item?.fullName || 'Không xác định',
-            revenue: Number(item?.revenue || item?.amount || 0)
+            revenue: Number(item?.totalRevenue || item?.amount || 0)
         }));
     };
 
