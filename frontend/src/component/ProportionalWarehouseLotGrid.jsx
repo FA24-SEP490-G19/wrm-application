@@ -22,14 +22,15 @@ const LOT_STATUS_CONFIG = {
 const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnly = true }) => {
     const totalSize = lots.reduce((sum, lot) => sum + parseFloat(lot.size), 0);
 
-    // Sort lots by size and arrange horizontally
+    // Sort lots by size and arrange in pairs (2 per row)
     const arrangeLots = () => {
         const sortedLots = [...lots].sort((a, b) => parseFloat(b.size) - parseFloat(a.size));
-        const rows = Math.ceil(sortedLots.length / 3); // 3 lots per row
+        const rows = Math.ceil(sortedLots.length / 2); // 2 lots per row
         const arranged = Array(rows).fill().map(() => []);
 
+        // Fill rows with pairs of lots
         sortedLots.forEach((lot, index) => {
-            const rowIndex = Math.floor(index / 3);
+            const rowIndex = Math.floor(index / 2);
             arranged[rowIndex].push(lot);
         });
 
@@ -38,46 +39,48 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
 
     const arrangedLots = arrangeLots();
 
-    const renderLot = (lot, rowIndex, colIndex) => {
+    // Render a lot card with consistent styling
+    const LotCard = ({ lot }) => {
+        const sizePercentage = (parseFloat(lot.size) / totalSize) * 100;
         const isSelected = selectedLot?.id === lot.id;
         const StatusIcon = lot.status ? LOT_STATUS_CONFIG[lot.status.toLowerCase()]?.icon : null;
-        const sizePercentage = (parseFloat(lot.size) / totalSize) * 100;
 
         return (
             <div
-                key={`${rowIndex}-${colIndex}`}
                 onClick={() => onLotSelect && onLotSelect(lot)}
-                className={`relative bg-green-50 p-3 rounded-lg border border-green-200 
-                           hover:shadow-md transition-all cursor-pointer h-32
-                           ${isSelected ? 'ring-2 ring-indigo-500' : ''}`}
+                className={`relative bg-green-50 p-4 rounded-lg border border-green-200
+                          hover:shadow-md transition-all cursor-pointer h-40
+                          flex flex-col justify-between
+                          ${isSelected ? 'ring-2 ring-indigo-500' : ''}`}
             >
-                <div className="flex flex-col h-full justify-between">
+                <div>
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="font-medium text-sm">{lot.description || `Lô ${lot.id}`}</p>
-                            <p className="text-xs text-gray-500">{lot.size}m²</p>
+                            <p className="font-medium text-base truncate">{lot.description || `Lô ${lot.id}`}</p>
+                            <p className="text-sm text-gray-500 mt-1">{lot.size}m²</p>
+                            <p className="text-sm text-gray-500">({sizePercentage.toFixed(1)}% tổng diện tích)</p>
                         </div>
                         {StatusIcon && <StatusIcon className="w-4 h-4" />}
                     </div>
-                    <div className="flex justify-between items-end">
-                        <span className="text-xs font-medium text-green-700">
-                            {new Intl.NumberFormat('vi-VN', {
-                                style: 'currency',
-                                currency: 'VND'
-                            }).format(lot.price)}/tháng
-                        </span>
-                        {!readOnly && onRemoveLot && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onRemoveLot(lots.indexOf(lot));
-                                }}
-                                className="text-red-500 hover:text-red-700 p-1"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-                        )}
-                    </div>
+                </div>
+                <div className="flex justify-between items-end">
+                    <span className="text-sm font-medium text-green-700">
+                        {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(lot.price)}/tháng
+                    </span>
+                    {!readOnly && onRemoveLot && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRemoveLot(lots.indexOf(lot));
+                            }}
+                            className="text-red-500 hover:text-red-700 p-1"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             </div>
         );
@@ -87,7 +90,7 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
         <div className="relative bg-white p-8 rounded-xl border border-gray-200">
             {/* Warehouse Entry */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2
-                          bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm
+                          bg-blue-100 text-blue-700 px-6 py-2 rounded-full text-sm
                           font-medium border border-blue-200">
                 Lối vào kho
             </div>
@@ -104,23 +107,28 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
                 </div>
             )}
 
-            {/* Main Layout - Grid with horizontal fill */}
-            <div className="mt-4 space-y-4 min-h-[400px]">
+            {/* Main Layout - Grid with 2 columns */}
+            <div className="mt-6 space-y-6">
                 {arrangedLots.map((row, rowIndex) => (
-                    <div key={rowIndex} className="grid grid-cols-3 gap-4">
-                        {row.map((lot, colIndex) => renderLot(lot, rowIndex, colIndex))}
+                    <div key={rowIndex} className="grid grid-cols-2 gap-6">
+                        {row.map((lot, colIndex) => (
+                            <LotCard
+                                key={`${rowIndex}-${colIndex}`}
+                                lot={lot}
+                            />
+                        ))}
                     </div>
                 ))}
             </div>
 
             {/* Exit Signs */}
             <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2
-                          bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs
+                          bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm
                           font-medium border border-red-200 rotate-90">
                 Lối thoát hiểm
             </div>
             <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2
-                          bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs
+                          bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm
                           font-medium border border-red-200 rotate-90">
                 Lối thoát hiểm
             </div>

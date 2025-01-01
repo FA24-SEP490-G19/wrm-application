@@ -4,7 +4,6 @@ import { X, Upload, X as XIcon,Plus,Image, Trash2} from 'lucide-react';
 import {getWareHouseById, ManagerNotHaveWarehouse} from "../../../service/WareHouse.js";
 import {useToast} from "../../../context/ToastProvider.jsx";
 import {warehouseImageService} from "./warehouseImageService.jsx";
-import EditModeLotGrid from "../../EditModeLotGrid.jsx";
 import {getAllLots} from "../../../service/lot.js";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAuth} from "../../../context/AuthContext.jsx";
@@ -13,15 +12,15 @@ import ProportionalWarehouseLotGrid from "../../ProportionalWarehouseLotGrid.jsx
 export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
     const totalSize = lots.reduce((sum, lot) => sum + parseFloat(lot.size), 0);
 
-    // Sort lots by size and arrange horizontally
+    // Sort lots by size and arrange in pairs (2 per row)
     const arrangeLots = () => {
         const sortedLots = [...lots].sort((a, b) => parseFloat(b.size) - parseFloat(a.size));
-        const rows = Math.ceil(sortedLots.length / 3); // 3 lots per row
+        const rows = Math.ceil(sortedLots.length / 2); // 2 lots per row
         const arranged = Array(rows).fill().map(() => []);
 
-        // Fill horizontally first
+        // Fill rows with pairs of lots
         sortedLots.forEach((lot, index) => {
-            const rowIndex = Math.floor(index / 3);
+            const rowIndex = Math.floor(index / 2);
             arranged[rowIndex].push(lot);
         });
 
@@ -35,20 +34,16 @@ export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
         const sizePercentage = (parseFloat(lot.size) / totalSize) * 100;
 
         return (
-            <div className="relative bg-green-50 p-3 rounded-lg border border-green-200
-                          hover:shadow-md transition-all cursor-pointer h-32
+            <div className="relative bg-green-50 p-4 rounded-lg border border-green-200
+                          hover:shadow-md transition-all cursor-pointer h-40
                           flex flex-col justify-between">
                 <div>
-                    <p className="font-medium text-sm truncate">{lot.description}</p>
-                    <p className="text-xs text-gray-500">{lot.size}m²</p>
+                    <p className="font-medium text-base truncate">{lot.description}</p>
+                    <p className="text-sm text-gray-500 mt-1">{lot.size}m²</p>
+                    <p className="text-sm text-gray-500">({sizePercentage.toFixed(1)}% tổng diện tích)</p>
                 </div>
                 <div className="flex justify-between items-end">
-                    <span className="text-xs font-medium text-green-700">
-                        {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                        }).format(lot.price)}/tháng
-                    </span>
+
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -67,15 +62,15 @@ export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
         <div className="relative bg-white p-8 rounded-xl border border-gray-200">
             {/* Warehouse Entry */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2
-                          bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm
+                          bg-blue-100 text-blue-700 px-6 py-2 rounded-full text-sm
                           font-medium border border-blue-200">
                 Lối vào kho
             </div>
 
-            {/* Main Layout - Grid with horizontal fill */}
-            <div className="mt-4 space-y-4 min-h-[400px]">
+            {/* Main Layout - Grid with 2 columns */}
+            <div className="mt-6 space-y-6">
                 {arrangedLots.map((row, rowIndex) => (
-                    <div key={rowIndex} className="grid grid-cols-3 gap-4">
+                    <div key={rowIndex} className="grid grid-cols-2 gap-6">
                         {row.map((lot, colIndex) => (
                             <LotCard
                                 key={`${rowIndex}-${colIndex}`}
@@ -88,19 +83,18 @@ export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
 
             {/* Exit Signs */}
             <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2
-                          bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs
+                          bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm
                           font-medium border border-red-200 rotate-90">
                 Lối thoát hiểm
             </div>
             <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2
-                          bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs
+                          bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm
                           font-medium border border-red-200 rotate-90">
                 Lối thoát hiểm
             </div>
         </div>
     );
-};
-const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
+};const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
     const initialLotState = {
         quantity: 1,
@@ -196,13 +190,21 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                         type="number"
                         min="10"
                         max="20"
+                        step="2"
                         value={currentLot.quantity}
-                        onChange={(e) => setCurrentLot(prev => ({
-                            ...prev,
-                            quantity: Math.max(1, Math.min(20, parseInt(e.target.value) || 1))
-                        }))}
+                        onChange={(e) => {
+                            let value = parseInt(e.target.value) || 0;
+                            // Ensure the value is even
+                            if (value % 2 !== 0) {
+                                value = Math.max(10, Math.min(20, value + 1));
+                            }
+                            setCurrentLot(prev => ({
+                                ...prev,
+                                quantity: Math.max(10, Math.min(20, value))
+                            }));
+                        }}
                         className={inputClasses(lotErrors.quantity)}
-                        placeholder="Nhập số lượng lô"
+                        placeholder="Nhập số lượng lô (chẵn)"
                     />
                     {lotErrors.quantity && (
                         <p className="mt-1 text-sm text-red-600">{lotErrors.quantity}</p>
@@ -492,7 +494,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         };
 
         fetchData();
-    }, [id]);
+    }, [isOpen, mode, warehouseData]);
 
 
     const handleImageURLAdd = () => {
@@ -929,7 +931,6 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
                                     />
                                 )}
-
 
                                 {/* Form buttons */}
                                 <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
