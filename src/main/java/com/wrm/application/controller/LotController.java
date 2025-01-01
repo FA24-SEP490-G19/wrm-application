@@ -51,10 +51,10 @@ public class LotController {
                 .build());
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<LotResponse> getLotByWarehouseId(@PathVariable Long id) throws Exception {
-//        return ResponseEntity.ok(lotService.getLotByWarehouseID(id));
-//    }
+    @GetMapping("/warehouses/{id}")
+    public ResponseEntity<LotResponse> getLotByWarehouseId(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok(lotService.getLotByWarehouseID(id));
+    }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")

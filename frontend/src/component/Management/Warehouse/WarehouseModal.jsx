@@ -1,191 +1,100 @@
 // AppointmentModal.jsx
 import React, { useState, useEffect } from 'react';
 import { X, Upload, X as XIcon,Plus,Image, Trash2} from 'lucide-react';
-import {ManagerNotHaveWarehouse} from "../../../service/WareHouse.js";
+import {getWareHouseById, ManagerNotHaveWarehouse} from "../../../service/WareHouse.js";
 import {useToast} from "../../../context/ToastProvider.jsx";
 import {warehouseImageService} from "./warehouseImageService.jsx";
+import EditModeLotGrid from "../../EditModeLotGrid.jsx";
+import {getAllLots} from "../../../service/lot.js";
+import {useNavigate, useParams} from "react-router-dom";
+import {useAuth} from "../../../context/AuthContext.jsx";
+import ProportionalWarehouseLotGrid from "../../ProportionalWarehouseLotGrid.jsx";
 
-const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
-    // Calculate relative sizes for visualization
-    const calculateGridSpan = (size) => {
-        // Base size is 50m² (smallest lot)
-        switch (parseInt(size)) {
-            case 250: return 6; // Largest lot spans 6 columns
-            case 200: return 5;
-            case 150: return 4;
-            case 100: return 3;
-            case 50: return 2; // Smallest lot spans 2 columns
-            default: return 2;
-        }
-    };
+export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
+    const totalSize = lots.reduce((sum, lot) => sum + parseFloat(lot.size), 0);
 
-
-    // Get size class for central lots
-    const getCenterSizeClass = (size) => {
-        switch (parseInt(size)) {
-            case 100: return 'col-span-2 h-24'; // 100m² takes 2 columns
-            case 50: return 'col-span-2 h-20';  // 50m² takes 1 column
-            default: return 'col-span-1 h-16';
-        }
-    };
-
-    // Sort lots by size to place larger lots at the edges
-    const sortedLots = [...lots].sort((a, b) => parseInt(b.size) - parseInt(a.size));
-
-    // Split lots into left, center, and right sections
-// Modify the arrangeLots function
+    // Sort lots by size and arrange horizontally
     const arrangeLots = () => {
-        const leftSide = [];
-        const center = [];
-        const rightSide = [];
+        const sortedLots = [...lots].sort((a, b) => parseFloat(b.size) - parseFloat(a.size));
+        const rows = Math.ceil(sortedLots.length / 3); // 3 lots per row
+        const arranged = Array(rows).fill().map(() => []);
 
-        // First pass: Place larger lots on sides
+        // Fill horizontally first
         sortedLots.forEach((lot, index) => {
-            const size = parseInt(lot.size);
-            if (size >= 150) { // 150m² and above go to sides
-                index % 2 === 0 ? leftSide.push(lot) : rightSide.push(lot);
-            } else {
-                center.push(lot);
-            }
+            const rowIndex = Math.floor(index / 3);
+            arranged[rowIndex].push(lot);
         });
 
-        // Sort center lots by size in ascending order (smaller lots go to back)
-        center.sort((a, b) => parseInt(a.size) - parseInt(b.size));
-
-        // Reverse the center array to display smaller lots at the back (bottom)
-        // This changes the visual order since items at the end of the array
-        // will appear at the bottom of the grid
-        center.reverse();
-
-        return { leftSide, center, rightSide };
+        return arranged;
     };
-    const { leftSide, center, rightSide } = arrangeLots();
+
+    const arrangedLots = arrangeLots();
+
+    // Render a lot card with consistent styling
+    const LotCard = ({ lot }) => {
+        const sizePercentage = (parseFloat(lot.size) / totalSize) * 100;
+
+        return (
+            <div className="relative bg-green-50 p-3 rounded-lg border border-green-200
+                          hover:shadow-md transition-all cursor-pointer h-32
+                          flex flex-col justify-between">
+                <div>
+                    <p className="font-medium text-sm truncate">{lot.description}</p>
+                    <p className="text-xs text-gray-500">{lot.size}m²</p>
+                </div>
+                <div className="flex justify-between items-end">
+                    <span className="text-xs font-medium text-green-700">
+                        {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND'
+                        }).format(lot.price)}/tháng
+                    </span>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveLot(lots.indexOf(lot));
+                        }}
+                        className="text-red-500 hover:text-red-700 p-1"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="relative bg-white p-8 rounded-xl border border-gray-200">
             {/* Warehouse Entry */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-200">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2
+                          bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm
+                          font-medium border border-blue-200">
                 Lối vào kho
             </div>
 
-            {/* Warehouse Layout */}
-            <div className="mt-4 flex gap-4">
-                {/* Left Section - Larger Lots */}
-                <div className="w-1/4 space-y-4">
-                    {leftSide.map((lot, index) => (
-                        <div
-                            key={`left-${index}`}
-                            className={`relative bg-green-50 p-3 rounded-lg border border-green-200 hover:shadow-md transition-all cursor-pointer`}
-                            style={{
-                                height: `${calculateGridSpan(lot.size) * 2}rem`
-                            }}
-                        >
-                            <div className="flex flex-col h-full justify-between">
-                                <div>
-                                    <p className="font-medium text-sm">{lot.description}</p>
-                                    <p className="text-xs text-gray-500">{lot.size}m²</p>
-                                </div>
-                                <div className="flex justify-between items-end">
-                                    <span className="text-xs font-medium text-green-700">
-                                        {new Intl.NumberFormat('vi-VN', {
-                                            style: 'currency',
-                                            currency: 'VND'
-                                        }).format(lot.price)}/tháng
-                                    </span>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onRemoveLot(lots.indexOf(lot));
-                                        }}
-                                        className="text-red-500 hover:text-red-700 p-1"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Center Section - Standard Lots */}
-                <div className="flex-1">
-                    <div className="grid grid-cols-4 gap-4">
-                        {center.map((lot, index) => (
-                            <div
-                                key={`center-${index}`}
-                                className={`relative bg-green-50 p-3 rounded-lg border border-green-200 hover:shadow-md transition-all cursor-pointer ${getCenterSizeClass(lot.size)}`}
-                            >
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="font-medium text-sm truncate">{lot.description}</p>
-                                        <p className="text-xs text-gray-500">{lot.size}m²</p>
-                                    </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onRemoveLot(lots.indexOf(lot));
-                                        }}
-                                        className="text-red-500 hover:text-red-700 p-1"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                                <div className="absolute bottom-2 left-3">
-                                    <span className="text-xs font-medium text-green-700">
-                                        {new Intl.NumberFormat('vi-VN', {
-                                            style: 'currency',
-                                            currency: 'VND'
-                                        }).format(lot.price)}/tháng
-                                    </span>
-                                </div>
-                            </div>
+            {/* Main Layout - Grid with horizontal fill */}
+            <div className="mt-4 space-y-4 min-h-[400px]">
+                {arrangedLots.map((row, rowIndex) => (
+                    <div key={rowIndex} className="grid grid-cols-3 gap-4">
+                        {row.map((lot, colIndex) => (
+                            <LotCard
+                                key={`${rowIndex}-${colIndex}`}
+                                lot={lot}
+                            />
                         ))}
                     </div>
-                </div>
-
-                {/* Right Section - Larger Lots */}
-                <div className="w-1/4 space-y-4">
-                    {rightSide.map((lot, index) => (
-                        <div
-                            key={`right-${index}`}
-                            className={`relative bg-green-50 p-3 rounded-lg border border-green-200 hover:shadow-md transition-all cursor-pointer`}
-                            style={{
-                                height: `${calculateGridSpan(lot.size) * 2}rem`
-                            }}
-                        >
-                            <div className="flex flex-col h-full justify-between">
-                                <div>
-                                    <p className="font-medium text-sm">{lot.description}</p>
-                                    <p className="text-xs text-gray-500">{lot.size}m²</p>
-                                </div>
-                                <div className="flex justify-between items-end">
-                                    <span className="text-xs font-medium text-green-700">
-                                        {new Intl.NumberFormat('vi-VN', {
-                                            style: 'currency',
-                                            currency: 'VND'
-                                        }).format(lot.price)}/tháng
-                                    </span>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onRemoveLot(lots.indexOf(lot));
-                                        }}
-                                        className="text-red-500 hover:text-red-700 p-1"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                ))}
             </div>
 
             {/* Exit Signs */}
-            <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-medium border border-red-200 rotate-90">
+            <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2
+                          bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs
+                          font-medium border border-red-200 rotate-90">
                 Lối thoát hiểm
             </div>
-            <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-medium border border-red-200 rotate-90">
+            <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2
+                          bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs
+                          font-medium border border-red-200 rotate-90">
                 Lối thoát hiểm
             </div>
         </div>
@@ -193,7 +102,10 @@ const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
 };
 const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
-
+    const initialLotState = {
+        quantity: 1,
+        status: 'AVAILABLE'
+    };
 
     const initialFormState = {
         name: '',
@@ -205,24 +117,15 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         images: [], // Ensure this is always initialized
         lot_items: [] // Ensure this is always initialized
     };
-
-
-
-    const LOT_SIZES = [
-        { value: 50, label: '50m²' },
-        { value: 100, label: '100m²' },
-        { value: 150, label: '150m²' },
-        { value: 200, label: '200m²' },
-        { value: 250, label: '250m²' }
-    ];
+    const {id} = useParams();
+    const [warehouse, setWarehouse] = useState(null);
+    const [lots, setLots] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [warehouseImages, setWarehouseImages] = useState([]);
 
 // Update the initialLotState
-    const initialLotState = {
-        size: '50',
-        price: '',
-        quantity: 1,
-        status: 'AVAILABLE'
-    };
+
     const { showToast } = useToast();
     const [isUploading, setIsUploading] = useState(false);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -230,67 +133,20 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 // Add function to generate multiple lots
     const generateLots = (size, price, quantity) => {
         return Array.from({ length: quantity }, (_, index) => ({
-            description: `Lô ${index + 1} - ${size}m²`,
+            description: `Lô ${index + 1} `,
             size: parseInt(size),
             price,
             status: 'AVAILABLE'
         }));
     };
 
-// Add these utility functions
-    const formatPrice = (price) => {
-        // Remove all non-digit characters
-        const numericValue = price.replace(/[^0-9]/g, '');
-
-        // Format with thousand separators
-        if (numericValue) {
-            return new Intl.NumberFormat('vi-VN').format(parseInt(numericValue));
-        }
-        return '';
-    };
-
-// Add this to your component
-    const handlePriceChange = (e) => {
-        const formattedPrice = formatPrice(e.target.value);
-
-        setCurrentLot(prev => ({
-            ...prev,
-            price: formattedPrice
-        }));
-
-        // Clear price error if exists
-        if (lotErrors.price) {
-            setLotErrors(prev => ({
-                ...prev,
-                price: ''
-            }));
-        }
-    };
 
 // Update the validation function
     const validateLot = (lot) => {
         const errors = {};
-        if (!lot.size) errors.size = 'Kích thước không được để trống';
-
-        // Price validation
-        if (!lot.price) {
-            errors.price = 'Giá không được để trống';
-        } else {
-            const numericPrice = parseInt(lot.price.replace(/[^0-9]/g, ''));
-            if (isNaN(numericPrice) || numericPrice <= 0) {
-                errors.price = 'Giá phải lớn hơn 0';
-            }
+        if (!lot.quantity || lot.quantity < 1) {
+            errors.quantity = 'Số lượng phải lớn hơn 0';
         }
-
-        if (!lot.quantity || lot.quantity < 1) errors.quantity = 'Số lượng phải lớn hơn 0';
-
-        // Check if total size would exceed warehouse size
-        const newTotalSize = parseInt(lot.size) * parseInt(lot.quantity);
-        const currentTotalSize = formData.lot_items.reduce((sum, l) => sum + parseInt(l.size), 0);
-        if (currentTotalSize + newTotalSize > parseInt(formData.size)) {
-            errors.quantity = 'Tổng diện tích các lô vượt quá diện tích kho';
-        }
-
         return errors;
     };
 
@@ -302,15 +158,22 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
             return;
         }
 
-        // Convert formatted price to numeric value
-        const numericPrice = parseInt(currentLot.price.replace(/[^0-9]/g, ''));
+        const totalWarehouseSize = parseFloat(formData.size);
+        const numberOfLots = parseInt(currentLot.quantity);
 
-        // Generate new lots based on quantity
-        const newLots = generateLots(
-            currentLot.size,
-            numericPrice, // Use numeric price
-            parseInt(currentLot.quantity)
-        );
+        // Calculate size per lot (rounded to 2 decimal places)
+        const sizePerLot = parseFloat((totalWarehouseSize / numberOfLots).toFixed(2));
+
+        // Generate base price (example: 1,000,000 VND per m²)
+        const basePrice = 1000000;
+
+        // Generate new lots with calculated sizes
+        const newLots = Array.from({ length: numberOfLots }, (_, index) => ({
+            description: `Lô ${index + 1} `,
+            size: sizePerLot,
+            price: sizePerLot * basePrice, // Price based on size
+            status: 'AVAILABLE'
+        }));
 
         setFormData(prev => ({
             ...prev,
@@ -321,6 +184,49 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         setLotErrors({});
     };
 
+
+    const renderLotForm = () => (
+        <div className="bg-gray-50 p-4 rounded-xl mb-4">
+            <div className="grid grid-cols-1 gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                        Số lượng lô
+                    </label>
+                    <input
+                        type="number"
+                        min="10"
+                        max="20"
+                        value={currentLot.quantity}
+                        onChange={(e) => setCurrentLot(prev => ({
+                            ...prev,
+                            quantity: Math.max(1, Math.min(20, parseInt(e.target.value) || 1))
+                        }))}
+                        className={inputClasses(lotErrors.quantity)}
+                        placeholder="Nhập số lượng lô"
+                    />
+                    {lotErrors.quantity && (
+                        <p className="mt-1 text-sm text-red-600">{lotErrors.quantity}</p>
+                    )}
+                </div>
+
+                <div className="mt-4">
+                    <div className="text-sm text-gray-600 mb-2">
+                        Kích thước mỗi lô sẽ là: {formData.size ? (formData.size / currentLot.quantity).toFixed(2) : 0}m²
+                    </div>
+                    <div className="flex justify-end">
+                        <button
+                            type="button"
+                            onClick={handleAddLot}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
+                        >
+                            <Plus className="w-4 h-4"/>
+                            Tạo {currentLot.quantity} lô tự động
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 
 
 // Add this function to generate lot description
@@ -350,9 +256,6 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         { value: 'ACTIVE', label: 'Hoạt động' },
         { value: 'INACTIVE', label: 'Không hoạt động' }
     ];
-
-
-
 
 
 // Add function to remove lot
@@ -561,6 +464,35 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
         fetchData();
     }, [isOpen, mode, warehouseData]);
     // New useEffect to fetch managers
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const [warehouseResponse, lotsResponse] = await Promise.all([
+                    getWareHouseById(warehouseData.id),
+                    getAllLots()
+                ]);
+
+                setWarehouse(warehouseResponse.data);
+                setLots(lotsResponse.data.lots.filter(lot => lot.warehouse_id === parseInt(warehouseData.id)));
+
+                // Set warehouse images if they exist
+                if (warehouseResponse.data.images) {
+                    setWarehouseImages(warehouseResponse.data.images);
+                }
+
+                setError(null);
+            } catch (err) {
+                console.error('Error fetching data:', err);
+                setError('Không thể tải thông tin');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [id]);
 
 
     const handleImageURLAdd = () => {
@@ -970,86 +902,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                     <div className="space-y-4">
                                         <div className="border-t border-gray-200 pt-6 mt-6">
                                             <h3 className="text-lg font-semibold mb-4">Thông tin các lô hàng</h3>
-
-                                            {/* Lot Form */}
-                                            <div className="bg-gray-50 p-4 rounded-xl mb-4">
-                                                <div className="grid grid-cols-3 gap-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700">
-                                                            Kích thước
-                                                        </label>
-                                                        <select
-                                                            value={currentLot.size}
-                                                            onChange={(e) => setCurrentLot(prev => ({
-                                                                ...prev,
-                                                                size: e.target.value
-                                                            }))}
-                                                            className={inputClasses(lotErrors.size)}
-                                                        >
-                                                            {LOT_SIZES.map(size => (
-                                                                <option key={size.value} value={size.value}>
-                                                                    {size.label}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                        {lotErrors.size && (
-                                                            <p className="mt-1 text-sm text-red-600">{lotErrors.size}</p>
-                                                        )}
-                                                    </div>
-
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700">
-                                                            Giá (VNĐ/tháng)
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            value={currentLot.price}
-                                                            onChange={handlePriceChange}
-                                                            className={inputClasses(lotErrors.price)}
-                                                            placeholder="Nhập giá"
-                                                        />
-                                                        {lotErrors.price && (
-                                                            <p className="mt-1 text-sm text-red-600">{lotErrors.price}</p>
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700">
-                                                            Số lượng lô
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            min="1"
-                                                            max="20"
-                                                            value={currentLot.quantity}
-                                                            onChange={(e) => setCurrentLot(prev => ({
-                                                                ...prev,
-                                                                quantity: Math.max(1, Math.min(20, parseInt(e.target.value) || 1))
-                                                            }))}
-                                                            className={inputClasses(lotErrors.quantity)}
-                                                            placeholder="Nhập số lượng"
-                                                        />
-                                                        {lotErrors.quantity && (
-                                                            <p className="mt-1 text-sm text-red-600">{lotErrors.quantity}</p>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-4">
-                                                    <div className="text-sm text-gray-600 mb-2">
-                                                        Tổng diện tích sẽ thêm: {currentLot.size * currentLot.quantity}m²
-                                                    </div>
-                                                    <div className="flex justify-end">
-                                                        <button
-                                                            type="button"
-                                                            onClick={handleAddLot}
-                                                            className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
-                                                        >
-                                                            <Plus className="w-4 h-4"/>
-                                                            Thêm {currentLot.quantity} lô {currentLot.size}m²
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {renderLotForm()}
                                         </div>
 
                                         {formData.lot_items.length > 0 && (
@@ -1057,8 +910,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                                 <div className="flex justify-between items-center">
                                                     <h4 className="font-medium text-gray-700">Sơ đồ kho</h4>
                                                     <div className="text-sm text-gray-500">
-                                                        Tổng diện
-                                                        tích: {formData.lot_items.reduce((sum, lot) => sum + parseInt(lot.size), 0)}m²
+                                                        Tổng diện tích: {formData.lot_items.reduce((sum, lot) => sum + parseFloat(lot.size), 0)}m²
                                                     </div>
                                                 </div>
 
@@ -1070,6 +922,14 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                         )}
                                     </div>
                                 )}
+
+                                {mode === 'edit'  && (
+                                    <ProportionalWarehouseLotGrid
+                                        lots={lots}
+
+                                    />
+                                )}
+
 
                                 {/* Form buttons */}
                                 <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">

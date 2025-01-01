@@ -1,13 +1,11 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.LotStatus;
-import com.wrm.application.constant.enums.RentalStatus;
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.Lot;
-import com.wrm.application.model.Rental;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
 import com.wrm.application.repository.*;
@@ -146,6 +144,21 @@ public class LotService implements ILotService {
                         .price(lot.getPrice())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public LotResponse getLotByWarehouseID(Long id) {
+        Lot lot = (Lot) lotRepository.findLotsByWarehouseId(id);
+
+
+        return LotResponse.builder()
+                .id(lot.getId())
+                .description(lot.getDescription())
+                .size(lot.getSize())
+                .status(lot.getStatus())
+                .warehouseId(lot.getWarehouse().getId())
+                .price(lot.getPrice())
+                .build();
     }
 
 

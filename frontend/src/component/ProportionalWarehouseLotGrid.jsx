@@ -20,72 +20,36 @@ const LOT_STATUS_CONFIG = {
 };
 
 const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnly = true }) => {
-    // Calculate relative sizes for visualization
-    const calculateGridSpan = (size) => {
-        switch (parseInt(size)) {
-            case 250: return 6;
-            case 200: return 5;
-            case 150: return 4;
-            case 100: return 3;
-            case 50: return 2;
-            default: return 2;
-        }
-    };
+    const totalSize = lots.reduce((sum, lot) => sum + parseFloat(lot.size), 0);
 
-    // Get size class for central lots
-    const getCenterSizeClass = (size) => {
-        switch (parseInt(size)) {
-            case 100: return 'col-span-2 h-24'; // 100m² takes 2 columns and taller
-            case 50: return 'col-span-2 h-15';  // 50m² takes 1 column and shorter
-            default: return 'col-span-1 h-16';
-        }
-    };
-
-    // Sort lots by size
-    const sortedLots = [...lots].sort((a, b) => parseInt(b.size) - parseInt(a.size));
-
-    // Arrange lots into sections
+    // Sort lots by size and arrange horizontally
     const arrangeLots = () => {
-        const leftSide = [];
-        const center = [];
-        const rightSide = [];
+        const sortedLots = [...lots].sort((a, b) => parseFloat(b.size) - parseFloat(a.size));
+        const rows = Math.ceil(sortedLots.length / 3); // 3 lots per row
+        const arranged = Array(rows).fill().map(() => []);
 
         sortedLots.forEach((lot, index) => {
-            const size = parseInt(lot.size);
-            if (size >= 150) {
-                index % 2 === 0 ? leftSide.push(lot) : rightSide.push(lot);
-            } else {
-                center.push(lot);
-            }
+            const rowIndex = Math.floor(index / 3);
+            arranged[rowIndex].push(lot);
         });
 
-        center.sort((a, b) => parseInt(a.size) - parseInt(b.size));
-        center.reverse();
-
-        return { leftSide, center, rightSide };
+        return arranged;
     };
 
-    const { leftSide, center, rightSide } = arrangeLots();
+    const arrangedLots = arrangeLots();
 
-    const handleLotClick = (lot) => {
-        if (onLotSelect) {
-            onLotSelect(lot);
-        }
-    };
-
-    const renderLot = (lot, index, position) => {
+    const renderLot = (lot, rowIndex, colIndex) => {
         const isSelected = selectedLot?.id === lot.id;
         const StatusIcon = lot.status ? LOT_STATUS_CONFIG[lot.status.toLowerCase()]?.icon : null;
+        const sizePercentage = (parseFloat(lot.size) / totalSize) * 100;
 
         return (
             <div
-                key={`${position}-${index}`}
-                onClick={() => handleLotClick(lot)}
-                className={`relative bg-green-50 p-3 rounded-lg border border-green-200 hover:shadow-md transition-all cursor-pointer
-                    ${isSelected ? 'ring-2 ring-indigo-500' : ''}`}
-                style={{
-                    height: position === 'center' ? undefined : `${calculateGridSpan(lot.size) * 2}rem`
-                }}
+                key={`${rowIndex}-${colIndex}`}
+                onClick={() => onLotSelect && onLotSelect(lot)}
+                className={`relative bg-green-50 p-3 rounded-lg border border-green-200 
+                           hover:shadow-md transition-all cursor-pointer h-32
+                           ${isSelected ? 'ring-2 ring-indigo-500' : ''}`}
             >
                 <div className="flex flex-col h-full justify-between">
                     <div className="flex justify-between items-start">
@@ -122,7 +86,9 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
     return (
         <div className="relative bg-white p-8 rounded-xl border border-gray-200">
             {/* Warehouse Entry */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-200">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2
+                          bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm
+                          font-medium border border-blue-200">
                 Lối vào kho
             </div>
 
@@ -138,38 +104,24 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
                 </div>
             )}
 
-            {/* Warehouse Layout */}
-            <div className="mt-4 flex gap-4">
-                {/* Left Section */}
-                <div className="w-1/4 space-y-4">
-                    {leftSide.map((lot, index) => renderLot(lot, index, 'left'))}
-                </div>
-
-                {/* Center Section */}
-                <div className="flex-1">
-                    <div className="grid grid-cols-4 gap-4">
-                        {center.map((lot, index) => (
-                            <div
-                                key={`center-${index}`}
-                                className={getCenterSizeClass(lot.size)}
-                            >
-                                {renderLot(lot, index, 'center')}
-                            </div>
-                        ))}
+            {/* Main Layout - Grid with horizontal fill */}
+            <div className="mt-4 space-y-4 min-h-[400px]">
+                {arrangedLots.map((row, rowIndex) => (
+                    <div key={rowIndex} className="grid grid-cols-3 gap-4">
+                        {row.map((lot, colIndex) => renderLot(lot, rowIndex, colIndex))}
                     </div>
-                </div>
-
-                {/* Right Section */}
-                <div className="w-1/4 space-y-4">
-                    {rightSide.map((lot, index) => renderLot(lot, index, 'right'))}
-                </div>
+                ))}
             </div>
 
             {/* Exit Signs */}
-            <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-medium border border-red-200 rotate-90">
+            <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2
+                          bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs
+                          font-medium border border-red-200 rotate-90">
                 Lối thoát hiểm
             </div>
-            <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-medium border border-red-200 rotate-90">
+            <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2
+                          bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs
+                          font-medium border border-red-200 rotate-90">
                 Lối thoát hiểm
             </div>
         </div>

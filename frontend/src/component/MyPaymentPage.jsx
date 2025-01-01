@@ -29,7 +29,7 @@ const MyPaymentPage = () => {
     const [modalMode, setModalMode] = useState('create');
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
     const { customer,logOut } = useAuth();
     const [users, setUsers] = useState({});
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
