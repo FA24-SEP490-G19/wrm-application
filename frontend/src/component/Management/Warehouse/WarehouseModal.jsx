@@ -97,7 +97,7 @@ export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
 };const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
     const initialLotState = {
-        quantity: 1,
+        quantity: 10,
         status: 'AVAILABLE'
     };
 
