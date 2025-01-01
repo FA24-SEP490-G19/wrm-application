@@ -1,6 +1,8 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.configuration.VNPAYConfig;
+import com.wrm.application.model.Payment;
+import com.wrm.application.repository.PaymentRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
@@ -12,14 +14,22 @@ import java.util.*;
 
 @Service
 public class VNPAYService {
+    private final PaymentRepository paymentRepository;
+
+    public VNPAYService(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
+
     public String createOrder(HttpServletRequest request, int amount, String orderInfor, String urlReturn){
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String vnp_IpAddr = VNPAYConfig.getIpAddress(request);
         String vnp_TmnCode = VNPAYConfig.vnp_TmnCode;
         String orderType = "order-type";
-        String vnp_TxnRef = PaymentService.vnp_TxnRef ;
-
+        String vnp_TxnRef = VNPAYConfig.getRandomNumber(8) ;
+        Payment payment = paymentRepository.findByOrderInfo(orderInfor) ;
+        payment.setTransactionRef(vnp_TxnRef);
+        paymentRepository.save(payment);
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);

@@ -13,7 +13,7 @@ spring:
     url: jdbc:mysql://localhost:3306/warehouse_rental?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=TRUE
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: 123456
+    password: 21092002
   jpa:
     show-sql: true
     open-in-view: false

@@ -47,7 +47,6 @@ public class PaymentController {
             if (email == null) {
                 return ResponseEntity.badRequest().body("User not authenticated");
             }
-
             List<Payment> payments = payOSPaymentService.getAllPaymentsByUser(email);
             return ResponseEntity.ok(payments);
         } catch (Exception e) {

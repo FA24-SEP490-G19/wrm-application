@@ -33,6 +33,7 @@ import WarehouseDetailForGuess from "./component/Shared/WareHouseDetailForGuess.
 import PaymentSuccess from "./component/PaymentSuccess.jsx";
 import ResetPassword from "./component/ResetPassword.jsx";
 import AdminDashboard from "./component/Dashboard/AdminDashboard.jsx";
+import RentalHistory from "./component/MyHistory.jsx";
 
 function App() {
     return (
@@ -69,6 +70,7 @@ function App() {
             <Route path="/payment" element={<ProtectedRoute><PaymentList/> </ProtectedRoute>} />
             <Route path="/payment_user" element={<ProtectedRoute><MyPaymentPage /></ProtectedRoute>} />
             <Route path="/statistical" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/history" element={<ProtectedRoute><RentalHistory /></ProtectedRoute>} />
 
                 <Route path="/payment-return" element={<ProtectedRoute><PaymentSuccess/> </ProtectedRoute>} />
             <Route path="/forgot" element={<ResetPassword/> } />

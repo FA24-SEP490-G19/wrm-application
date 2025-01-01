@@ -95,4 +95,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             "FROM Payment p WHERE p.paymentStatus = 'SUCCESS' AND p.user.id = :userId " +
             "GROUP BY YEAR(p.paymentTime) ORDER BY YEAR(p.paymentTime)")
     List<Object[]> findYearlyRevenueByCustomer(@Param("userId") Long userId);
+
+    Payment findByOrderInfo(String orderInfo);
 }

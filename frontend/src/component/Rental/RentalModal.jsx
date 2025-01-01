@@ -10,6 +10,8 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         lot_id: '',
         additional_service_id: '',
         contract_id: '',
+        rental_type: 'MONTHLY',
+        price: '', // Will store float values
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -19,7 +21,10 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
     const [loading, setLoading] = useState(false);
     const [availableLots, setAvailableLots] = useState([]);
     const [availableContracts, setAvailableContracts] = useState([]);
-
+    const RENTAL_TYPES = [
+        { value: 'MONTHLY', label: 'Thuê theo tháng' },
+        { value: 'FLEXIBLE', label: 'Thuê linh hoạt' }
+    ];
     useEffect(() => {
         if (isOpen) {
             fetchOptions();
@@ -93,6 +98,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         { id: 3, name: "Gói dịch vụ toàn diện", description: "Bao gồm tất cả các dịch vụ hỗ trợ vận chuyển như nâng và bốc/dỡ hàng" }
     ];
 
+// Add to validateForm function
     const validateForm = () => {
         const errors = {};
 
@@ -100,9 +106,14 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         if (!formData.warehouse_id) errors.warehouse_id = 'Vui lòng chọn kho';
         if (!formData.lot_id) errors.lot_id = 'Vui lòng chọn lô hàng';
         if (!formData.contract_id) errors.contract_id = 'Vui lòng nhập mã hợp đồng';
+        if (!formData.rental_type) errors.rental_type = 'Vui lòng chọn hình thức thuê';
+        if (!formData.price) {
+            errors.price = 'Vui lòng nhập giá thuê';
+        } else if (parseFloat(formData.price) <= 0) {
+            errors.price = 'Giá thuê phải lớn hơn 0';
+        }
         return errors;
     };
-
     const handleSubmit = (e) => {
         e.preventDefault();
         const validationErrors = validateForm();
@@ -113,6 +124,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
 
         const submitData = {
             ...formData,
+            price: parseFloat(formData.price) // Simply convert string to float
         };
 
         onSubmit(submitData);
@@ -253,6 +265,48 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                                                 <p className="mt-1 text-sm text-gray-500">
                                                     Vui lòng chọn kho trước khi chọn lô hàng
                                                 </p>
+                                            )}
+                                        </div>
+
+                                        {/* Rental Type */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Hình thức thuê
+                                            </label>
+                                            <select
+                                                name="rental_type"
+                                                value={formData.rental_type}
+                                                onChange={handleChange}
+                                                className={inputClasses(errors.rental_type)}
+                                            >
+                                                {RENTAL_TYPES.map(type => (
+                                                    <option key={type.value} value={type.value}>
+                                                        {type.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.rental_type && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.rental_type}</p>
+                                            )}
+                                        </div>
+
+                                        {/* Price */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Giá thuê (VNĐ/{formData.rental_type === 'MONTHLY' ? 'tháng' : 'ngày'})
+                                            </label>
+                                            <input
+                                                type="number"
+                                                name="price"
+                                                value={formData.price}
+                                                onChange={handleChange}
+                                                className={inputClasses(errors.price)}
+                                                placeholder={`Nhập giá thuê/${formData.rental_type === 'MONTHLY' ? 'tháng' : 'ngày'}`}
+                                                step="0.01"
+                                                min="0"
+                                            />
+                                            {errors.price && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.price}</p>
                                             )}
                                         </div>
 

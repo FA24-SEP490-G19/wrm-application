@@ -79,7 +79,11 @@ const RentalList = () => {
         }
     };
 
-
+// Add these translations for rental types
+    const rentalTypeTranslations = {
+        'MONTHLY': 'Thuê theo tháng',
+        'FLEXIBLE': 'Thuê linh hoạt'
+    };
     useEffect(() => {
         fetchRentals();
     }, [currentPage]);
@@ -416,6 +420,12 @@ const RentalList = () => {
                                 Kho
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Hình thức thuê
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Giá thuê (VNĐ)
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Thời gian ký hợp đồng
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -476,6 +486,15 @@ const RentalList = () => {
                                                 {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
                                             </div>
                                         )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {rentalTypeTranslations[rental.rental_type]}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {new Intl.NumberFormat('vi-VN', {
+                                            style: 'currency',
+                                            currency: 'VND'
+                                        }).format(rental.price)}/{rental.rental_type === 'MONTHLY' ? 'tháng' : 'ngày'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {rental.start_date}
@@ -541,7 +560,7 @@ const RentalList = () => {
                 <div className="bg-white px-4 py-3 border-t border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
-                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredRentals.length)}
+                        Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredRentals.length)}
                             trong tổng số {filteredRentals.length} đơn thuê kho
                         </div>
 
