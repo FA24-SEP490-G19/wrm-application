@@ -29,6 +29,7 @@ const CRMLayout = ({ children }) => {
         { name: 'Quản lý phản hồi', icon: Package, path: '/feedback', roles: ['ROLE_ADMIN'] },
         { name: 'Quản lý người dùng', icon: Users, path: '/user', roles: ['ROLE_ADMIN'] },
         { name: 'Quản lý thanh toán', icon: Users, path: '/payment', roles: ['ROLE_SALES','ROLE_ADMIN'] },
+        { name: 'Thống kê', icon: Users, path: '/statistical', roles: ['ROLE_ADMIN'] },
 
 
     ];

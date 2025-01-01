@@ -261,9 +261,7 @@ export const Payment = () => {
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                     {formatPrice(payment.amount)}
                                 </td>
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                    {payment?.status}
-                                </td>
+
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                     2024-12-25
 

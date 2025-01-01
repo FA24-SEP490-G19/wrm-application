@@ -5,6 +5,7 @@ import com.wrm.application.model.User;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.response.payment.PaymentResponse;
 import com.wrm.application.service.impl.PaymentService;
+import com.wrm.application.service.impl.VNPAYService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.List;
 public class VnpayController {
     private final PaymentService paymentService;
     private final UserRepository userRepository;
+    private final VNPAYService vnpayService;
 
     @GetMapping("/vnpay-payment-return")
     public ResponseEntity<PaymentResponse> paymentCompleted(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -35,7 +37,6 @@ public class VnpayController {
 
     @GetMapping("/payment-requests")
     public ResponseEntity<List<PaymentResponse>> getAllPayments() {
-
         List<PaymentResponse> payments = paymentService.getAllPayments();
         return ResponseEntity.ok(payments);
     }
@@ -50,10 +51,10 @@ public class VnpayController {
             return ResponseEntity.ok(payments);
 
     }
+
     @PutMapping("/payment-requests/{id}/confirm")
     public void paymentCompleted(@PathVariable Long id) {
        paymentService.confirm(id);
-
     }
 
     @PostMapping("/submitOrder")
@@ -71,6 +72,13 @@ public class VnpayController {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         paymentService.createPayment(amount, orderInfo, request, id);
         return ResponseEntity.ok().build();
+    }
+
+
+    @PostMapping("/create-payment")
+    public String createPayment(HttpServletRequest request, int amount, String orderInfor) {
+        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() +"/warehouses";
+        return vnpayService.createOrder(request, amount, orderInfor, baseUrl);
     }
 
 }

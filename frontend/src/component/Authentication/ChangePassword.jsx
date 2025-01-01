@@ -169,6 +169,14 @@ const ChangePassword = () => {
                                                     Quản lý thuê kho
                                                 </a>
                                                 <a
+                                                    href="/history"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Lịch sử thuê kho
+                                                </a>
+                                                <a
                                                     href="/MyAppoinment"
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"

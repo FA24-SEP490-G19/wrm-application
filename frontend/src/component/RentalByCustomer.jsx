@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
-    Search, Plus, Loader2, Edit2, Trash2, LayoutDashboard, User, ChevronDown, KeyRound, LogOut, X, Menu, ArrowLeft
+    Search, Plus, Loader2, Edit2, Trash2, LayoutDashboard, User, ChevronDown, KeyRound, LogOut, X, Menu, ArrowLeft,Eye
 } from 'lucide-react';
 import { jwtDecode } from "jwt-decode";
 import {getAllCustomerId, getAllSaleId} from "../service/Reatal.js";
@@ -9,6 +9,7 @@ import {useAuth} from "../context/AuthContext.jsx";
 import {getUserById, getWarehouseById} from "../service/Appointment.js";
 import logo from "../assets/logo.png";
 import {useNavigate} from "react-router-dom";
+import ImageViewer from "./Management/Contract/ImageViewer.jsx";
 const RentalByCustomer = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [rentals, setRentals] = useState([]);
@@ -24,7 +25,82 @@ const RentalByCustomer = () => {
     const { customer } = useAuth();
     const { logOut } = useAuth();
     const navigate = useNavigate();
+    const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+    const [selectedImages, setSelectedImages] = useState([]);
+    const [selectedContractId, setSelectedContractId] = useState(null);
+    const [contractImages, setContractImages] = useState({});
 
+// Add this function to get auth config
+    const getAuthConfig = () => ({
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+    });
+
+// Add this function to fetch contract images
+    const fetchContractImages = async (contractId) => {
+        try {
+            const response = await axios.get(
+                `http://localhost:8080/contracts/${contractId}/images`,
+                getAuthConfig()
+            );
+            const imageIds = response.data;
+
+            const imageUrls = imageIds.map(imageId => ({
+                url: `http://localhost:8080/contracts/images/${imageId}`,
+                config: getAuthConfig()
+            }));
+
+            setContractImages(prev => ({
+                ...prev,
+                [contractId]: imageUrls
+            }));
+
+            return imageUrls;
+        } catch (error) {
+            console.error('Error fetching contract images:', error);
+            return [];
+        }
+    };
+
+// Add this handler function
+    const handleViewContractImages = async (rental) => {
+        if (!rental.contract_id) {
+            showToast('Không có hợp đồng cho đơn thuê này', 'info');
+            return;
+        }
+
+        try {
+            let images;
+            if (contractImages[rental.contract_id]) {
+                images = contractImages[rental.contract_id];
+            } else {
+                images = await fetchContractImages(rental.contract_id);
+            }
+
+            if (images && images.length > 0) {
+                setSelectedImages(images);
+                setSelectedContractId(rental.contract_id);
+                setIsImageViewerOpen(true);
+            } else {
+                showToast('Không có hình ảnh cho hợp đồng này', 'info');
+            }
+        } catch (error) {
+            showToast('Không thể tải hình ảnh hợp đồng', 'error');
+        }
+    };
+
+// Add this callback function
+    const handleImagesUpdate = useCallback(async () => {
+        if (selectedContractId) {
+            const updatedImages = await fetchContractImages(selectedContractId);
+            setSelectedImages(updatedImages);
+            setContractImages(prev => ({
+                ...prev,
+                [selectedContractId]: updatedImages
+            }));
+        }
+    }, [selectedContractId]);
     useEffect(() => {
         fetchRentals();
     }, [currentPage]);
@@ -115,7 +191,10 @@ const RentalByCustomer = () => {
         'EXPIRED': 'Từ chối',
         'COMPLETED': 'Hoàn thành'
     };
-
+    const rentalTypeTranslations = {
+        'MONTHLY': 'Thuê theo tháng',
+        'FLEXIBLE': 'Thuê linh hoạt'
+    };
     const filteredRentals = rentals.filter(rental => {
         if (!rental) return false;
         return searchTerm === '' ||
@@ -207,6 +286,14 @@ const RentalByCustomer = () => {
                                                 >
                                                     <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Quản lý thuê kho
+                                                </a>
+                                                <a
+                                                    href="/history"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                    Lịch sử thuê kho
                                                 </a>
                                                 <a
                                                     href="/MyAppoinment"
@@ -335,7 +422,7 @@ const RentalByCustomer = () => {
                     )}
                 </div>
             </header>
-            <div className="max-w-4xl mx-auto px-4 py-5 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
                 <div className="text-left flex items-center space-x-2">
                     {/* Optional content on the left */}
                     <button
@@ -383,7 +470,18 @@ const RentalByCustomer = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Kho
                                 </th>
-
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Hình thức thuê
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Giá thuê (VNĐ)
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Thời gian ký hợp đồng
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Thời hạn hợp đồng
+                                </th>
                             </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -433,18 +531,52 @@ const RentalByCustomer = () => {
                                             </div>
                                         )}
                                     </td>
-
-
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {rentalTypeTranslations[rental.rental_type]}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {new Intl.NumberFormat('vi-VN', {
+                                            style: 'currency',
+                                            currency: 'VND'
+                                        }).format(rental.price)}/{rental.rental_type === 'MONTHLY' ? 'tháng' : 'ngày'}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {new Date(rental.start_date).toLocaleDateString('vi-VN')}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {new Date(rental.end_date).toLocaleDateString('vi-VN')}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div className="flex justify-end space-x-2">
+                                            <button
+                                                onClick={() => handleViewContractImages(rental)}
+                                                className="p-1 text-gray-600 hover:text-gray-800"
+                                                title="Xem hình ảnh"
+                                            >
+                                                <Eye className="w-5 h-5"/>
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>
+                            <ImageViewer
+                                images={selectedImages}
+                                isOpen={isImageViewerOpen}
+                                onClose={() => {
+                                    setIsImageViewerOpen(false);
+                                    setSelectedContractId(null);
+                                }}
+                                contractId={selectedContractId}
+                                onImagesUpdate={handleImagesUpdate}
+                            />
                         </table>
                     </div>
 
                     <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
                         <div className="flex justify-between items-center">
                             <div className="text-sm text-gray-700">
-                                Hiển thị {rentals.length} đơn thuê kho
+                            Hiển thị {rentals.length} đơn thuê kho
                             </div>
                             <div className="flex space-x-2">
                                 <button

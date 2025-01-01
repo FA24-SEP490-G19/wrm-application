@@ -22,8 +22,8 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final VNPAYService vnPayService;
     private final UserRepository userRepository;
-    public static String vnp_TxnRef = VNPAYConfig.getRandomNumber(8);
-
+    //public static String vnp_TxnRef = VNPAYConfig.getRandomNumber(8);
+// vnPayService.createOrder(request, amount, orderInfo, baseUrl)
     public String createPayment(int amount, String orderInfo, HttpServletRequest request,Long id) {
         // Create initial payment record with PENDING status
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() +"/warehouses";
@@ -31,12 +31,12 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Payment payment = Payment.builder()
                 .paymentTime(LocalDateTime.now())
-                .transactionRef(vnp_TxnRef)
+                .transactionRef(null)
                 .amount((double) amount)
                 .orderInfo(orderInfo)
                 .paymentStatus("Chưa thanh toán")
                 .user(user)
-                .url(vnPayService.createOrder(request, amount, orderInfo, baseUrl))
+                .url(null)
                 .build();
         paymentRepository.save(payment);
 
