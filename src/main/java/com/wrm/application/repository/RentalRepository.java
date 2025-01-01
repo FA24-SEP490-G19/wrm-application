@@ -17,7 +17,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("SELECT r FROM Rental r WHERE r.sales.id = ?1 AND r.isDeleted = false")
     Page<Rental> findBySalesId(Long salesId, Pageable pageable);
 
-    @Query("SELECT r FROM Rental r WHERE r.customer.id = ?1 AND r.isDeleted = false")
+    @Query("SELECT r FROM Rental r WHERE r.customer.id = ?1 AND r.isDeleted = false AND r.status = 'ACTIVE'")
     Page<Rental> findByCustomerId(Long customerId, Pageable pageable);
 
     @Query("SELECT r FROM Rental r WHERE r.warehouse.id = ?1 AND r.isDeleted = false")
@@ -32,7 +32,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN TRUE ELSE FALSE END FROM Rental r WHERE r.lot.id = ?1 AND r.isDeleted = false")
     boolean existsByLotId(Long lotId);
 
-    @Query("SELECT r FROM Rental r WHERE r.customer.id = ?1 AND r.status = 'EXPIRED' AND r.isDeleted = false")
+    @Query("SELECT r FROM Rental r WHERE r.customer.id = ?1 AND (r.status = 'EXPIRED' OR r.status = 'TERMINATED') AND r.isDeleted = false")
     Page<Rental> findCompletedByCustomerId(Long customerId, Pageable pageable);
 
     @Query("SELECT r FROM Rental r WHERE r.startDate >= :startOfDay AND r.endDate < :endOfDay AND r.status = 'ACTIVE' AND r.isDeleted = false")

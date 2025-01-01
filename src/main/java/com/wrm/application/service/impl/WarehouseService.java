@@ -351,4 +351,13 @@ public class WarehouseService implements IWarehouseService {
         // Add new images
         return addWarehouseImages(warehouseId, base64Images);
     }
+
+    @Override
+    @Transactional
+    public List<WarehouseResponse> getWarehousesWithAvailableLots() {
+        List<Warehouse> warehouses = warehouseRepository.findWarehousesWithAvailableLots();
+        return warehouses.stream()
+                .map(warehouseMapper::toWarehouseResponse)
+                .collect(Collectors.toList());
+    }
 }

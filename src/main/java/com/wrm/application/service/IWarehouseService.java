@@ -33,4 +33,6 @@ public interface IWarehouseService {
     List<String> addWarehouseImages(Long warehouseId, List<String> base64Images) throws DataNotFoundException, IOException;
 
     List<String> getWarehouseImageIds(Long warehouseId) throws DataNotFoundException;
+
+    List<WarehouseResponse> getWarehousesWithAvailableLots();
 }
