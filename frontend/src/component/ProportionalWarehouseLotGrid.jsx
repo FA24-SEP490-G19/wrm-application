@@ -64,12 +64,7 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
                     </div>
                 </div>
                 <div className="flex justify-between items-end">
-                    <span className="text-sm font-medium text-green-700">
-                        {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND'
-                        }).format(lot.price)}/tháng
-                    </span>
+
                     {!readOnly && onRemoveLot && (
                         <button
                             onClick={(e) => {
