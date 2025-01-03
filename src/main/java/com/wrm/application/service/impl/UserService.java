@@ -329,4 +329,20 @@ public class UserService implements IUserService {
                 .build();
     }
 
+    @Override
+    public List<UserDTO> getAllCustomerBySales(String remoteUser) throws Exception {
+        User sales = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        return userRepository.findCustomersBySalesId(sales.getId()).stream()
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

@@ -220,6 +220,15 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-
+    @GetMapping("/sales/users")
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<?> getAllCustomerBySales(HttpServletRequest req) {
+        try {
+            List<UserDTO> customers = userService.getAllCustomerBySales(req.getRemoteUser());
+            return ResponseEntity.ok(customers);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 }
