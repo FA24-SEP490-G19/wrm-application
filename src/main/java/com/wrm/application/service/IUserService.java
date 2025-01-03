@@ -33,4 +33,6 @@ public interface IUserService {
     User createUserWithRole(UserDTO userDTO) throws Exception;
 
     UserDTO updateUserProfile(String email, UserDTO updatedUserDTO);
+
+    List<UserDTO> getAllCustomerBySales(String remoteUser) throws Exception;
 }
