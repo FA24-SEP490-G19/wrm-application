@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
@@ -24,4 +25,10 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
     boolean existsWarehouseByWarehouseManager(User user);
 
     boolean existsByWarehouseManagerId(Long id);
+
+    @Query("SELECT DISTINCT w " +
+            "FROM Warehouse w " +
+            "JOIN Lot l ON w.id = l.warehouse.id " +
+            "WHERE l.status = 'AVAILABLE' AND l.isDeleted = false AND w.isDeleted = false")
+    List<Warehouse> findWarehousesWithAvailableLots();
 }

@@ -70,7 +70,8 @@ public class VnpayController {
     @PostMapping("/auto-create-payment")
     public ResponseEntity<Void> autoCreatePayment(@RequestParam int amount, @RequestParam String orderInfo, @RequestParam Long id) {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        paymentService.createPayment(amount, orderInfo, request, id);
+        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() +"/warehouses";
+        vnpayService.createOrder(request, amount, orderInfo, baseUrl);
         return ResponseEntity.ok().build();
     }
 

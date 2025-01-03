@@ -169,4 +169,9 @@ public class WarehouseController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/available")
+    public ResponseEntity<List<WarehouseResponse>> getWarehousesWithAvailableLots() {
+        return ResponseEntity.ok(warehouseService.getWarehousesWithAvailableLots());
+    }
 }
