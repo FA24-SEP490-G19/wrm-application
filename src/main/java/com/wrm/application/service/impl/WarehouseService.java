@@ -206,6 +206,11 @@ public class WarehouseService implements IWarehouseService {
         if (warehouseDTO.getStatus() == null) {
             throw new IllegalArgumentException("Trạng thái kho hàng không được để trống");
         }
+        User warehouseManager = userRepository.findById(warehouseDTO.getWarehouseManagerId())
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+        if (warehouseManager.getRole().getId() != 4) {
+            throw new DataIntegrityViolationException("Người dùng không phải là quản lý kho hàng");
+        }
 
         // Only process thumbnail if a new one is provided
         if (warehouseDTO.getThumbnail() != null && !warehouseDTO.getThumbnail().isEmpty()) {
@@ -224,6 +229,7 @@ public class WarehouseService implements IWarehouseService {
         warehouse.setStatus(warehouseDTO.getStatus());
         warehouse.setSize(warehouseDTO.getSize());
         warehouse.setAddress(warehouseDTO.getAddress());
+        warehouse.setWarehouseManager(warehouseManager);
 
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()
