@@ -79,8 +79,8 @@ public class AppointmentService implements IAppointmentService {
         if (appointmentDTO.getAppointmentDate() == null) {
             throw new IllegalArgumentException("Ngày hẹn không được để trống");
         }
-        if (appointmentDTO.getAppointmentDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
-            throw new IllegalArgumentException("Ngày hẹn phải là ngày trong tương lai");
+        if (appointmentDTO.getAppointmentDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Thời gian hẹn phải lớn hơn thời gian hiện tại");
         }
         if (appointmentDTO.getCustomerId() == null) {
             throw new IllegalArgumentException("ID khách hàng không được để trống");
@@ -132,8 +132,8 @@ public class AppointmentService implements IAppointmentService {
         if (appointmentDTO.getAppointmentDate() == null) {
             throw new IllegalArgumentException("Ngày hẹn không được để trống");
         }
-        if (appointmentDTO.getAppointmentDate().toLocalDate().isBefore(LocalDate.now().plusDays(1))) {
-            throw new IllegalArgumentException("Ngày hẹn phải là ngày trong tương lai");
+        if (appointmentDTO.getAppointmentDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Thời gian hẹn phải lớn hơn thời gian hiện tại");
         }
         if (appointmentDTO.getStatus() == null) {
             throw new IllegalArgumentException("Trạng thái cuộc hẹn không được để trống");
