@@ -23,6 +23,9 @@ public class RentalDTO {
     @JsonProperty("customer_id")
     private Long customerId;
 
+    @JsonProperty("customer_name")
+    private String customerName;
+
     @JsonProperty("warehouse_id")
     private Long warehouseId;
 

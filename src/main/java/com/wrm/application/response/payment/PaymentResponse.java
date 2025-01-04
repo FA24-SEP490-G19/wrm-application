@@ -27,7 +27,5 @@ public class PaymentResponse {
 
     private String status;
 
-    private String url;
-
     private User user ;
 }

@@ -1,23 +1,37 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.configuration.VNPAYConfig;
+import com.wrm.application.dto.RentalDTO;
+import com.wrm.application.dto.UserDTO;
 import com.wrm.application.model.Payment;
+import com.wrm.application.model.User;
 import com.wrm.application.repository.PaymentRepository;
+import com.wrm.application.repository.RentalRepository;
+import com.wrm.application.repository.UserRepository;
+import com.wrm.application.response.payment.PaymentResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class VNPAYService {
     private final PaymentRepository paymentRepository;
+    private final UserRepository userRepository;
+    private final RentalRepository rentalRepository;
 
-    public VNPAYService(PaymentRepository paymentRepository) {
+    public VNPAYService(PaymentRepository paymentRepository, UserRepository userRepository, RentalRepository rentalRepository) {
         this.paymentRepository = paymentRepository;
+        this.userRepository = userRepository;
+        this.rentalRepository = rentalRepository;
     }
 
     public String createOrder(HttpServletRequest request, int amount, String orderInfor, String urlReturn){
@@ -125,6 +139,96 @@ public class VNPAYService {
         } else {
             return -1;
         }
+    }
+
+
+    public String createPayment(int amount, String orderInfo, HttpServletRequest request,Long id) {
+        // Create initial payment record with PENDING status
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Payment payment = Payment.builder()
+                .paymentTime(LocalDateTime.now())
+                .transactionRef(null)
+                .amount((double) amount)
+                .orderInfo(orderInfo)
+                .paymentStatus("Chưa thanh toán")
+                .user(user)
+                .build();
+        paymentRepository.save(payment);
+
+        return null ;
+    }
+
+    public PaymentResponse processPaymentReturn(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        int paymentStatus = orderReturn(request);
+        String transactionRef = request.getParameter("vnp_TxnRef");
+
+        // Find and update payment record
+        Payment payment = paymentRepository.findByTransactionRef(transactionRef)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        payment.setTransactionNo(request.getParameter("vnp_TransactionNo"));
+        payment.setBankCode(request.getParameter("vnp_BankCode"));
+        payment.setCardType(request.getParameter("vnp_CardType"));
+        payment.setPaymentStatus(paymentStatus == 1 ? "SUCCESS" : "FAILED");
+
+        payment = paymentRepository.save(payment);
+        response.sendRedirect("http://localhost:5173/payment-return" );
+
+        return PaymentResponse.builder()
+                .orderInfo(payment.getOrderInfo())
+                .paymentTime(payment.getPaymentTime())
+                .transactionId(payment.getTransactionNo())
+                .amount(payment.getAmount().toString())
+                .status(payment.getPaymentStatus())
+                .build();
+    }
+
+
+    public List<PaymentResponse> getAllPayments() {
+        List<Payment> payments = paymentRepository.findAllByOrderByCreatedDateDesc();
+        return payments.stream()
+                .map(this::mapToPaymentResponse)
+                .collect(Collectors.toList());
+    }
+
+    public void confirm(Long id){
+        Payment payment = paymentRepository.findById(id).orElseThrow() ;
+        payment.setPaymentStatus("Đã thanh toán");
+        paymentRepository.save(payment);
+    }
+
+
+    private PaymentResponse mapToPaymentResponse(Payment payment) {
+        return PaymentResponse.builder()
+                .id(payment.getId())
+                .createdDate(payment.getCreatedDate())
+                .transactionId(payment.getTransactionRef())
+                .amount(String.valueOf(payment.getAmount()))
+                .orderInfo(payment.getOrderInfo())
+                .paymentTime(payment.getPaymentTime())
+                .status(payment.getPaymentStatus())
+                .user(payment.getUser())
+                .build();
+    }
+
+    public List<Payment> getAllPaymentsByUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        return paymentRepository.findByUserId(user.getId());
+    }
+
+    public List<RentalDTO> getAllCustomers() {
+        return rentalRepository.findAll().stream()
+                .map(user -> RentalDTO.builder()
+                        .customerName(user.getCustomer().getFullName())
+                        .customerId(user.getCustomer().getId())
+                        .contractId(user.getContract().getId())
+                        .startDate(user.getStartDate())
+                        .endDate(user.getEndDate())
+                        .build())
+
+                .collect(Collectors.toList());
     }
 
 }

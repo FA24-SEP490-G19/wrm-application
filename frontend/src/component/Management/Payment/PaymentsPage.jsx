@@ -20,15 +20,7 @@ export const Payment = () => {
     const [users, setUsers] = useState({});
 
     const axiosInstance = axios.create({
-        baseURL: 'http://localhost:8080/warehouses',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem("access_token")}`,
-            'Content-Type': 'application/json'
-        }
-    });
-
-    const usersInstance = axios.create({
-        baseURL: 'http://localhost:8080',
+        baseURL: 'http://localhost:8080/payment',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem("access_token")}`,
             'Content-Type': 'application/json'
@@ -43,25 +35,13 @@ export const Payment = () => {
         fetchPayments();
     }, [currentPage]);
 
-    const fetchUsers = async () => {
-        try {
-            const response = await usersInstance.get('/users/customers');
-            const usersMap = {};
-            response.data.forEach(user => {
-                usersMap[user.id] = user;
-            });
-            setUsers(usersMap);
-        } catch (error) {
-            console.error('Error fetching users:', error);
-        }
-    };
+
 
     const fetchPayments = async () => {
         try {
             setLoading(true);
             const [paymentsResponse] = await Promise.all([
                 axiosInstance.get('/payment-requests'),
-                fetchUsers()
             ]);
             setPayments(paymentsResponse.data);
             setError(null);
@@ -129,22 +109,27 @@ export const Payment = () => {
         return pages;
     };
 
-    // const formatDate = (dateString) => {
-    //     if (!dateString || typeof dateString !== 'string') return 'N/A'; // Kiểm tra dữ liệu đầu vào
-    //
-    //     // Tách chuỗi theo định dạng "YYYY-MM-DD HH:mm:ss" (hoặc tương tự)
-    //     const [datePart, timePart] = dateString.split(' ');
-    //     if (!datePart || !timePart) return 'Invalid Date';
-    //
-    //     const [year, month, day] = datePart.split('-');
-    //     const [hour, minute, second] = timePart.split(':');
-    //
-    //     // Kiểm tra dữ liệu sau khi tách
-    //     if (!year || !month || !day || !hour || !minute || !second) return 'Invalid Date';
-    //
-    //     // Trả về chuỗi ngày tháng theo định dạng "DD/MM/YYYY HH:mm:ss"
-    //     return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
-    // };
+    const formatDate = (dateArray) => {
+        // Check if dateArray exists and is an array
+        if (!dateArray || !Array.isArray(dateArray)) return '';
+
+        // Destructure the array values
+        const [year, month, day, hour, minute, second] = dateArray;
+
+        // Create a date object (note: month - 1 because JavaScript months are 0-based)
+        const date = new Date(year, month - 1, day, hour, minute, second);
+
+        // Format using Vietnamese locale
+        return date.toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    };
 
     const getUserInfo = (userId) => {
         const user = users[userId];
@@ -243,9 +228,9 @@ export const Payment = () => {
                         <tr className="bg-gray-50">
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500"></th>
 
                         </tr>
@@ -263,7 +248,7 @@ export const Payment = () => {
                                 </td>
 
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                    2024-12-25
+                                    {formatDate(payment.paymentTime)}
 
                                 </td>
                                 <td className="px-6 py-4">{payment.user.fullName}</td>

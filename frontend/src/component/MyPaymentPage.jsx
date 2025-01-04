@@ -135,7 +135,7 @@ const MyPaymentPage = () => {
 
     const createAndRedirectToPayment = async (payment) => {
         try {
-            const response = await a.post('/warehouses/create-payment', null, {
+            const response = await a.post('/payment/create-payment', null, {
                 params: {
                     amount: payment.amount,
                     orderInfor: payment.orderInfo // Note: using orderInfor to match the API parameter name
@@ -456,17 +456,20 @@ const MyPaymentPage = () => {
                                     </td>
 
                                     <td className="px-6 py-4">
+                                        {payment.paymentStatus !== 'SUCCESS'?
                                         <button
                                             onClick={() => createAndRedirectToPayment(payment)}
-                                            disabled={payment.status === 'SUCCESS'}
+                                            disabled={payment.paymentStatus === 'SUCCESS'}
                                             className={`px-4 py-2 rounded-lg text-sm font-medium ${
                                                 payment.status === 'SUCCESS'
                                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                     : 'bg-green-600 text-white hover:bg-green-700'
                                             }`}
                                         >
-                                            {payment.status === 'SUCCESS' ? 'Đã thanh toán' : 'Thanh toán'}
+                                            Thanh Toán
                                         </button>
+                                        : "Đã thanh toán"}
+
                                     </td>
                                 </tr>
                             ))}

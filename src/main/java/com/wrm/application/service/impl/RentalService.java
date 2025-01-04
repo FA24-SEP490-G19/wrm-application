@@ -35,7 +35,6 @@ public class RentalService implements IRentalService {
     private final LotRepository lotRepository;
     private final ContractRepository contractRepository;
     private final IMailService mailService;
-    private final PaymentService paymentService;
 
     @Override
     public Page<RentalResponse> getAllRentals(PageRequest pageRequest) {

@@ -22,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LEFT JOIN Appointment a ON u.id = a.customer.id AND a.sales.id = :salesId AND a.isDeleted = false " +
             "WHERE (r.sales.id = :salesId OR a.sales.id = :salesId)")
     List<User> findCustomersBySalesId(@Param("salesId") Long salesId);
+
+
 }

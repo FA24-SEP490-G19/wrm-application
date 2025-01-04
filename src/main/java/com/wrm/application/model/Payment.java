@@ -41,9 +41,7 @@ public class Payment {
     private String cardType;
 
     @Column(name ="payment_status" ,length = 1000)
-    private String paymentStatus; // SUCCESS, FAILED, PENDING
-
-    private String url;
+    private String paymentStatus; // SUCCESS, FAILED
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -51,6 +49,10 @@ public class Payment {
 
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdDate;
+
+    @ManyToOne
+    @JoinColumn(name = "rental_id")
+    private Rental rental;
 
     @PrePersist
     protected void onCreate() {

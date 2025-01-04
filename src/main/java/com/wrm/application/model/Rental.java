@@ -63,4 +63,9 @@ public class Rental extends BaseModel{
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private RentalStatus status;
+
+
+    @OneToMany(mappedBy = "rental", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Payment> payment;
 }

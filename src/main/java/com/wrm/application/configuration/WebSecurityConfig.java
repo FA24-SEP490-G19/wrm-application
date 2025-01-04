@@ -37,15 +37,15 @@ public class WebSecurityConfig {
                             )
                             .permitAll()
                             .requestMatchers(GET,
-                                    "/warehouses").permitAll()
+                                    "/payment").permitAll()
                             .requestMatchers(GET,
-                                    "/warehouses/payment-requests/confirm/user").permitAll()
+                                    "/payment/payment-requests/confirm/user").permitAll()
                             .requestMatchers(POST,
-                                    "/warehouses/payment-requests").permitAll()
+                                    "/payment/payment-requests").permitAll()
                             .requestMatchers(POST,
-                                    "/warehouses/auto-create-payment").permitAll()
+                                    "/payment/auto-create-payment").permitAll()
                             .requestMatchers(GET,
-                                    "/warehouses/**").permitAll()
+                                    "/payment/**").permitAll()
                             .requestMatchers(GET,
                                     "/lots/{lotId}").permitAll()
                             .requestMatchers(GET,

@@ -6,9 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,4 +66,8 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
     @Query("SELECT r FROM Rental r WHERE r.endDate BETWEEN :today AND :endDate AND r.warehouse.id = :warehouseId AND r.status = 'ACTIVE' AND r.isDeleted = false")
     Page<Rental> findExpiringRentalsForWarehouse(@Param("today") LocalDateTime today, @Param("endDate") LocalDateTime endDate, @Param("warehouseId") Long warehouseId, Pageable pageable);
+
+
+    @Query("SELECT r FROM Rental r ")
+    List<Rental> findAllRentalsWithCustomerDetails();
 }

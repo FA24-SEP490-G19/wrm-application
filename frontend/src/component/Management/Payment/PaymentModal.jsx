@@ -26,7 +26,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('http://localhost:8080/users/customers', {
+            const response = await fetch('http://localhost:8080/payment/customers', {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem("access_token")}`,
                 }
@@ -73,7 +73,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
             params.append('orderInfo', formData.orderInfo);
             params.append('id', parseInt(formData.user_id));
 
-            const response = await fetch('http://localhost:8080/warehouses/submitOrder', {
+            const response = await fetch('http://localhost:8080/payment/submitOrder', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -138,6 +138,15 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
         transition-colors
     `;
 
+    const formatDate = (dateArray) => {
+        if (!Array.isArray(dateArray) || dateArray.length !== 5) return "Invalid Date";
+        const [year, month, day, hour, minute] = dateArray;
+        const formattedDate = `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`;
+        const formattedTime = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+        return `${formattedDate} ${formattedTime}`;
+    };
+
+
     return (
         <>
             <div className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm transition-opacity z-40" onClick={onClose} />
@@ -154,10 +163,31 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
+                                    <label className="block text-sm font-medium text-gray-700">Khách hàng</label>
+                                    <select
+                                        name="user_id"
+                                        value={formData.user_id}
+                                        onChange={handleChange}
+                                        className={inputClasses(errors.user_id)}
+                                    >
+                                        <option value="">Chọn khách hàng</option>
+                                        {users.map(user => (
+                                            <option key={user.customer_id} value={user.customer_id}>
+                                                {`${user.customer_name} (Mã hợp đồng: ${user.contract_id})`}
+                                                {user.start_date && user.end_date
+                                                    ? ` - ${formatDate(user.start_date)} đến ${formatDate(user.end_date)}`
+                                                    : ""}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.user_id && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
+                                    )}
+                                </div>
+                                <div>
                                     <label className="block text-sm font-medium text-gray-700">Số tiền (VNĐ)</label>
                                     <div className="relative">
                                         <input
-                                            type="number"
                                             name="amount"
                                             value={formData.amount ? formData.amount.toLocaleString('vi-VN') : ''}
                                             onChange={handleChange}
@@ -191,25 +221,6 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                                     )}
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Khách hàng</label>
-                                    <select
-                                        name="user_id"
-                                        value={formData.user_id}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.user_id)}
-                                    >
-                                        <option value="">Chọn khách hàng</option>
-                                        {users.map(user => (
-                                            <option key={user.id} value={user.id}>
-                                                {user.email} {user.phone && `- ${user.phone}`}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.user_id && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
-                                    )}
-                                </div>
 
                                 {errors.submit && (
                                     <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
