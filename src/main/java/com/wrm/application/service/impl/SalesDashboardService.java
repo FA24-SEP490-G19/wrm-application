@@ -77,7 +77,7 @@ public class SalesDashboardService implements ISalesDashboardService {
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime endDate = today.plusDays(10);
-        return rentalRepository.countRentalsByDateRangeForSales(today, endDate, sales.getId());
+        return rentalRepository.countExpiringRentals(today, endDate, sales.getId());
     }
 
     @Override
@@ -86,7 +86,7 @@ public class SalesDashboardService implements ISalesDashboardService {
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
-        return rentalRepository.countRentalsByDateRangeForSales(startOfMonth, endOfMonth, sales.getId());
+        return rentalRepository.countSignedRentalsInAMonth(startOfMonth, endOfMonth, sales.getId());
     }
 
     @Override

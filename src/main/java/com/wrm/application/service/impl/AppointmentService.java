@@ -235,6 +235,9 @@ public class AppointmentService implements IAppointmentService {
     public AppointmentResponse assignAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy cuộc hẹn"));
+        if (appointment.getSales() != null && appointment.getStatus().equals(AppointmentStatus.ACCEPTED)) {
+            throw new IllegalArgumentException("Cuộc hẹn đã được chấp nhận bởi nhân viên bán hàng, không thể gán lại");
+        }
         User sales = userRepository.findById(appointmentDTO.getSalesId())
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
         if (sales.getRole().getId() != 3) {
