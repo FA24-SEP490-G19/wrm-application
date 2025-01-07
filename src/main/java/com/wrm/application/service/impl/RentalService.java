@@ -35,7 +35,7 @@ public class RentalService implements IRentalService {
     private final LotRepository lotRepository;
     private final ContractRepository contractRepository;
     private final IMailService mailService;
-    private final LotService lotService;
+    private final PaymentRepository paymentRepository;
 
     @Override
     public Page<RentalResponse> getAllRentals(PageRequest pageRequest) {
@@ -313,7 +313,7 @@ public class RentalService implements IRentalService {
         });
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 15 * * * ?")
     public void scheduleRentalPayments() throws MessagingException {
         RestTemplate restTemplate = new RestTemplate();
         // Lặp qua danh sách rentals để tạo thanh toán
@@ -325,11 +325,12 @@ public class RentalService implements IRentalService {
                 Long userId = rental.getCustomer().getId();
 
                 // Gửi request đến endpoint auto-create-payment
-                restTemplate.postForEntity(
-                        "http://localhost:8080/warehouses/auto-create-payment?amount=" + amount + "&orderInfo=" + orderInfo + "&id=" + userId,
-                        null,
-                        Void.class
+                String endpointUrl = String.format(
+                        "http://localhost:8080/payment/auto-create-payment?amount=%d&orderInfo=%s&id=%d&rentalId=%d",
+                        amount, orderInfo, userId, rental.getId()
                 );
+
+                restTemplate.postForEntity(endpointUrl, null, Void.class);
 
                 String customerEmail = rental.getCustomer().getEmail();
                 mailService.sendPaymentDueNotification(customerEmail, rental);
@@ -363,8 +364,8 @@ public class RentalService implements IRentalService {
         return false;
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // Chạy hàng ngày lúc 00:00
-    public void updateAndNotifyOverdueRentals() throws MessagingException {
+    @Scheduled(cron = "0 7 * * * ?")
+    public void updateAndNotifyOverdueRentals() throws Exception {
         List<Rental> rentals = rentalRepository.findAll();
         LocalDate today = LocalDate.now();
 
@@ -380,15 +381,20 @@ public class RentalService implements IRentalService {
         }
     }
 
-    private boolean isOverdue(Rental rental, LocalDate today) {
+    private boolean isOverdue(Rental rental, LocalDate today) throws Exception {
         LocalDate startDate = rental.getStartDate().toLocalDate();
         LocalDate endDate = rental.getEndDate().toLocalDate();
 
+        Payment latestPayment = paymentRepository.findLatestPaymentByRentalId(rental.getId());
+        if (latestPayment != null && "SUCCESS".equals(latestPayment.getPaymentStatus())) {
+            return false;
+        }
+
         if (rental.getRentalType() == RentalType.FLEXIBLE) {
-            // Quá hạn nếu hôm nay > endDate
-            return today.isAfter(endDate.plusDays(3));
+            // Quá hạn nếu hôm nay > deadline thanh toán + 3 ngày
+            return today.isAfter(endDate.plusDays(2));
         } else if (rental.getRentalType() == RentalType.MONTHLY) {
-            // Quá hạn nếu hôm nay > deadline thanh toán + 7 ngày
+            // Quá hạn nếu hôm nay > deadline thanh toán + 5 ngày
             long monthsElapsed = ChronoUnit.MONTHS.between(startDate.withDayOfMonth(1), today.withDayOfMonth(1));
             if (monthsElapsed >= 0) {
                 LocalDate monthlyPaymentDeadline = startDate.plusMonths(monthsElapsed).plusDays(5);
