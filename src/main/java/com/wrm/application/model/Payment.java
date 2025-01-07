@@ -1,5 +1,8 @@
 package com.wrm.application.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,6 +55,7 @@ public class Payment {
 
     @ManyToOne
     @JoinColumn(name = "rental_id")
+    @JsonIgnore
     private Rental rental;
 
     @PrePersist

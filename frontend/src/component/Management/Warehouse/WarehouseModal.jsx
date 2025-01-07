@@ -8,6 +8,7 @@ import {getAllLots} from "../../../service/lot.js";
 import {useNavigate, useParams} from "react-router-dom";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import ProportionalWarehouseLotGrid from "../../ProportionalWarehouseLotGrid.jsx";
+import axios from "axios";
 
 export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
     const totalSize = lots.reduce((sum, lot) => sum + parseFloat(lot.size), 0);
@@ -94,7 +95,8 @@ export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
             </div>
         </div>
     );
-};const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
+};
+const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
     const initialLotState = {
         quantity: 10,
@@ -259,14 +261,6 @@ export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
         { value: 'INACTIVE', label: 'Không hoạt động' }
     ];
 
-
-// Add function to remove lot
-    const handleLotsChange = (updatedLots) => {
-        setFormData(prev => ({
-            ...prev,
-            lot_items: updatedLots
-        }));
-    };
 
     const handleRemoveLot = (index) => {
         setFormData(prev => ({

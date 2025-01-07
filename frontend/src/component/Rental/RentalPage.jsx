@@ -272,15 +272,10 @@ const RentalList = () => {
             }
             fetchRentals();
         } catch (error) {
-            showToast(`Thao tác thất bại: ${error.message}`, 'error');
+            showToast(`Thao tác thất bại: ${error.response.data}`, 'error');
         }
     };
-    const toastCustomStyle = {
-        position: 'fixed',
-        zIndex: 9999,  // Higher than modal z-index
-        top: '1rem',
-        right: '1rem',
-    };
+
 
     const handleDeleteRental = async (rentalId) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa đơn thuê kho này?')) {
@@ -331,17 +326,17 @@ const RentalList = () => {
     };
 
     const statusColors = {
-        'PENDING': 'bg-yellow-50 text-yellow-700 border-yellow-100',
-        'ACTIVE': 'bg-green-50 text-green-700 border-green-100',
-        'EXPIRED': 'bg-red-50 text-red-700 border-red-100',
-        'COMPLETED': 'bg-blue-50 text-blue-700 border-blue-100'
+        'ACTIVE': 'bg-yellow-50 text-yellow-700 border-yellow-100',
+        'EXPIRED': 'bg-green-50 text-green-700 border-green-100',
+        'OVERDUE': 'bg-red-50 text-red-700 border-red-100',
+        'TERMINATED': 'bg-blue-50 text-blue-700 border-blue-100'
     };
 
     const statusTranslations = {
-        'PENDING': 'Đang chờ',
-        'ACTIVE': 'Đã duyệt',
-        'EXPIRED': 'Từ chối',
-        'COMPLETED': 'Hoàn thành'
+        'ACTIVE': 'Đang hoạt động',
+        'EXPIRED': 'Hết hạn',
+        'OVERDUE': 'Quá hạn',
+        'TERMINATED': 'Đã hủy'
     };
 
     const filteredRentals = rentals.filter(rental => {
@@ -497,10 +492,10 @@ const RentalList = () => {
                                         }).format(rental.price)}/{rental.rental_type === 'MONTHLY' ? 'tháng' : 'ngày'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {rental.start_date}
+                                        {new Date(rental.start_date).toLocaleDateString('vi-VN')}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {rental.start_date}
+                                        {new Date(rental.end_date).toLocaleDateString('vi-VN')}
                                     </td>
 
 

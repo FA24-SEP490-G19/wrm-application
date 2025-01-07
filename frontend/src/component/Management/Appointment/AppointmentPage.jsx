@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Search, Plus, Loader, Edit2, Trash2, Brush
+    Search, Plus, Loader, Edit2, Trash2, Brush, CheckCircle, XCircle
 } from 'lucide-react';
 import CRMLayout from "../Crm.jsx";
 import { useToast } from "../../../context/ToastProvider.jsx";
@@ -35,7 +35,18 @@ const AppointmentList = () => {
     // Add pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5; // Number of items per page
-
+    const accept = {
+        customer_id: '',
+        warehouse_id: '',
+        appointment_date: '',
+        status: 'ACCEPTED'
+    };
+    const reject = {
+        customer_id: '',
+        warehouse_id: '',
+        appointment_date: '',
+        status: 'REJECTED'
+    };
     // Calculate pagination values
     const lastItemIndex = currentPage * itemsPerPage;
     const firstItemIndex = lastItemIndex - itemsPerPage;
@@ -218,7 +229,6 @@ const AppointmentList = () => {
         'PENDING': 'bg-yellow-50 text-yellow-700 border-yellow-100',
         'ACCEPTED': 'bg-green-50 text-green-700 border-green-100',
         'REJECTED': 'bg-red-50 text-red-700 border-red-100',
-        'COMPLETED': 'bg-blue-50 text-blue-700 border-blue-100',
         'CANCELLED': 'bg-gray-50 text-gray-700 border-gray-100'
     };
 
@@ -226,7 +236,6 @@ const AppointmentList = () => {
         'PENDING': 'Đang chờ',
         'ACCEPTED': 'Đã duyệt',
         'REJECTED': 'Từ chối',
-        'COMPLETED': 'Hoàn thành',
         'CANCELLED': 'Đã hủy'
     };
 
@@ -275,6 +284,25 @@ const AppointmentList = () => {
     const handleAssignClick = (appointmentId) => {
         setSelectedAppointmentId(appointmentId);
         setIsAssignModalOpen(true);
+    };
+
+    const handleUpdateStatus = async (appointmentId, newStatus) => {
+        try {
+            await axios.put(
+                `http://localhost:8080/appointments/${appointmentId}`,
+                { status: newStatus },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            showToast(`Cập nhật trạng thái thành ${statusTranslations[newStatus]}`, 'success');
+            fetchItems();
+        } catch (error) {
+            showToast('Cập nhật trạng thái thất bại', 'error');
+        }
     };
 
     return (
@@ -332,11 +360,7 @@ const AppointmentList = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Thời gian
                             </th>
-                            {customer.role === "ROLE_SALES" ? (
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Thao tác
-                            </th>
-                                ) : "" }
+
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -407,20 +431,43 @@ const AppointmentList = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {new Date(item.appointment_date).toLocaleString('vi-VN')}
                                 </td>
-                                {customer.role === "ROLE_SALES" && (
+                                {customer.role === "ROLE_SALES" && item.status === "PENDING" && (
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end space-x-2">
                                             <button
-                                                onClick={() => handleEditAppointment(item)}
-                                                className="text-indigo-600 hover:text-indigo-900"
+                                                onClick={async () => {
+                                                    try {
+                                                        await updateItem(item.id, accept);
+                                                        showToast('Duyệt cuộc hẹn thành công', 'success');
+                                                        fetchItems();  // Refresh the page data
+                                                    } catch (error) {
+                                                        showToast('Duyệt cuộc hẹn thất bại', 'error');
+                                                    }
+                                                }}
+                                                className="text-green-600 hover:text-green-900"
+                                                title="Duyệt"
                                             >
-                                                <Edit2 className="w-5 h-5" />
+                                                <CheckCircle className="w-5 h-5"/>
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        await updateItem(item.id, reject);
+                                                        showToast('Duyệt cuộc hẹn thành công', 'success');
+                                                        fetchItems();  // Refresh the page data
+                                                    } catch (error) {
+                                                        showToast('Duyệt cuộc hẹn thất bại', 'error');
+                                                    }
+                                                }}                                                className="text-red-600 hover:text-red-900"
+                                                title="Từ chối"
+                                            >
+                                                <XCircle className="w-5 h-5"/>
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteAppointment(item.id)}
                                                 className="text-red-600 hover:text-red-900"
                                             >
-                                                <Trash2 className="w-5 h-5" />
+                                                <Trash2 className="w-5 h-5"/>
                                             </button>
                                         </div>
                                     </td>
@@ -435,7 +482,7 @@ const AppointmentList = () => {
                                                 className="text-indigo-600 hover:text-indigo-900"
                                                 title="Phân công sale"
                                             >
-                                                <Brush className="w-5 h-5" />
+                                                <Brush className="w-5 h-5"/>
                                             </button>
                                         </div>
                                     </td>

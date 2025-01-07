@@ -76,6 +76,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/users/verify", "GET"),
                 Pair.of("/lots", "GET"),
                 Pair.of("/lots/**", "GET"),
+                Pair.of("/warehouses/**", "GET"),
+                Pair.of("/warehouses", "GET"),
                 Pair.of("/v2/payment-requests", "POST"),
                 Pair.of("/warehouses/auto-create-payment", "POST")
         );

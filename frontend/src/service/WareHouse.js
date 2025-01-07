@@ -17,6 +17,18 @@ export const getAllItems = async () => {
     }
 }
 
+export const getAllItemAvailable = async () => {
+    try {
+        return await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/warehouses/available`
+
+
+        )
+    } catch (e) {
+        throw e;
+    }
+}
+
 export const getWareHouseById = async (id) => {
     try {
         return await axios.get(

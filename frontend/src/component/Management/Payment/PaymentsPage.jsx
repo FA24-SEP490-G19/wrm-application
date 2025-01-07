@@ -3,7 +3,7 @@ import axios from "axios";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {useToast} from "../../../context/ToastProvider.jsx";
 import {
-    Loader2,Plus,Search,CreditCard
+    Loader2, Plus, Search, CreditCard, Edit2, Trash2
 } from 'lucide-react';
 import PaymentModal from "./PaymentModal.jsx";
 import CRMLayout from "../Crm.jsx";
@@ -18,6 +18,8 @@ export const Payment = () => {
     const itemsPerPage = 5;
     const { customer } = useAuth();
     const [users, setUsers] = useState({});
+    const [modalMode, setModalMode] = useState('create');
+    const [selectedItem, setSelectedItem] = useState(null);
 
     const axiosInstance = axios.create({
         baseURL: 'http://localhost:8080/payment',
@@ -55,21 +57,27 @@ export const Payment = () => {
 
     const handleModalSubmit = async (paymentData) => {
         try {
-            const response = await axiosInstance.post('/submitOrder', {
-                amount: parseInt(paymentData.amount),
-                orderInfo: paymentData.orderInfo,
-                userId: parseInt(paymentData.user_id)
-            });
-
-            // Redirect to VNPAY payment page
-            window.location.href = response.data;
-            setIsModalOpen(false);
-            fetchPayments();
+            if(modalMode === 'create') {
+                const response = await axiosInstance.post('/submitOrder', {
+                    amount: parseInt(paymentData.amount),
+                    orderInfo: paymentData.orderInfo,
+                    userId: parseInt(paymentData.user_id)
+                });
+                window.location.href = response.data;
+            } else {
+                await axiosInstance.put(`/update/${selectedItem.id}`, null, {
+                    params: {
+                        amount: parseInt(paymentData.amount)
+                    }
+                });
+                showToast('Cập nhật thành công', 'success');
+                fetchPayments(); // Refresh the payments list
+                setIsModalOpen(false);
+            }
         } catch (error) {
-            showToast(`Tạo thanh toán thất bại: ${error.response?.data?.message || error.message}`, 'error');
+            showToast(`Thao tác thất bại: ${error.response?.data?.message || error.message}`, 'error');
         }
     };
-
     const filteredPayments = payments.filter(payment => {
         if (!searchTerm) return true;
         const searchLower = searchTerm.toLowerCase();
@@ -185,6 +193,18 @@ export const Payment = () => {
         );
     }
 
+    function handleEditPayment(payment) {
+        setModalMode("edit");
+        setSelectedItem(payment);
+        setIsModalOpen(true)
+
+    }
+
+    function handleAddPayment() {
+        setModalMode("create");
+        setIsModalOpen(true)
+    }
+
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
@@ -195,7 +215,7 @@ export const Payment = () => {
                 </div>
                 {customer.role === "ROLE_SALES" && (
                     <button
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={handleAddPayment}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700
                                  flex items-center gap-2 transition-colors"
                     >
@@ -228,7 +248,8 @@ export const Payment = () => {
                         <tr className="bg-gray-50">
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian tạo</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian thanh toán</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500"></th>
@@ -246,16 +267,28 @@ export const Payment = () => {
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                     {formatPrice(payment.amount)}
                                 </td>
-
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                    {formatDate(payment.createdDate)}
+                                </td>
                                 <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                     {formatDate(payment.paymentTime)}
-
                                 </td>
                                 <td className="px-6 py-4">{payment.user.fullName}</td>
 
                                 <td className="px-6 py-4">
 
                                     {payment.status === 'SUCCESS' ? 'Đã Thanh Toán' : 'Đang đợi thanh toán'}
+                                </td>
+                                <td>
+                                    <div className="flex justify-end space-x-2">
+                                        <button
+                                            onClick={() => handleEditPayment(payment)}
+                                            className="p-1 text-blue-600 hover:text-blue-800"
+                                        >
+                                            <Edit2 className="w-5 h-5"/>
+                                        </button>
+
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -325,6 +358,8 @@ export const Payment = () => {
             {/* Payment Modal */}
             <PaymentModal
                 isOpen={isModalOpen}
+                mode={modalMode}
+                payment={selectedItem}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleModalSubmit}
             />

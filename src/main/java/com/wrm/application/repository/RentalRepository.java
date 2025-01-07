@@ -67,7 +67,6 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     @Query("SELECT r FROM Rental r WHERE r.endDate BETWEEN :today AND :endDate AND r.warehouse.id = :warehouseId AND r.status = 'ACTIVE' AND r.isDeleted = false")
     Page<Rental> findExpiringRentalsForWarehouse(@Param("today") LocalDateTime today, @Param("endDate") LocalDateTime endDate, @Param("warehouseId") Long warehouseId, Pageable pageable);
 
-
-    @Query("SELECT r FROM Rental r ")
+    @Query("SELECT r FROM Rental r WHERE r.status = 'ACTIVE' AND r.isDeleted = false AND r.lot.status = 'OCCUPIED' ")
     List<Rental> findAllRentalsWithCustomerDetails();
 }

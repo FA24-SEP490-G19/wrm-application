@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum LotStatus {
-    AVAILABLE,
-    RESERVED,
-    OCCUPIED;
+    AVAILABLE, // có sẵn
+    RESERVED,  // BỎ
+    OCCUPIED;  // KHI TẠO RENTAL, SET LOT =  OCCUPIED
 
     @JsonCreator
     public static LotStatus fromValue(String value) {

@@ -115,11 +115,11 @@ const LotList = () => {
         },
         'reserved': {
             color: 'bg-blue-50 text-blue-700 border-blue-100',
-            label: 'Đã thuê'
+            label: 'Đã đặt trước'
         },
         'occupied': {
             color: 'bg-yellow-50 text-yellow-700 border-yellow-100',
-            label: 'Bảo trì'
+            label: 'Đang sử dụng'
         }
     };
     const statusConfig = LOT_STATUS_CONFIG;

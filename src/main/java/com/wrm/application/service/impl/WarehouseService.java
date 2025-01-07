@@ -3,17 +3,12 @@ package com.wrm.application.service.impl;
 import com.wrm.application.WarehouseMapper;
 import com.wrm.application.constant.enums.LotStatus;
 import com.wrm.application.constant.enums.WarehouseStatus;
+import com.wrm.application.dto.FeedbackDTO;
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.dto.WarehouseDTO;
 import com.wrm.application.exception.DataNotFoundException;
-import com.wrm.application.model.Lot;
-import com.wrm.application.model.User;
-import com.wrm.application.model.Warehouse;
-import com.wrm.application.model.WarehouseImage;
-import com.wrm.application.repository.LotRepository;
-import com.wrm.application.repository.UserRepository;
-import com.wrm.application.repository.WarehouseImageRepository;
-import com.wrm.application.repository.WarehouseRepository;
+import com.wrm.application.model.*;
+import com.wrm.application.repository.*;
 import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.IWarehouseService;
@@ -43,6 +38,7 @@ public class WarehouseService implements IWarehouseService {
     private final WarehouseImageRepository warehouseImageRepository;
     private final LotRepository lotRepository;
     private final WarehouseMapper warehouseMapper;
+    private final FeedbackRepository feedbackRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -70,6 +66,18 @@ public class WarehouseService implements IWarehouseService {
             imageBase64List.add(warehouseImage.getImageUrl());
         }
 
+        // Get feedback data
+        List<FeedbackDTO> feedbacks = feedbackRepository.findByWarehouseId(id)
+                .stream()
+                .map(feedback -> FeedbackDTO.builder()
+                        .id(feedback.getId())
+                        .customerId(feedback.getCustomer().getId())
+                        .rating(feedback.getRating())
+                        .comment(feedback.getComment())
+                        .build())
+                .collect(Collectors.toList());
+
+
         return WarehouseDetailResponse.builder()
                 .id(warehouse.getId())
                 .name(warehouse.getName())
@@ -81,6 +89,7 @@ public class WarehouseService implements IWarehouseService {
                 .warehouseManagerName(warehouse.getWarehouseManager().getFullName())
                 .warehouseManagerPhone(warehouse.getWarehouseManager().getPhoneNumber())
                 .images(imageBase64List)
+                .feedbackDTOS(feedbacks)
                 .build();
     }
 
@@ -206,11 +215,13 @@ public class WarehouseService implements IWarehouseService {
         if (warehouseDTO.getStatus() == null) {
             throw new IllegalArgumentException("Trạng thái kho hàng không được để trống");
         }
-        User warehouseManager = userRepository.findById(warehouseDTO.getWarehouseManagerId())
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
-        if (warehouseManager.getRole().getId() != 4) {
-            throw new DataIntegrityViolationException("Người dùng không phải là quản lý kho hàng");
-        }
+
+        // tạm thời comment lại
+//        User warehouseManager = userRepository.findById(warehouseDTO.getWarehouseManagerId())
+//                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+//        if (warehouseManager.getRole().getId() != 4) {
+//            throw new DataIntegrityViolationException("Người dùng không phải là quản lý kho hàng");
+//        }
 
         // Only process thumbnail if a new one is provided
         if (warehouseDTO.getThumbnail() != null && !warehouseDTO.getThumbnail().isEmpty()) {
@@ -229,7 +240,7 @@ public class WarehouseService implements IWarehouseService {
         warehouse.setStatus(warehouseDTO.getStatus());
         warehouse.setSize(warehouseDTO.getSize());
         warehouse.setAddress(warehouseDTO.getAddress());
-        warehouse.setWarehouseManager(warehouseManager);
+        //warehouse.setWarehouseManager(warehouseManager);
 
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()

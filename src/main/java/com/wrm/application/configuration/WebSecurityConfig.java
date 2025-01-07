@@ -37,6 +37,8 @@ public class WebSecurityConfig {
                             )
                             .permitAll()
                             .requestMatchers(GET,
+                                    "/warehouses/**").permitAll()
+                            .requestMatchers(GET,
                                     "/payment").permitAll()
                             .requestMatchers(GET,
                                     "/payment/payment-requests/confirm/user").permitAll()

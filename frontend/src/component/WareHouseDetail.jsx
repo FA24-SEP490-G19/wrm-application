@@ -4,7 +4,7 @@ import {useParams, useNavigate} from 'react-router-dom';
 import {
     MapPin, Square, User, ArrowLeft, Package,
     Loader2, Calendar, Clock, CheckCircle,
-    AlertCircle, Image, ChevronLeft, ChevronRight
+    AlertCircle, Image, ChevronLeft, ChevronRight,MessageSquare,Star
 } from 'lucide-react';
 import {getWareHouseById} from '../service/WareHouse';
 import {getAllLots} from '../service/lot';
@@ -24,12 +24,12 @@ const LOT_STATUS_CONFIG = {
     },
     reserved: {
         color: 'bg-blue-300 text-blue-700 border-blue-100',
-        label: 'Đã thuê',
+        label: 'Đã đặt trước',
         icon: Clock
     },
     occupied: {
         color: 'bg-yellow-200 text-yellow-700 border-yellow-100',
-        label: 'Bảo trì',
+        label: 'Đang sử dụng',
         icon: AlertCircle
     }
 };
@@ -277,8 +277,81 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot }) => {
         </div>
     );
 };
+const FeedbackList = ({ feedbacks }) => {
+    const [activeTab, setActiveTab] = useState('all');
 
-// Utility function to chunk array
+    if (!feedbacks || feedbacks.length === 0) {
+        return (
+            <div className="text-center py-8 text-gray-500">
+                <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>Chưa có đánh giá nào</p>
+            </div>
+        );
+    }
+
+    const displayedFeedbacks = activeTab === 'all'
+        ? feedbacks
+        : feedbacks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+
+    return (
+        <div className="p-6">
+
+            {/* Custom Tabs */}
+            <div className="flex border-b border-gray-200 mb-6">
+                <button
+                    onClick={() => setActiveTab('all')}
+                    className={`px-4 py-2 font-medium text-sm -mb-px ${
+                        activeTab === 'all'
+                            ? 'text-indigo-600 border-b-2 border-indigo-600'
+                            : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                    Tất cả đánh giá
+                </button>
+
+            </div>
+
+            {/* Feedback List */}
+            <div className="space-y-4">
+                {displayedFeedbacks.map((feedback, index) => (
+                    <div key={index} className="border rounded-lg p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-1">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star
+                                        key={i}
+                                        className={`w-5 h-5 ${
+                                            i < feedback.rating
+                                                ? 'text-yellow-400 fill-yellow-400'
+                                                : 'text-gray-300'
+                                        }`}
+                                    />
+                                ))}
+                            </div>
+
+                        </div>
+                        <p className="text-gray-700">{feedback.comment}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Statistics */}
+            {feedbacks.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span>Tổng số đánh giá: {feedbacks.length}</span>
+                        <span>
+                            Đánh giá trung bình: {' '}
+                            {(feedbacks.reduce((acc, curr) => acc + curr.rating, 0) /
+                                feedbacks.length).toFixed(1)}
+                            /5
+                        </span>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};// Utility function to chunk array
 const chunks = (arr, size) => {
     return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
         arr.slice(i * size, i * size + size)
@@ -536,10 +609,31 @@ const WarehouseDetail = () => {
 
                     {/* Feedback Section */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <FeedbackForm
-                            warehouseId={warehouse?.id}
-                            onSubmit={() => showToast('Cảm ơn bạn đã gửi đánh giá!', 'success')}
-                        />
+                        {/* Feedback Form Section */}
+                        <div className="p-6 border-b border-gray-100">
+                            <h2 className="text-xl font-bold text-gray-900 mb-6">Gửi đánh giá của bạn</h2>
+                            <FeedbackForm
+                                warehouseId={warehouse?.id}
+                                onSubmit={async () => {
+                                    showToast('Cảm ơn bạn đã gửi đánh giá!', 'success');
+                                    // Refetch warehouse data to get updated feedback
+                                    try {
+                                        const response = await getWareHouseById(id);
+                                        setWarehouse(response.data);
+                                    } catch (error) {
+                                        console.error('Error refetching warehouse data:', error);
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        {/* Feedback List Section */}
+                        <div className="p-6">
+                            <h2 className="text-xl font-bold text-gray-900 mb-6">Đánh giá từ khách hàng</h2>
+                            <FeedbackList
+                                feedbacks={warehouse?.feedbacks || []}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

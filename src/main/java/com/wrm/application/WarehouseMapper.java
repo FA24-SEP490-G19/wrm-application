@@ -1,6 +1,8 @@
 package com.wrm.application;
 
+import com.wrm.application.dto.FeedbackDTO;
 import com.wrm.application.dto.WarehouseImageDTO;
+import com.wrm.application.model.Feedback;
 import com.wrm.application.model.Warehouse;
 import com.wrm.application.model.WarehouseImage;
 import com.wrm.application.response.warehouse.WarehouseResponse;
@@ -23,6 +25,17 @@ public class WarehouseMapper {
                 .build();
     }
 
+    public FeedbackDTO toFeedback(Feedback feedback) {
+        if (feedback == null) {
+            return null;
+        }
+
+        return FeedbackDTO.builder()
+                .comment(feedback.getComment())
+                .rating(feedback.getRating())
+                .build();
+    }
+
     public WarehouseResponse toWarehouseResponse(Warehouse warehouse) {
         if (warehouse == null) {
             return null;
@@ -32,6 +45,12 @@ public class WarehouseMapper {
                 warehouse.getWarehouseImages().stream()
                         .map(this::toWarehouseImageDTO)
                         .collect(Collectors.toList()) :
+                new ArrayList<>();
+
+        List<FeedbackDTO> feedbackDTOS = warehouse.getFeedbacks() != null ?
+                warehouse.getFeedbacks().stream()
+                        .map(this::toFeedback)
+                        .toList() :
                 new ArrayList<>();
 
         return WarehouseResponse.builder()
@@ -44,6 +63,7 @@ public class WarehouseMapper {
                 .thumbnail(warehouse.getThumbnail())
                 .fullThumbnailPath(warehouse.getThumbnail())
                 .warehouseImages(imagesDTOs)
+                .feedbackDTOS(feedbackDTOS)
                 .build();
     }
 

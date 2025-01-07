@@ -1,10 +1,13 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.configuration.VNPAYConfig;
+import com.wrm.application.constant.enums.LotStatus;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.model.Payment;
+import com.wrm.application.model.Rental;
 import com.wrm.application.model.User;
+import com.wrm.application.repository.LotRepository;
 import com.wrm.application.repository.PaymentRepository;
 import com.wrm.application.repository.RentalRepository;
 import com.wrm.application.repository.UserRepository;
@@ -27,11 +30,13 @@ public class VNPAYService {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final RentalRepository rentalRepository;
+    private final LotRepository lotRepository;
 
-    public VNPAYService(PaymentRepository paymentRepository, UserRepository userRepository, RentalRepository rentalRepository) {
+    public VNPAYService(PaymentRepository paymentRepository, UserRepository userRepository, RentalRepository rentalRepository, LotRepository lotRepository) {
         this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
         this.rentalRepository = rentalRepository;
+        this.lotRepository = lotRepository;
     }
 
     public String createOrder(HttpServletRequest request, int amount, String orderInfor, String urlReturn){
@@ -141,16 +146,16 @@ public class VNPAYService {
         }
     }
 
-
-    public String createPayment(int amount, String orderInfo, HttpServletRequest request,Long id) {
+    public String createPayment(int amount, String orderInfo, HttpServletRequest request,Long id,Long rentalId) {
         // Create initial payment record with PENDING status
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        Rental rental = rentalRepository.findById(rentalId).orElseThrow(() -> new RuntimeException("rental not found")) ;
         Payment payment = Payment.builder()
-                .paymentTime(LocalDateTime.now())
                 .transactionRef(null)
                 .amount((double) amount)
                 .orderInfo(orderInfo)
+                .rental(rental)
                 .paymentStatus("Chưa thanh toán")
                 .user(user)
                 .build();
@@ -170,8 +175,13 @@ public class VNPAYService {
         payment.setBankCode(request.getParameter("vnp_BankCode"));
         payment.setCardType(request.getParameter("vnp_CardType"));
         payment.setPaymentStatus(paymentStatus == 1 ? "SUCCESS" : "FAILED");
-
+        if(paymentStatus == 1){
+            payment.setPaymentTime(LocalDateTime.now());
+           // payment.getRental().getLot().setStatus(LotStatus.OCCUPIED);
+            //lotRepository.save(payment.getRental().getLot()); // Explicitly save the lot
+        }
         payment = paymentRepository.save(payment);
+
         response.sendRedirect("http://localhost:5173/payment-return" );
 
         return PaymentResponse.builder()
@@ -219,8 +229,9 @@ public class VNPAYService {
     }
 
     public List<RentalDTO> getAllCustomers() {
-        return rentalRepository.findAll().stream()
+        return rentalRepository.findAllRentalsWithCustomerDetails().stream()
                 .map(user -> RentalDTO.builder()
+                        .rentalId(user.getId())
                         .customerName(user.getCustomer().getFullName())
                         .customerId(user.getCustomer().getId())
                         .contractId(user.getContract().getId())
@@ -231,4 +242,9 @@ public class VNPAYService {
                 .collect(Collectors.toList());
     }
 
+    public void updatePayment(Long id, int amount) {
+        Payment payment = paymentRepository.findById(id).orElseThrow() ;
+        payment.setAmount((double) amount);
+        paymentRepository.save(payment);
+    }
 }

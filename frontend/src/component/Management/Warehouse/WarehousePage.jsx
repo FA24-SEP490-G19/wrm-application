@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Search, Filter, Plus, Download,
     Mail, Phone, Building2, ArrowUpDown,
-    Loader, Edit2, Trash2, Image, X  // Added Image and X here
+    Loader, Edit2, Trash2, Image, X ,MessageSquare  // Added Image and X here
 } from 'lucide-react';
 import CRMLayout from "../Crm.jsx";
 import { useToast } from "../../../context/ToastProvider.jsx";
@@ -17,6 +17,7 @@ import {
 } from "../../../service/WareHouse.js";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {jwtDecode} from "jwt-decode";
+import FeedbackModal from "./FeedbackModal.jsx";
 
 const FeatureList = () => {
     const [selectedStatus, setSelectedStatus] = useState('all');
@@ -45,6 +46,13 @@ const FeatureList = () => {
             ...prev,
             [field]: value
         }));
+    };
+    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+    const [selectedFeedbacks, setSelectedFeedbacks] = useState([]);
+
+    const handleViewFeedbacks = (feedbacks) => {
+        setSelectedFeedbacks(feedbacks);
+        setIsFeedbackModalOpen(true);
     };
     // Generate page numbers
     const getPageNumbers = () => {
@@ -328,11 +336,12 @@ const FeatureList = () => {
                                 <td className="px-6 py-4 text-sm text-gray-900">
                                     {item.name}
                                 </td>
+
                                 <td className="px-6 py-4 text-sm text-gray-500">
                                     {item.address}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-500">
-                                    {item.size.toFixed(2) } m²
+                                    {item.size.toFixed(2)} m²
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-900">
                                     {item.description}
@@ -361,6 +370,15 @@ const FeatureList = () => {
                                             <Image className="w-8 h-8 text-gray-400"/>
                                         </div>
                                     )}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    <button
+                                        onClick={() => handleViewFeedbacks(item.feedbackDTOS)}
+                                        className="flex items-center text-indigo-600 hover:text-indigo-800 gap-1"
+                                    >
+                                        <MessageSquare className="w-4 h-4"/>
+                                        <span>{item.feedbackDTOS?.length || 0} đánh giá</span>
+                                    </button>
                                 </td>
 
                                 {/*<td className="px-6 py-4">*/}
@@ -420,7 +438,7 @@ const FeatureList = () => {
                 {/* Updated Pagination */}
                 <div className="px-6 py-4 border-t border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500">
                             Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredItems.length)}
                             trong tổng số {filteredItems.length} kho
                         </div>
@@ -512,6 +530,12 @@ const FeatureList = () => {
                 mode={modalMode}
                 warehouseData={selectedItem}
                 onSubmit={handleModalSubmit}
+            />
+
+            <FeedbackModal
+                isOpen={isFeedbackModalOpen}
+                onClose={() => setIsFeedbackModalOpen(false)}
+                feedbacks={selectedFeedbacks}
             />
         </div>
     );

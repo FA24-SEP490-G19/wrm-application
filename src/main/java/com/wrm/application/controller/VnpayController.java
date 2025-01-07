@@ -65,8 +65,9 @@ public class VnpayController {
             @RequestParam("amount") int orderTotal,
             @RequestParam("orderInfo") String orderInfo,
             @RequestParam("id") Long id,
+            @RequestParam("rentalId") Long rentalId,
             HttpServletRequest request) {
-        String paymentUrl = vnpayService.createPayment(orderTotal, orderInfo, request,id);
+        String paymentUrl = vnpayService.createPayment(orderTotal, orderInfo, request,id,rentalId);
         return ResponseEntity.ok(paymentUrl);
     }
 
@@ -84,6 +85,13 @@ public class VnpayController {
     public String createPayment(HttpServletRequest request, int amount, String orderInfor) {
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() +"/payment";
         return vnpayService.createOrder(request, amount, orderInfor, baseUrl);
+    }
+
+
+    //Khách hàng click thanh toán sẽ tạo ra link
+    @PutMapping("/update/{id}")
+    public void updatePayment(@PathVariable Long id,@RequestParam("amount") int amount) {
+         vnpayService.updatePayment(id,amount);
     }
 
     @GetMapping("/customers")

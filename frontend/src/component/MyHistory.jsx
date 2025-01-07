@@ -189,13 +189,14 @@ const RentalHistory = () => {
                                                 <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                 Thông tin cá nhân
                                             </a>
+
                                             <a
                                                 href="/RentalByUser"
                                                 className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                             >
                                                 <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý thuê kho
+                                                Đơn thuê kho
                                             </a>
                                             <a
                                                 href="/history"
@@ -205,14 +206,13 @@ const RentalHistory = () => {
                                                 <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                 Lịch sử thuê kho
                                             </a>
-
                                             <a
                                                 href="/MyAppoinment"
                                                 className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                             >
                                                 <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý cuộc hẹn
+                                                Cuộc hẹn
                                             </a>
                                             <a
                                                 href="/MyRequest"
@@ -220,7 +220,7 @@ const RentalHistory = () => {
                                                          hover:bg-gray-50 transition-colors"
                                             >
                                                 <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý yêu cầu
+                                                Yêu cầu
                                             </a>
                                             <a
                                                 href="/MyFeedBack"
@@ -228,15 +228,15 @@ const RentalHistory = () => {
                                                          hover:bg-gray-50 transition-colors"
                                             >
                                                 <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý đánh giá
+                                                Đánh giá
                                             </a>
                                             <a
                                                 href="/payment_user"
                                                 className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                             >
-                                                <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý thanh toán
+                                                <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                                Thanh toán
                                             </a>
                                             <a
                                                 href="/reset"

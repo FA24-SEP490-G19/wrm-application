@@ -9,12 +9,12 @@ const LOT_STATUS_CONFIG = {
     },
     reserved: {
         color: 'bg-blue-300 text-blue-700 border-blue-100',
-        label: 'Đã thuê',
+        label: 'Đã đặt trước',
         icon: Clock
     },
     occupied: {
         color: 'bg-yellow-200 text-yellow-700 border-yellow-100',
-        label: 'Bảo trì',
+        label: 'Đang sử dụng',
         icon: AlertCircle
     }
 };
@@ -24,7 +24,7 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
 
     // Sort lots by size and arrange in pairs (2 per row)
     const arrangeLots = () => {
-        const sortedLots = [...lots].sort((a, b) => parseFloat(b.size) - parseFloat(a.size));
+        const sortedLots = [...lots].sort((a, b) => a.id - b.id);
         const rows = Math.ceil(sortedLots.length / 2); // 2 lots per row
         const arranged = Array(rows).fill().map(() => []);
 
@@ -45,26 +45,29 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
         const isSelected = selectedLot?.id === lot.id;
         const StatusIcon = lot.status ? LOT_STATUS_CONFIG[lot.status.toLowerCase()]?.icon : null;
 
+        // Get status configuration based on lot status
+        const statusConfig = lot.status ? LOT_STATUS_CONFIG[lot.status.toLowerCase()] : LOT_STATUS_CONFIG.available;
+
         return (
             <div
                 onClick={() => onLotSelect && onLotSelect(lot)}
-                className={`relative bg-green-50 p-4 rounded-lg border border-green-200
-                          hover:shadow-md transition-all cursor-pointer h-40
-                          flex flex-col justify-between
-                          ${isSelected ? 'ring-2 ring-indigo-500' : ''}`}
+                className={`relative p-4 rounded-lg border transition-all cursor-pointer h-40
+                      flex flex-col justify-between
+                      ${isSelected ? 'ring-2 ring-indigo-500' : ''}
+                      ${statusConfig.color} // Apply status-specific colors
+                      hover:shadow-md`}
             >
                 <div>
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="font-medium text-base truncate">{lot.description || `Lô ${lot.id}`}</p>
-                            <p className="text-sm text-gray-500 mt-1">{lot.size}m²</p>
-                            <p className="text-sm text-gray-500">({sizePercentage.toFixed(1)}% tổng diện tích)</p>
+                            <p className="text-sm mt-1">{lot.size}m²</p>
+                            <p className="text-sm">({sizePercentage.toFixed(1)}% tổng diện tích)</p>
                         </div>
                         {StatusIcon && <StatusIcon className="w-4 h-4" />}
                     </div>
                 </div>
                 <div className="flex justify-between items-end">
-
                     {!readOnly && onRemoveLot && (
                         <button
                             onClick={(e) => {
@@ -80,7 +83,6 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
             </div>
         );
     };
-
     return (
         <div className="relative bg-white p-8 rounded-xl border border-gray-200">
             {/* Warehouse Entry */}

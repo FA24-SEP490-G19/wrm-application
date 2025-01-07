@@ -48,6 +48,10 @@ public class Warehouse extends BaseModel{
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
+    private List<Feedback> feedbacks;
+
+    @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<WarehouseImage> warehouseImages;
 
 }

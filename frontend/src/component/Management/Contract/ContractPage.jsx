@@ -107,7 +107,7 @@ const ContractList = () => {
                 }
                 showToast('Thêm mới hợp đồng thành công', 'success');
             } else {
-                response = await updateContract(selectedContract.id, contractData);
+                updateContract(selectedContract.id, contractData);
                 if (contractData.contract_img_link?.length > 0) {
                     await uploadContractImages(selectedContract.id, contractData.contract_img_link);
                 }
@@ -115,8 +115,8 @@ const ContractList = () => {
             }
             setIsModalOpen(false);
             fetchContracts();
-        } catch (error) {
-            showToast(`Thao tác thất bại: ${error.message}`, 'error');
+        } catch (err) {
+            showToast(`${err.response.data}`, 'err');
         }
     };
 

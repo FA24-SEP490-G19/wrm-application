@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {X} from 'lucide-react';
-import {getAllItems} from "../../../service/WareHouse.js";
+import {getAllItemAvailable, getAllItems} from "../../../service/WareHouse.js";
 import {getAllCustomers} from "../../../service/Authenticate.js";
 
 const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) => {
@@ -42,10 +42,10 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
         setLoading(true);
         try {
 
-            const warehousesResponse = await getAllItems();
+            const warehousesResponse = await getAllItemAvailable();
             const customersResponse = await getAllCustomers();
 
-            setWarehouses(warehousesResponse.data.warehouses);
+            setWarehouses(warehousesResponse.data);
 
             setCustomers(customersResponse.data || []);
         } catch (error) {
@@ -82,14 +82,33 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
         onSubmit(formData);
     };
 
+    const validateAppointmentTime = (dateTimeStr) => {
+        const date = new Date(dateTimeStr);
+        const hours = date.getHours();
+        return hours >= 9 && hours <= 17;
+    };
+
     const handleChange = (e) => {
-        const {name, value, type} = e.target;
+        const { name, value } = e.target;
+        if (name === 'appointment_date') {
+            if (!validateAppointmentTime(value)) {
+                setErrors(prev => ({
+                    ...prev,
+                    appointment_date: 'Vui lòng chọn thời gian từ 9h đến 17h'
+                }));
+                return;
+            }
+        }
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'number' ? (value ? parseInt(value) : '') : value
+            [name]: value
         }));
+        // Clear error if exists
         if (errors[name]) {
-            setErrors(prev => ({...prev, [name]: ''}));
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
         }
     };
 
@@ -198,7 +217,6 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
                                             <option value="PENDING">Đang chờ</option>
                                             <option value="ACCEPTED">Đã duyệt</option>
                                             <option value="REJECTED">Từ chối</option>
-                                            <option value="COMPLETED">Hoàn thành</option>
                                             <option value="CANCELLED">Đã hủy</option>
                                         </select>
                                     </div>

@@ -35,6 +35,7 @@ public class RentalService implements IRentalService {
     private final LotRepository lotRepository;
     private final ContractRepository contractRepository;
     private final IMailService mailService;
+    private final LotService lotService;
 
     @Override
     public Page<RentalResponse> getAllRentals(PageRequest pageRequest) {
@@ -105,9 +106,12 @@ public class RentalService implements IRentalService {
 
         Lot lot = lotRepository.findById(rentalDTO.getLotId())
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy lô"));
+
+        lot.setStatus(LotStatus.OCCUPIED) ;
         if (!lot.getWarehouse().getId().equals(rentalDTO.getWarehouseId())) {
             throw new DataIntegrityViolationException("Lô không thuộc về kho hàng đã chỉ định");
         }
+
         if (rentalRepository.existsByLotId(rentalDTO.getLotId())) {
             throw new DataIntegrityViolationException("Lô đã được thuê");
         }

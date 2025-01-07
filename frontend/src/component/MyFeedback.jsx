@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Search, Filter, Plus, Download,
     Mail, Phone, Building2, ArrowUpDown,
-    Loader, Edit2, Trash2, LayoutDashboard, User, ChevronDown, KeyRound, LogOut, X, Menu, ArrowLeft
+    Loader, Edit2, Trash2, LayoutDashboard, User, ChevronDown, KeyRound, LogOut, X, Menu, ArrowLeft, Star
 } from 'lucide-react';
 import {useToast} from "../context/ToastProvider.jsx";
 import {useAuth} from "../context/AuthContext.jsx";
@@ -11,8 +11,6 @@ import {getAllFeedback, getMyFeedback} from "../service/Feedback.js";
 import {jwtDecode} from "jwt-decode";
 import logo from "../assets/logo.png";
 import {useNavigate} from "react-router-dom";
-// Import your API functions
-
 
 
 const MyFeedBack = () => {
@@ -217,7 +215,7 @@ const MyFeedBack = () => {
                                                          hover:bg-gray-50 transition-colors"
                                                 >
                                                     <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý thuê kho
+                                                    Đơn thuê kho
                                                 </a>
                                                 <a
                                                     href="/history"
@@ -233,7 +231,7 @@ const MyFeedBack = () => {
                                                          hover:bg-gray-50 transition-colors"
                                                 >
                                                     <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý cuộc hẹn
+                                                    Cuộc hẹn
                                                 </a>
                                                 <a
                                                     href="/MyRequest"
@@ -241,7 +239,7 @@ const MyFeedBack = () => {
                                                          hover:bg-gray-50 transition-colors"
                                                 >
                                                     <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý yêu cầu
+                                                    Yêu cầu
                                                 </a>
                                                 <a
                                                     href="/MyFeedBack"
@@ -249,7 +247,7 @@ const MyFeedBack = () => {
                                                          hover:bg-gray-50 transition-colors"
                                                 >
                                                     <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý đánh giá
+                                                    Đánh giá
                                                 </a>
                                                 <a
                                                     href="/payment_user"
@@ -257,7 +255,7 @@ const MyFeedBack = () => {
                                                          hover:bg-gray-50 transition-colors"
                                                 >
                                                     <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                    Quản lý thanh toán
+                                                    Thanh toán
                                                 </a>
                                                 <a
                                                     href="/reset"
@@ -420,24 +418,36 @@ const MyFeedBack = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-900">
-                                        {item.rating} ❤️
+                                        <div className="flex items-center gap-1">
+                                            {[...Array(5)].map((_, index) => (
+                                                <Star
+                                                    key={index}
+                                                    className={`w-5 h-5 ${
+                                                        index < item.rating
+                                                            ? 'text-yellow-400 fill-yellow-400'
+                                                            : 'text-gray-300'
+                                                    }`}
+                                                />
+                                            ))}
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        {item.comment}
-                                    </td>
+
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                            {item.comment}
+                            </td>
 
 
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
+                        </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-                    {/* Pagination */}
-                    <div className="px-6 py-4 border-t border-gray-200">
-                        <div className="flex items-center justify-between">
-                            <div className="text-sm text-gray-500">
-                                Số lượng {items.length} phản hồi đang được hiển thị
+            {/* Pagination */}
+            <div className="px-6 py-4 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                        Số lượng {items.length} phản hồi đang được hiển thị
                             </div>
                             <div className="flex gap-2">
                                 <button

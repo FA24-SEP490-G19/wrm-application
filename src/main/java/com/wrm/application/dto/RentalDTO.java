@@ -19,6 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RentalDTO {
+    @JsonProperty("rental_id")
+    private Long rentalId;
 
     @JsonProperty("customer_id")
     private Long customerId;

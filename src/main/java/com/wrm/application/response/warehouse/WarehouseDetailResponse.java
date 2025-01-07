@@ -2,6 +2,7 @@ package com.wrm.application.response.warehouse;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrm.application.constant.enums.WarehouseStatus;
+import com.wrm.application.dto.FeedbackDTO;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
@@ -37,4 +38,7 @@ public class WarehouseDetailResponse {
     private String warehouseManagerPhone;
 
     private List<String> images;
+
+    @JsonProperty("feedbacks")
+    private List<FeedbackDTO> feedbackDTOS;
 }

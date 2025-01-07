@@ -243,78 +243,85 @@ const MyPaymentPage = () => {
                                         />
                                     </button>
 
-                                    {/* Dropdown Menu */}
-                                    {isProfileDropdownOpen && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg
+                                    {/* Dropdown Menu */}{isProfileDropdownOpen && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg
                                                       border border-gray-100 py-1 animate-in fade-in slide-in-from-top-5">
-                                            <a
-                                                href="/profile"
-                                                className="flex items-center px-4 py-2 text-sm text-gray-700
+                                        <a
+                                            href="/profile"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
-                                            >
-                                                <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Thông tin cá nhân
-                                            </a>
+                                        >
+                                            <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                            Thông tin cá nhân
+                                        </a>
 
-                                            <a
-                                                href="/RentalByUser"
-                                                className="flex items-center px-4 py-2 text-sm text-gray-700
+                                        <a
+                                            href="/RentalByUser"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
-                                            >
-                                                <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý thuê kho
-                                            </a>
-                                            <a
-                                                href="/history"
-                                                className="flex items-center px-4 py-2 text-sm text-gray-700
+                                        >
+                                            <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                            Đơn thuê kho
+                                        </a>
+                                        <a
+                                            href="/history"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
-                                            >
-                                                <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Lịch sử thuê kho
-                                            </a>
-                                            <a
-                                                href="/MyAppoinment"
-                                                className="flex items-center px-4 py-2 text-sm text-gray-700
+                                        >
+                                            <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                            Lịch sử thuê kho
+                                        </a>
+                                        <a
+                                            href="/MyAppoinment"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
-                                            >
-                                                <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý cuộc hẹn
-                                            </a>
-                                            <a
-                                                href="/MyRequest"
-                                                className="flex items-center px-4 py-2 text-sm text-gray-700
+                                        >
+                                            <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                            Cuộc hẹn
+                                        </a>
+                                        <a
+                                            href="/MyRequest"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
-                                            >
-                                                <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý yêu cầu
-                                            </a>
-                                            <a
-                                                href="/MyFeedBack"
-                                                className="flex items-center px-4 py-2 text-sm text-gray-700
+                                        >
+                                            <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                            Yêu cầu
+                                        </a>
+                                        <a
+                                            href="/MyFeedBack"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
-                                            >
-                                                <User className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Quản lý đánh giá
-                                            </a>
-                                            <a
-                                                href="/reset"
-                                                className="flex items-center px-4 py-2 text-sm text-gray-700
+                                        >
+                                            <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                            Đánh giá
+                                        </a>
+                                        <a
+                                            href="/payment_user"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
-                                            >
-                                                <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
-                                                Đổi mật khẩu
-                                            </a>
-                                            <div className="border-t border-gray-100 my-1"></div>
-                                            <button
-                                                onClick={logOut}
-                                                className="flex items-center w-full px-4 py-2 text-sm text-red-600
+                                        >
+                                            <User className="w-4 h-4 mr-2 text-gray-400"/>
+                                            Thanh toán
+                                        </a>
+                                        <a
+                                            href="/reset"
+                                            className="flex items-center px-4 py-2 text-sm text-gray-700
+                                                         hover:bg-gray-50 transition-colors"
+                                        >
+                                            <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
+                                            Đổi mật khẩu
+                                        </a>
+                                        <div className="border-t border-gray-100 my-1"></div>
+                                        <button
+                                            onClick={logOut}
+                                            className="flex items-center w-full px-4 py-2 text-sm text-red-600
                                                          hover:bg-red-50 transition-colors"
-                                            >
-                                                <LogOut className="w-4 h-4 mr-2 text-red-500"/>
-                                                Đăng xuất
-                                            </button>
-                                        </div>
-                                    )}
+                                        >
+                                            <LogOut className="w-4 h-4 mr-2 text-red-500"/>
+                                            Đăng xuất
+                                        </button>
+                                    </div>
+                                )}
                                 </div>
                             </div>
                         ) : (
@@ -432,7 +439,7 @@ const MyPaymentPage = () => {
                             <tr className="bg-gray-50">
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian</th>
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian thanh toán</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Link thanh toán
                                 </th>
                             </tr>

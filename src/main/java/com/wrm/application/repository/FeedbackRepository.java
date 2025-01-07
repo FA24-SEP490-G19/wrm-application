@@ -18,4 +18,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
     @Query("SELECT f FROM Feedback f WHERE f.id = :id AND f.isDeleted = false")
     Optional<Feedback> findById(Long id);
+
+    List<Feedback> findAllByWarehouseId(Long id);
 }

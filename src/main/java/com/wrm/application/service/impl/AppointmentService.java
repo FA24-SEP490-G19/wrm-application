@@ -129,24 +129,15 @@ public class AppointmentService implements IAppointmentService {
     @Override
     @Transactional
     public AppointmentResponse updateAppointment(Long id, AppointmentDTO appointmentDTO) throws Exception {
-        if (appointmentDTO.getAppointmentDate() == null) {
-            throw new IllegalArgumentException("Ngày hẹn không được để trống");
-        }
-        if (appointmentDTO.getAppointmentDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Thời gian hẹn phải lớn hơn thời gian hiện tại");
-        }
-        if (appointmentDTO.getStatus() == null) {
-            throw new IllegalArgumentException("Trạng thái cuộc hẹn không được để trống");
-        }
+
 
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy cuộc hẹn"));
 
-        if (appointmentDTO.getStatus() == AppointmentStatus.PENDING && appointment.getStatus() == AppointmentStatus.ACCEPTED) {
+        if (appointment.getStatus() == AppointmentStatus.ACCEPTED) {
             throw new IllegalArgumentException("Không thể chuyển trạng thái cuộc hẹn từ đã chấp nhận sang chờ xác nhận");
         }
 
-        appointment.setAppointmentDate(appointmentDTO.getAppointmentDate());
         appointment.setStatus(appointmentDTO.getStatus());
 
         appointmentRepository.save(appointment);

@@ -33,7 +33,7 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
     const formatDateForInput = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
-        return date.toISOString().slice(0, 16);
+        return date.toISOString().split('T')[0]; // Only get the date part
     };
 
     const validateForm = () => {
@@ -171,7 +171,7 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
                                             Ngày ký
                                         </label>
                                         <input
-                                            type="datetime-local"
+                                            type="date"
                                             name="signed_date"
                                             value={formData.signed_date}
                                             onChange={(e) => setFormData({...formData, signed_date: e.target.value})}
@@ -189,7 +189,7 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
                                             Ngày hết hạn
                                         </label>
                                         <input
-                                            type="datetime-local"
+                                            type="date"
                                             name="expiry_date"
                                             value={formData.expiry_date}
                                             onChange={(e) => setFormData({...formData, expiry_date: e.target.value})}

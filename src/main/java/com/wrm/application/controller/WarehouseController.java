@@ -128,6 +128,7 @@ public class WarehouseController {
     @GetMapping("/{id}")
     public ResponseEntity<WarehouseDetailResponse> getWarehouseById(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok(warehouseService.getWarehouseById(id));
+
     }
 
     @PostMapping("/create")

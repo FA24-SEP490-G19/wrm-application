@@ -2,11 +2,12 @@ import {useEffect, useState} from "react";
 import {
     X
 } from 'lucide-react';
-const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
+const PaymentModal = ({ isOpen, onClose, onSubmit,mode,payment }) => {
     const [formData, setFormData] = useState({
         amount: '',
-        orderInfo: '',  // Changed from description to match VNPAY
-        user_id: ''
+        orderInfo: '',
+        user_id: '',
+        rental_id: ''  // Add rental_id to formData
     });
     const [errors, setErrors] = useState({});
     const [users, setUsers] = useState([]);
@@ -14,15 +15,26 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
 
     useEffect(() => {
         if (isOpen) {
-            fetchUsers();
-            setFormData({
-                amount: '',
-                orderInfo: '',
-                user_id: ''
-            });
+            if (mode === 'edit' && payment) {
+                // Set initial form data for edit mode
+                setFormData({
+                    amount: '',
+                    orderInfo: '',
+                    user_id: ''
+                });
+            } else {
+                // Reset form for create mode
+                fetchUsers();
+                setFormData({
+                    amount: '',
+                    orderInfo: '',
+                    user_id: ''
+                });
+            }
             setErrors({});
         }
-    }, [isOpen]);
+    }, [isOpen, mode, payment]);
+
 
     const fetchUsers = async () => {
         try {
@@ -45,15 +57,20 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
         if (!formData.amount || amount <= 0) {
             newErrors.amount = 'Số tiền phải lớn hơn 0';
         }
-        if (amount > 100000000) { // Example maximum amount
+        if (amount > 100000000) {
             newErrors.amount = 'Số tiền không được vượt quá 100.000.000 VNĐ';
         }
-        if (!formData.orderInfo.trim()) {
-            newErrors.orderInfo = 'Thông tin đơn hàng không được để trống';
+
+        // Only validate these fields in create mode
+        if (mode === 'create') {
+            if (!formData.orderInfo?.trim()) {
+                newErrors.orderInfo = 'Thông tin đơn hàng không được để trống';
+            }
+            if (!formData.user_id) {
+                newErrors.user_id = 'Vui lòng chọn khách hàng';
+            }
         }
-        if (!formData.user_id) {
-            newErrors.user_id = 'Vui lòng chọn khách hàng';
-        }
+
         return newErrors;
     };
 
@@ -67,53 +84,72 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
 
         try {
             setLoading(true);
-            // Create URL-encoded form data
-            const params = new URLSearchParams();
-            params.append('amount', parseInt(formData.amount));
-            params.append('orderInfo', formData.orderInfo);
-            params.append('id', parseInt(formData.user_id));
+            if(mode === "create") {
+                // Create URL-encoded form data for create
+                const params = new URLSearchParams();
+                params.append('amount', parseInt(formData.amount));
+                params.append('orderInfo', formData.orderInfo);
+                params.append('id', parseInt(formData.user_id));
+                params.append('rentalId', formData.rental_id);  // Add rental_id to params
 
-            const response = await fetch('http://localhost:8080/payment/submitOrder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': `Bearer ${localStorage.getItem("access_token")}`
-                },
-                body: params
-            });
+                const response = await fetch('http://localhost:8080/payment/submitOrder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                    },
+                    body: params
+                });
+                const paymentUrl = await response.text();
+                window.location.href = paymentUrl;
+            } else {
+                // Update only needs amount
+                const response = await fetch(`http://localhost:8080/payment/update/${payment.id}?amount=${parseInt(formData.amount)}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem("access_token")}`
+                    }
+                });
 
-            if (!response.ok) {
-                throw new Error('Payment request failed');
+                if (!response.ok) {
+                    throw new Error('Update failed');
+                }
+
+                onSubmit({ amount: parseInt(formData.amount) });
+                onClose();
             }
-
-            const paymentUrl = await response.text();
-            window.location.href = paymentUrl;
-            onClose();
         } catch (error) {
-            console.error('Error creating payment:', error);
+            console.error('Error:', error);
             setErrors(prev => ({
                 ...prev,
-                submit: 'Có lỗi xảy ra khi tạo thanh toán'
+                submit: 'Có lỗi xảy ra khi cập nhật'
             }));
         } finally {
             setLoading(false);
         }
     };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        if (name === 'amount') {
-            // Remove non-numeric characters and convert to number
+        if (name === 'user_id') {
+            // When user is selected, find their rental_id
+            const selectedUser = users.find(user => user.customer_id.toString() === value);
+            setFormData(prev => ({
+                ...prev,
+                [name]: value,
+                rental_id: selectedUser?.rental_id || ''  // Set rental_id when user is selected
+            }));
+        } else if (name === 'amount') {
+            // Existing amount handling code...
             const numericValue = value.replace(/[^0-9]/g, '');
-            // Format number with thousand separators
             const formattedValue = numericValue ? parseInt(numericValue).toLocaleString('vi-VN') : '';
 
             setFormData(prev => ({
                 ...prev,
-                [name]: numericValue // Store raw numeric value
+                [name]: numericValue
             }));
 
-            // Update the input value with formatted number
             e.target.value = formattedValue;
         } else {
             setFormData(prev => ({
@@ -142,8 +178,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
         if (!Array.isArray(dateArray) || dateArray.length !== 5) return "Invalid Date";
         const [year, month, day, hour, minute] = dateArray;
         const formattedDate = `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`;
-        const formattedTime = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-        return `${formattedDate} ${formattedTime}`;
+        return `${formattedDate}`;
     };
 
 
@@ -155,13 +190,14 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                     <div className="bg-white rounded-xl w-full max-w-md shadow-xl transform transition-all">
                         <div className="p-6">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-gray-900">Tạo thanh toán VNPAY</h2>
+                                <h2 className="text-xl font-bold text-gray-900">{mode === 'create' ? "Tạo thanh toán VNPAY ":"Cập nhật số tiền"}</h2>
                                 <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                                     <X className="w-6 h-6" />
                                 </button>
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
+                                {mode === 'create' ? (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Khách hàng</label>
                                     <select
@@ -184,7 +220,9 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                                         <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
                                     )}
                                 </div>
-                                <div>
+                                    ) : ""}
+
+                                        <div>
                                     <label className="block text-sm font-medium text-gray-700">Số tiền (VNĐ)</label>
                                     <div className="relative">
                                         <input
@@ -199,11 +237,17 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
             VNĐ
         </span>
+
                                     </div>
                                     {errors.amount && (
                                         <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
                                     )}
                                 </div>
+
+
+
+
+                                {mode === 'create' ? (
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Thông tin đơn
@@ -220,6 +264,8 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                                         <p className="mt-1 text-sm text-red-600">{errors.orderInfo}</p>
                                     )}
                                 </div>
+                                    ):""}
+
 
 
                                 {errors.submit && (
@@ -251,7 +297,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
                                                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                                             </svg>
                                         )}
-                                        {loading ? 'Đang xử lý...' : 'Tạo thanh toán'}
+                                        {mode === 'create' ? 'Tạo thanh toán' : 'Cập nhật'}
                                     </button>
                                 </div>
                             </form>
