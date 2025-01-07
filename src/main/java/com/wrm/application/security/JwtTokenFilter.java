@@ -79,7 +79,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of("/warehouses/**", "GET"),
                 Pair.of("/warehouses", "GET"),
                 Pair.of("/v2/payment-requests", "POST"),
-                Pair.of("/warehouses/auto-create-payment", "POST")
+                Pair.of("/payment/auto-create-payment", "POST")
         );
 
         String requestPath = request.getServletPath();
