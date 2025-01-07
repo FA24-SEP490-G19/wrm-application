@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface IWarehouseService {
     Page<WarehouseResponse> getAllWarehouses(PageRequest pageRequest);
@@ -35,4 +36,7 @@ public interface IWarehouseService {
     List<String> getWarehouseImageIds(Long warehouseId) throws DataNotFoundException;
 
     List<WarehouseResponse> getWarehousesWithAvailableLots();
+
+
+    Page<WarehouseResponse> getAllWarehousesByManager(PageRequest pageRequest, String remoteUser) throws DataNotFoundException;
 }

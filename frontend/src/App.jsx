@@ -32,8 +32,11 @@ import {AuthRoute} from "./component/Shared/AuthRoute.jsx";
 import WarehouseDetailForGuess from "./component/Shared/WareHouseDetailForGuess.jsx";
 import PaymentSuccess from "./component/PaymentSuccess.jsx";
 import ResetPassword from "./component/ResetPassword.jsx";
-import AdminDashboard from "./component/Dashboard/AdminDashboard.jsx";
+import AdminDashboard from "./component/AdminDashboard/AdminDashboard.jsx";
 import RentalHistory from "./component/MyHistory.jsx";
+import SalesDashboard from "./component/SaleDashboard/SalesDashboard.jsx";
+import WarehouseManagerDashboard from "./component/ManagerDashboard/WarehouseManagerDashboard.jsx";
+import VerificationSuccess from "./component/VerificationSuccess/VerificationSuccess.jsx";
 
 function App() {
     return (
@@ -70,10 +73,13 @@ function App() {
             <Route path="/payment" element={<ProtectedRoute><PaymentList/> </ProtectedRoute>} />
             <Route path="/payment_user" element={<ProtectedRoute><MyPaymentPage /></ProtectedRoute>} />
             <Route path="/statistical" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                <Route path="/history" element={<ProtectedRoute><RentalHistory /></ProtectedRoute>} />
-
-                <Route path="/payment-return" element={<ProtectedRoute><PaymentSuccess/> </ProtectedRoute>} />
+            <Route path="/SaleDashboard" element={<ProtectedRoute><SalesDashboard /> </ProtectedRoute>} />
+            <Route path="/ManagerDashboard" element={<ProtectedRoute><WarehouseManagerDashboard /> </ProtectedRoute>} />
+            <Route path="/history" element={<ProtectedRoute><RentalHistory /></ProtectedRoute>} />
+            <Route path="/payment-return" element={<ProtectedRoute><PaymentSuccess/> </ProtectedRoute>} />
             <Route path="/forgot" element={<ResetPassword/> } />
+            <Route path="/active" element={<VerificationSuccess/> } />
+
 
         </Routes>
     );

@@ -13,6 +13,7 @@ import com.wrm.application.service.IUserService;
 import com.wrm.application.service.impl.TokenService;
 import com.wrm.application.service.impl.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -46,9 +47,9 @@ public class UserController {
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+    public ResponseEntity<?> verifyEmail(@RequestParam String token, HttpServletResponse response) {
         try {
-            userService.verifyEmail(token);
+            userService.verifyEmail(token,response);
             return ResponseEntity.ok("Email verified successfully!");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -139,6 +140,17 @@ public class UserController {
     public ResponseEntity<?> getAllCustomers() {
         try {
             List<UserDTO> customers = userService.getAllCustomers();
+            return ResponseEntity.ok(customers);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/customers/active")
+    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> getAllCustomersIsActive() {
+        try {
+            List<UserDTO> customers = userService.getAllCustomersIsActive();
             return ResponseEntity.ok(customers);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

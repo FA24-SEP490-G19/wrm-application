@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
-import {getAllCustomers} from "../../service/Authenticate.js";
+import {getAllCustomers, getAllCustomersIsActive} from "../../service/Authenticate.js";
 import {getAllItems} from "../../service/WareHouse.js";
 
 const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
@@ -80,7 +80,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         setLoading(true);
         try {
             const warehousesResponse = await getAllItems();
-            const customersResponse = await getAllCustomers();
+            const customersResponse = await getAllCustomersIsActive();
             await fetchContracts(); // Add this line
 
             setWarehouses(warehousesResponse.data.warehouses);

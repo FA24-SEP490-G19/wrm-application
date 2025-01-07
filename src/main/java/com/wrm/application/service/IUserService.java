@@ -4,13 +4,14 @@ import com.wrm.application.dto.auth.ChangePasswordDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.model.User;
 import com.wrm.application.response.user.UserResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
 public interface IUserService {
     UserResponse createUser(UserDTO userDTO) throws Exception;
 
-    void verifyEmail(String token) throws Exception;
+    void verifyEmail(String token, HttpServletResponse response) throws Exception;
 
     String login(String email, String password) throws Exception;
 
@@ -35,4 +36,6 @@ public interface IUserService {
     UserDTO updateUserProfile(String email, UserDTO updatedUserDTO);
 
     List<UserDTO> getAllCustomerBySales(String remoteUser) throws Exception;
+
+    List<UserDTO> getAllCustomersIsActive();
 }

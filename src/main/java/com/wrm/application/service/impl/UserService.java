@@ -17,6 +17,7 @@ import com.wrm.application.repository.RoleRepository;
 import com.wrm.application.repository.UserRepository;
 import com.wrm.application.service.IMailService;
 import com.wrm.application.service.IUserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -102,7 +103,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void verifyEmail(String token) throws Exception {
+    public void verifyEmail(String token, HttpServletResponse response) throws Exception {
         String email = jwtTokenUtil.getSubject(token);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
@@ -112,6 +113,8 @@ public class UserService implements IUserService {
         }
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
+        response.sendRedirect("http://localhost:5173/active" );
+
     }
 
     @Override
@@ -276,7 +279,7 @@ public class UserService implements IUserService {
                 .phoneNumber(userDTO.getPhoneNumber())
                 .address(userDTO.getAddress())
                 .gender(userDTO.getGender())
-                .status(UserStatus.ACTIVE)
+                .status(UserStatus.INACTIVE)
                 .build();
 
         // Find role by ID
@@ -334,6 +337,22 @@ public class UserService implements IUserService {
         User sales = userRepository.findByEmail(remoteUser)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
         return userRepository.findCustomersBySalesId(sales.getId()).stream()
+                .map(user -> UserDTO.builder()
+                        .id(user.getId())
+                        .fullName(user.getFullName())
+                        .email(user.getEmail())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .gender(user.getGender())
+                        .status(user.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDTO> getAllCustomersIsActive() {
+        return userRepository.findCustomersByStatus(UserStatus.ACTIVE).stream()
+                .filter(user -> user.getRole().getId() == 1) // Filter for user role
                 .map(user -> UserDTO.builder()
                         .id(user.getId())
                         .fullName(user.getFullName())

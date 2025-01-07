@@ -24,10 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,9 +52,9 @@ public class WarehouseService implements IWarehouseService {
     public WarehouseDetailResponse getWarehouseById(Long id) throws Exception {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
-        if (warehouse.isDeleted()) {
-            throw new DataNotFoundException("Không tìm thấy kho hàng");
-        }
+//        if (warehouse.isDeleted()) {
+//            throw new DataNotFoundException("Không tìm thấy kho hàng");
+//        }
         List<WarehouseImage> warehouseImages = warehouseImageRepository.findAllByWarehouseId(id);
 
         List<String> imageBase64List = new ArrayList<>();
@@ -139,7 +136,7 @@ public class WarehouseService implements IWarehouseService {
 
         List<Lot> lots = new ArrayList<>();
 
-        for(LotDTO lotDTO : warehouseDTO.getLotItems()) {
+        for (LotDTO lotDTO : warehouseDTO.getLotItems()) {
             Lot lot = Lot.builder()
                     .description(lotDTO.getDescription())
                     .size(lotDTO.getSize())
@@ -377,4 +374,21 @@ public class WarehouseService implements IWarehouseService {
                 .map(warehouseMapper::toWarehouseResponse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<WarehouseResponse> getAllWarehousesByManager(PageRequest pageRequest, String remoteUser) throws DataNotFoundException {
+        User user = userRepository.findByEmail(remoteUser)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
+
+        Page<Warehouse> warehousePage = warehouseRepository.findAllByManager(pageRequest, user.getId());
+
+        return warehousePage.map(warehouse -> {
+            // Force initialization of the collection
+            Hibernate.initialize(warehouse.getWarehouseImages());
+            return warehouseMapper.toWarehouseResponse(warehouse);
+        });
+    }
+
+
 }

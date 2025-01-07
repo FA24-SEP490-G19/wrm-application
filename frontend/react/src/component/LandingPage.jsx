@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Warehouse, TruckIcon, ClipboardCheck, Menu, X } from 'lucide-react';
+import logo from "../../assets/logo.png";
 
 const WarehouseLandingPage = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,8 +24,13 @@ const WarehouseLandingPage = () => {
         <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-purple-500 min-h-screen font-sans text-gray-900">
             <header className={`fixed w-full transition-all duration-300 z-50 ${scrollPosition > 50 ? 'bg-white shadow-lg' : 'bg-transparent'}`}>
                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <h1 className={`text-3xl font-extrabold transition-colors duration-300 ${scrollPosition > 50 ? 'text-blue-600' : 'text-white'}`}>KhoLưuTrữVN</h1>
-                    <nav className="hidden md:block">
+                    {/* Logo */}
+                    <div className="flex items-center">
+                        <img src={logo} alt="Logo" className="h-11 w-11"/>
+                        <h1 className="ml-2 text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 text-transparent bg-clip-text">
+                            Warehouse Hub
+                        </h1>
+                    </div>                    <nav className="hidden md:block">
                         <ul className="flex space-x-8">
                             {['Trang chủ', 'Dịch vụ', 'Bảng giá', 'Liên hệ'].map((item) => (
                                 <li key={item}>
@@ -59,7 +65,7 @@ const WarehouseLandingPage = () => {
                         </span>
                     </h2>
                     <p className="text-xl text-gray-100 mb-12 max-w-2xl mx-auto">
-                        KhoLưuTrữVN mang đến dịch vụ cho thuê kho bãi hiện đại, an toàn và linh hoạt.
+                        Mang đến dịch vụ cho thuê kho bãi hiện đại, an toàn và linh hoạt.
                     </p>
                     <a href="/register"
                        className="inline-flex items-center bg-white text-blue-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-600 hover:text-white transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">

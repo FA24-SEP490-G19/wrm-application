@@ -41,7 +41,7 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
 
     @Query("SELECT COUNT(l) FROM Lot l " +
             "WHERE l.warehouse.id = :warehouseId " +
-            "AND l.status = 'RESERVED'")
+            "AND l.status = 'OCCUPIED'")
     int countRentedLots(@Param("warehouseId") Long warehouseId);
 
 }

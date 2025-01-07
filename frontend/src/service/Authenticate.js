@@ -95,6 +95,19 @@ export const getAllCustomers = async () => {
     }
 };
 
+export const getAllCustomersIsActive = async () => {
+    try {
+        return  await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/users/customers/active`,
+            getAuthConfig()
+        );
+
+    } catch (error) {
+        console.error('Error fetching customers:', error);
+        throw error;
+    }
+};
+
 
 export const getAllSales = async () => {
     try {

@@ -7,6 +7,7 @@ import com.wrm.application.response.warehouse.WarehouseListResponse;
 import com.wrm.application.response.warehouse.WarehouseResponse;
 import com.wrm.application.service.IWarehouseService;
 import com.wrm.application.service.impl.WarehouseService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -25,7 +26,9 @@ import org.springframework.web.bind.annotation.*;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,6 +58,33 @@ public class WarehouseController {
                 .totalPages(totalPages)
                 .build());
     }
+
+    @GetMapping("/manager")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+    public ResponseEntity<WarehouseListResponse> getAllWarehousesByManager(
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            HttpServletRequest req) throws DataNotFoundException {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("createdDate").descending());
+        Page<WarehouseResponse> warehousePage;
+        if (keyword != null && !keyword.isEmpty()) {
+            warehousePage = warehouseService.getWarehouseByKeyword(keyword, pageRequest);
+        } else {
+            warehousePage = warehouseService.getAllWarehousesByManager(pageRequest, req.getRemoteUser());
+        }
+        int totalPages = warehousePage.getTotalPages();
+
+        List<WarehouseResponse> warehouses = warehousePage.getContent();
+        return ResponseEntity.ok(WarehouseListResponse.builder()
+                .warehouses(warehouses)
+                .totalPages(totalPages)
+                .build());
+    }
+
+
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {

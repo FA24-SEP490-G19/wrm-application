@@ -10,6 +10,7 @@ import {getUserById, getWarehouseById} from "../service/Appointment.js";
 import logo from "../assets/logo.png";
 import {useNavigate} from "react-router-dom";
 import ImageViewer from "./Management/Contract/ImageViewer.jsx";
+import axios from "axios";
 const RentalByCustomer = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [rentals, setRentals] = useState([]);

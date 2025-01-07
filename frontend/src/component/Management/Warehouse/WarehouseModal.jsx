@@ -97,6 +97,7 @@ export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
     );
 };
 const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
+    const { customer } = useAuth();
 
     const initialLotState = {
         quantity: 10,
@@ -670,7 +671,9 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                             </div>
                                         )}
                                     </div>
-                                    <label
+                                    {customer.role === "ROLE_ADMIN" ? (
+
+                                        <label
                                         className="relative cursor-pointer bg-white px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50">
                                         <span className="text-sm font-medium text-gray-700">Chọn ảnh</span>
                                         <input
@@ -680,6 +683,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                             onChange={handleThumbnailUpload}
                                         />
                                     </label>
+                                        ) : ""}
                                 </div>
                                 {errors.thumbnail && (
                                     <p className="mt-1 text-sm text-red-600">{errors.thumbnail}</p>
@@ -693,7 +697,9 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                     <label className="text-sm font-medium text-gray-700">
                                         Hình ảnh kho
                                     </label>
-                                    <label
+                                    {customer.role === "ROLE_ADMIN" ? (
+
+                                        <label
                                         className="relative cursor-pointer bg-white px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 inline-flex items-center">
                                         <Upload className="w-4 h-4 mr-2"/>
                                         <span className="text-sm font-medium text-gray-700">
@@ -708,6 +714,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                             disabled={isUploading}
                                         />
                                     </label>
+                                        ) : "" }
                                 </div>
 
                                 {/* Image Grid */}
@@ -725,13 +732,16 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                                         onClick={() => handleViewImage(url)}
                                                     />
                                                 </div>
-                                                <button
+                                                {customer.role === "ROLE_ADMIN" ? (
+
+                                                    <button
                                                     type="button"
                                                     onClick={() => handleRemoveImage(index, url.split('/').pop())}
                                                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
                                                     <X className="w-4 h-4"/>
                                                 </button>
+                                                    ) : "" }
                                             </div>
                                         ))
                                     ) : (
@@ -935,12 +945,15 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                     >
                                         Hủy
                                     </button>
-                                    <button
+                                    {customer.role === "ROLE_ADMIN" ? (
+
+                                        <button
                                         type="submit"
                                         className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
                                     >
                                         {mode === 'create' ? 'Thêm mới' : 'Cập nhật'}
                                     </button>
+                                        ):""}
                                 </div>
                             </form>
                         </div>
