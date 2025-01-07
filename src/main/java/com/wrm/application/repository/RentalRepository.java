@@ -56,7 +56,10 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
     int countRentalsByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT COUNT(r) FROM Rental r WHERE r.endDate BETWEEN :startDate AND :endDate AND r.status = 'ACTIVE' AND r.sales.id = :salesId AND r.isDeleted = false")
-    int countRentalsByDateRangeForSales(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Long salesId);
+    int countExpiringRentals(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Long salesId);
+
+    @Query("SELECT COUNT(r) FROM Rental r WHERE r.startDate BETWEEN :startDate AND :endDate AND r.status = 'ACTIVE' AND r.sales.id = :salesId AND r.isDeleted = false")
+    int countSignedRentalsInAMonth(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Long salesId);
 
     @Query("SELECT r FROM Rental r WHERE r.endDate BETWEEN :startDate AND :endDate AND r.status = 'ACTIVE' AND r.sales.id = :salesId AND r.isDeleted = false")
     Page<Rental> findRentalsByDateRangeForSales(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Long salesId, Pageable pageable);
@@ -69,4 +72,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
 
     @Query("SELECT r FROM Rental r WHERE r.status = 'ACTIVE' AND r.isDeleted = false AND r.lot.status = 'OCCUPIED' ")
     List<Rental> findAllRentalsWithCustomerDetails();
+
+    @Query("SELECT r FROM Rental r WHERE r.lot.id = :lotId AND r.status = 'ACTIVE' AND r.isDeleted = false")
+    Optional<Rental> findByLotIdAndStatus(@Param("lotId") Long lotId);
 }

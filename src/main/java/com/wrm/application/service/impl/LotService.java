@@ -160,6 +160,4 @@ public class LotService implements ILotService {
                 .price(lot.getPrice())
                 .build();
     }
-
-
 }
