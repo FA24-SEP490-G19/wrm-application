@@ -1,5 +1,6 @@
 package com.wrm.application.repository;
 
+import com.wrm.application.constant.enums.UserStatus;
 import com.wrm.application.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findCustomersBySalesId(@Param("salesId") Long salesId);
 
 
+    List<User> findCustomersByStatus(UserStatus status);
 }

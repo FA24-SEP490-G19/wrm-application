@@ -5,7 +5,7 @@ import {
     BarChart2, MessageSquare, Calendar, Settings,
     Home, UserPlus, FileText, Bell, ChevronDown,
     Layout, Package, CheckCircle, Phone, Mail,
-    Plus, Filter, MoreHorizontal, ArrowRight, X, ArrowLeft
+    Plus, Filter, MoreHorizontal, ArrowRight, X, ArrowLeft, CreditCard, ClipboardList, Key, Warehouse
 } from 'lucide-react';
 import {useAuth} from "../../context/AuthContext.jsx";
 import logo from "../../assets/logo.png";
@@ -21,15 +21,17 @@ const CRMLayout = ({ children }) => {
 
     const navigation = [
         // { name: 'Dashboard', icon: Home, path: '/dashboard', roles: ['ROLE_ADMIN', 'MANAGER'] },
-        { name: 'Quản lý kho', icon: DollarSign, path: '/kho', roles: [ 'ROLE_ADMIN'] },
-        { name: 'Quản lý cuộc hẹn', icon: Calendar, path: '/appointment', roles: ['ROLE_ADMIN','ROLE_SALES'] },
-        { name: 'Quản lý lot', icon: Package, path: '/lot', roles: ["ROLE_MANAGER"] },
-        { name: 'Quản lý cho thuê', icon: Package, path: '/rental', roles: ['ROLE_ADMIN','ROLE_SALES'] },
-        { name: 'Quản lý yêu cầu', icon: Package, path: '/request', roles: ['ROLE_ADMIN','ROLE_SALES',"ROLE_MANAGER"] },
-        { name: 'Quản lý phản hồi', icon: Package, path: '/feedback', roles: ['ROLE_ADMIN'] },
+        { name: 'Thống kê', icon: BarChart2, path: '/statistical', roles: ['ROLE_ADMIN'] },
+        { name: 'Thống kê', icon: BarChart2, path: '/SaleDashboard', roles: ['ROLE_SALES'] },
+        { name: 'Thống kê', icon: BarChart2, path: '/ManagerDashboard', roles: ['ROLE_MANAGER'] },
+        { name: 'Quản lý kho', icon: Warehouse, path: '/kho', roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] },
+        { name: 'Quản lý cuộc hẹn', icon: Calendar, path: '/appointment', roles: ['ROLE_ADMIN', 'ROLE_SALES'] },
+        { name: 'Quản lý cho thuê', icon: Key, path: '/rental', roles: ['ROLE_ADMIN', 'ROLE_SALES'] },
+        { name: 'Quản lý yêu cầu', icon: ClipboardList, path: '/request', roles: ['ROLE_ADMIN', 'ROLE_SALES', 'ROLE_MANAGER'] },
+        { name: 'Quản lý phản hồi', icon: MessageSquare, path: '/feedback', roles: ['ROLE_ADMIN'] },
         { name: 'Quản lý người dùng', icon: Users, path: '/user', roles: ['ROLE_ADMIN'] },
-        { name: 'Quản lý thanh toán', icon: Users, path: '/payment', roles: ['ROLE_SALES','ROLE_ADMIN'] },
-        { name: 'Thống kê', icon: Users, path: '/statistical', roles: ['ROLE_ADMIN'] },
+        { name: 'Quản lý thanh toán', icon: CreditCard, path: '/payment', roles: ['ROLE_SALES', 'ROLE_ADMIN'] },
+
 
 
     ];

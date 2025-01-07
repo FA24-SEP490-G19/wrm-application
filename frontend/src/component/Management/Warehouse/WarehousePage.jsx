@@ -13,7 +13,7 @@ import {
     getAllItems,
     createItem,
     updateItem,
-    deleteItem
+    deleteItem, getAllItemsByManager
 } from "../../../service/WareHouse.js";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {jwtDecode} from "jwt-decode";
@@ -104,20 +104,26 @@ const FeatureList = () => {
             const token = localStorage.getItem("access_token");
             const decodedToken = jwtDecode(token);
 
-            setLoading(true);
-            // if (decodedToken.roles !== "ROLE_ADMIN" && decodedToken.roles !== "ROLE_SALES") {
-            //     setError('Không có quyền truy cập');
-            //     showToast('Không có quyền truy cập', 'error');
-            //     return;
-            // }
-            const response = await getAllItems();
+            let response;
+            // Check user role and call appropriate API
+            if (decodedToken.roles === "ROLE_ADMIN") {
+                response = await getAllItems();
+            } else if (decodedToken.roles === "ROLE_MANAGER") {
+                response = await getAllItemsByManager();
+            } else {
+                setError('Không có quyền truy cập');
+                showToast?.('Không có quyền truy cập', 'error');
+                return;
+            }
+
             // Extract warehouses array and totalPages from the response
             const { warehouses, totalPages } = response.data;
             setItems(warehouses || []);
             setError(null);
+
         } catch (err) {
-            setError(err.response.data);
-            showToast?.(err.response.data);
+            setError(err.response?.data || 'Đã xảy ra lỗi');
+            showToast?.(err.response?.data || 'Đã xảy ra lỗi');
             console.error('Lỗi load kho:', err);
             setItems([]);
         } finally {
@@ -407,7 +413,7 @@ const FeatureList = () => {
                                 {/*    )}*/}
                                 {/*</td>*/}
 
-                                {customer.role === "ROLE_ADMIN" ? (
+
 
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex justify-end space-x-2">
@@ -417,15 +423,17 @@ const FeatureList = () => {
                                             >
                                                 <Edit2 className="w-5 h-5"/>
                                             </button>
+                                            {customer.role === "ROLE_ADMIN" ? (
                                             <button
                                                 onClick={() => handleDeleteWarehouse(item.id)}
                                                 className="p-1 text-red-600 hover:text-red-800"
                                             >
                                                 <Trash2 className="w-5 h-5"/>
                                             </button>
+                                                ) : ""}
                                         </div>
                                     </td>
-                                ) : ""}
+
 
 
                             </tr>

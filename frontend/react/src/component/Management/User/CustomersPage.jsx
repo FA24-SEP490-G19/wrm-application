@@ -138,13 +138,7 @@ const CustomerList = () => {
                     <p className="text-gray-600">Quản lý thông tin người dùng</p>
                 </div>
                 <div className="flex gap-3">
-                    <button
-                        onClick={handleExportData}
-                        className="px-4 py-2 text-gray-700 border border-gray-300 rounded-xl hover:bg-gray-50 flex items-center gap-2"
-                    >
-                        <Download className="w-4 h-4"/>
-                        Xuất file
-                    </button>
+
                     <button
                         onClick={handleAddUser}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"

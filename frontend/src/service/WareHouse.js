@@ -17,6 +17,18 @@ export const getAllItems = async () => {
     }
 }
 
+export const getAllItemsByManager = async () => {
+    try {
+        return await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/warehouses/manager?page=0&limit=10`
+
+
+        )
+    } catch (e) {
+        throw e;
+    }
+}
+
 export const getAllItemAvailable = async () => {
     try {
         return await axios.get(

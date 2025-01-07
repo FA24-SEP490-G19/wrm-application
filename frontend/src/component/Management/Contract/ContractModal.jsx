@@ -38,6 +38,8 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
 
     const validateForm = () => {
         const errors = {};
+
+        // Existing validations
         if (!formData.signed_date) {
             errors.signed_date = 'Ngày ký không được để trống';
         }
@@ -50,12 +52,26 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
         if (new Date(formData.expiry_date) < new Date(formData.signed_date + 7 * 24 * 60 * 60 * 1000)) {
             errors.expiry_date = 'Thời gian thuê phải tối thiểu 1 tuần';
         }
+
+        // Add image validation
+        if (mode === 'create' && imageFiles.length === 0) {
+            errors.images = 'Vui lòng tải lên ít nhất một hình ảnh hợp đồng';
+        }
+
+        // If in edit mode and no existing images and no new images
+        if (mode === 'edit' && imageFiles.length === 0 && (!contractData?.images || contractData.images.length === 0)) {
+            errors.images = 'Vui lòng tải lên ít nhất một hình ảnh hợp đồng';
+        }
+
         return errors;
     };
 
     const handleImageUpload = async (event) => {
         const files = Array.from(event.target.files);
         const newErrors = { ...errors };
+
+        // Clear any existing image errors
+        delete newErrors.images;
 
         // Validate each file
         for (const file of files) {
@@ -73,6 +89,7 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
 
         const newImageFiles = [...imageFiles, ...files];
         setImageFiles(newImageFiles);
+        setErrors(newErrors); // Clear image error if files are valid
 
         // Create preview URLs
         const newPreviewUrls = await Promise.all(

@@ -13,6 +13,7 @@ import {
     ArrowRight,
     Check
 } from 'lucide-react';
+import logo from "../assets/logo.png";
 
 
 const WarehouseLandingPage = () => {
@@ -131,10 +132,13 @@ const WarehouseLandingPage = () => {
                     ${scrollPosition > 50 ? 'bg-white/95 shadow-lg backdrop-blur-sm' : 'bg-transparent'}`}>
                     <div className="container mx-auto px-6 py-4">
                         <div className="flex justify-between items-center">
-                            <h1 className={`text-3xl font-extrabold transition-colors duration-300 
-                                ${scrollPosition > 50 ? 'text-blue-600' : 'text-white'}`}>
-                                KhoLưuTrữVN
-                            </h1>
+                            {/* Logo */}
+                            <div className="flex items-center">
+                                <img src={logo} alt="Logo" className="h-11 w-11"/>
+                                <h1 className="ml-2 text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 text-transparent bg-clip-text">
+                                    Warehouse Hub
+                                </h1>
+                            </div>
 
                             <nav className="hidden md:flex items-center space-x-8">
                                 {navigationItems.map((item) => (

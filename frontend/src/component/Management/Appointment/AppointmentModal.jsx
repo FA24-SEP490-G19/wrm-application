@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {X} from 'lucide-react';
 import {getAllItemAvailable, getAllItems} from "../../../service/WareHouse.js";
-import {getAllCustomers} from "../../../service/Authenticate.js";
+import {getAllCustomers, getAllCustomersIsActive} from "../../../service/Authenticate.js";
 
 const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) => {
     const initialFormState = {
@@ -43,7 +43,7 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
         try {
 
             const warehousesResponse = await getAllItemAvailable();
-            const customersResponse = await getAllCustomers();
+            const customersResponse = await getAllCustomersIsActive();
 
             setWarehouses(warehousesResponse.data);
 

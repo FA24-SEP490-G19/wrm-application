@@ -164,7 +164,7 @@ const WarehouseRental = () => {
 
                             {customer?.role === "ROLE_SALES" && (
                                 <a
-                                    href="/appointment"
+                                    href="/SaleDashboard"
                                     className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
                                          hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
                                 >
@@ -175,7 +175,7 @@ const WarehouseRental = () => {
 
                             {customer?.role === "ROLE_ADMIN" && (
                                 <a
-                                    href="/kho"
+                                    href="/statistical"
                                     className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
                                          hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
                                 >
@@ -187,7 +187,7 @@ const WarehouseRental = () => {
 
                             {customer?.role === "ROLE_MANAGER" && (
                                 <a
-                                    href="/lot"
+                                    href="/ManagerDashboard"
                                     className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
                                          hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
                                 >

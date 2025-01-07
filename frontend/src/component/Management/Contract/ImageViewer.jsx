@@ -21,6 +21,11 @@ const ImageViewer = ({ images, isOpen, onClose,contractId,onImagesUpdate}) => {
     });
 
     const handleDeleteImage = async (imageId) => {
+        if (loadedImages.length <= 1) {
+            showToast('Không thể xóa ảnh cuối cùng', 'error');
+            return;
+        }
+
         if (!window.confirm('Bạn có chắc chắn muốn xóa ảnh này?')) return;
 
         try {
@@ -46,7 +51,6 @@ const ImageViewer = ({ images, isOpen, onClose,contractId,onImagesUpdate}) => {
             showToast('Không thể xóa ảnh', 'error');
         }
     };
-
     const handleFileUpload = async (event) => {
         const files = event.target.files;
         if (!files.length) return;
@@ -208,6 +212,7 @@ const ImageViewer = ({ images, isOpen, onClose,contractId,onImagesUpdate}) => {
                 onClick={e => e.stopPropagation()}
             >
                 <div className="absolute top-4 right-4 z-50 flex space-x-2">
+                    // In the return statement, modify the delete button section:
                     {canModifyImages && (
                         <>
                             <input
@@ -229,7 +234,13 @@ const ImageViewer = ({ images, isOpen, onClose,contractId,onImagesUpdate}) => {
                             <button
                                 type="button"
                                 onClick={() => handleDeleteImage(images[currentImageIndex]?.url.split('/').pop())}
-                                className="p-2 rounded-full bg-black bg-opacity-50 text-white hover:text-red-300 hover:bg-opacity-75 transition-all"
+                                className={`p-2 rounded-full bg-black bg-opacity-50 text-white transition-all ${
+                                    loadedImages.length === 1
+                                        ? 'opacity-50 cursor-not-allowed'
+                                        : 'hover:text-red-300 hover:bg-opacity-75'
+                                }`}
+                                disabled={loadedImages.length === 1}
+                                title={loadedImages.length === 1 ? "Không thể xóa ảnh cuối cùng" : "Xóa ảnh"}
                             >
                                 <Trash2 className="w-6 h-6"/>
                             </button>
