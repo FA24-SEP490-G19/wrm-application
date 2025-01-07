@@ -2,6 +2,7 @@ package com.wrm.application.service.impl;
 
 import com.wrm.application.configuration.VNPAYConfig;
 import com.wrm.application.constant.enums.LotStatus;
+import com.wrm.application.constant.enums.RentalStatus;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.dto.UserDTO;
 import com.wrm.application.model.Payment;
@@ -21,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -179,6 +181,19 @@ public class VNPAYService {
             payment.setPaymentTime(LocalDateTime.now());
            // payment.getRental().getLot().setStatus(LotStatus.OCCUPIED);
             //lotRepository.save(payment.getRental().getLot()); // Explicitly save the lot
+            Rental rental = payment.getRental();
+            if (rental.getStatus() == RentalStatus.OVERDUE) {
+                LocalDate now = LocalDate.now();
+                LocalDate endDate = rental.getEndDate().toLocalDate();
+
+                if (now.isBefore(endDate)) {
+                    rental.setStatus(RentalStatus.ACTIVE);
+                } else {
+                    rental.setStatus(RentalStatus.EXPIRED);
+                }
+
+                rentalRepository.save(rental);
+            }
         }
         payment = paymentRepository.save(payment);
 

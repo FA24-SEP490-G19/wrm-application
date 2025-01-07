@@ -67,16 +67,15 @@ public class VnpayController {
             @RequestParam("id") Long id,
             @RequestParam("rentalId") Long rentalId,
             HttpServletRequest request) {
-        String paymentUrl = vnpayService.createPayment(orderTotal, orderInfo, request,id,rentalId);
+        String paymentUrl = vnpayService.createPayment(orderTotal, orderInfo, request, id, rentalId);
         return ResponseEntity.ok(paymentUrl);
     }
 
     @PostMapping("/auto-create-payment")
-    public ResponseEntity<Void> autoCreatePayment(@RequestParam int amount, @RequestParam String orderInfo, @RequestParam Long id) {
+    public ResponseEntity<String> autoCreatePayment(@RequestParam int amount, @RequestParam String orderInfo, @RequestParam Long id, @RequestParam Long rentalId) {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() +"/payment";
-        vnpayService.createOrder(request, amount, orderInfo, baseUrl);
-        return ResponseEntity.ok().build();
+        String paymentUrl = vnpayService.createPayment(amount, orderInfo, request, id, rentalId);
+        return ResponseEntity.ok(paymentUrl);
     }
 
 
