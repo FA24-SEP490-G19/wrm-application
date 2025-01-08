@@ -283,6 +283,17 @@ public class RentalController {
                 .totalPages(totalPage)
                 .build());
     }
+
+    @PutMapping("/update-rental-sales/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> updateRentalSales(@PathVariable Long id, @RequestParam Long salesId) {
+        try {
+            RentalResponse rental = rentalService.updateRentalSales(id, salesId);
+            return ResponseEntity.ok(rental);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
 
 

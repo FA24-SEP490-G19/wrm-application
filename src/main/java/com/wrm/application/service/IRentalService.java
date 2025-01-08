@@ -1,6 +1,5 @@
 package com.wrm.application.service;
 
-import com.wrm.application.dto.contract.ContractDTO;
 import com.wrm.application.dto.RentalDTO;
 import com.wrm.application.response.rental.RentalResponse;
 import jakarta.transaction.Transactional;
@@ -34,4 +33,7 @@ public interface IRentalService {
     Page<RentalResponse> getSignedRentalsInAMonthForSales(String remoteUser, PageRequest pageRequest) throws Exception;
 
     Page<RentalResponse> getAllExpiringRentalsForWarehouse(String remoteUser, PageRequest pageRequest) throws Exception;
+
+    @Transactional
+    RentalResponse updateRentalSales(Long id, Long salesId) throws Exception;
 }
