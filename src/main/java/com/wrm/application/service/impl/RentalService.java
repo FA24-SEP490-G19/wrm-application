@@ -313,7 +313,7 @@ public class RentalService implements IRentalService {
         });
     }
 
-    @Scheduled(cron = "0 15 * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void scheduleRentalPayments() throws MessagingException {
         RestTemplate restTemplate = new RestTemplate();
         // Lặp qua danh sách rentals để tạo thanh toán
@@ -364,7 +364,7 @@ public class RentalService implements IRentalService {
         return false;
     }
 
-    @Scheduled(cron = "0 7 * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void updateAndNotifyOverdueRentals() throws Exception {
         List<Rental> rentals = rentalRepository.findAll();
         LocalDate today = LocalDate.now();
@@ -500,5 +500,31 @@ public class RentalService implements IRentalService {
                     .status(rental.getStatus())
                     .build();
         });
+    }
+
+    @Transactional
+    @Override
+    public RentalResponse updateRentalSales(Long id, Long salesId) throws Exception {
+        Rental rental = rentalRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy thông tin thuê"));
+        User sales = userRepository.findById(salesId)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy nhân viên bán hàng"));
+        rental.setSales(sales);
+
+        rentalRepository.save(rental);
+        return RentalResponse.builder()
+                .id(rental.getId())
+                .salesId(rental.getSales().getId())
+                .customerId(rental.getCustomer().getId())
+                .warehouseId(rental.getWarehouse().getId())
+                .lotId(rental.getLot().getId())
+                .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
+                .contractId(rental.getContract().getId())
+                .rentalType(rental.getRentalType())
+                .price(rental.getPrice())
+                .startDate(rental.getStartDate())
+                .endDate(rental.getEndDate())
+                .status(rental.getStatus())
+                .build();
     }
 }
