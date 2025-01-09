@@ -245,6 +245,9 @@ public class AppointmentService implements IAppointmentService {
         }
         appointment.setSales(sales);
 
+        if(appointment.getStatus().equals(AppointmentStatus.REJECTED)){
+            appointment.setStatus(AppointmentStatus.PENDING);
+        }
         appointmentRepository.save(appointment);
 
         mailService.sendTaskAssignmentNotification(sales.getEmail(), appointment);
