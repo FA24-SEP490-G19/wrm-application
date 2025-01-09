@@ -52,7 +52,14 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
     // Add new function to fetch lots
     const fetchLots = async (warehouseId) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/lots/${warehouseId}`);
+            const token = localStorage.getItem('access_token'); // Get token from localStorage
+
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/lots/${warehouseId}`,{
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
             const data = await response.json();
             setAvailableLots(data || []);
         } catch (error) {
