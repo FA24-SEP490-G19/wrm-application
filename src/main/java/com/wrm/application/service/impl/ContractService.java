@@ -193,7 +193,7 @@ public class ContractService implements IContractService {
         if (signedDate.isBefore(LocalDate.now().plusDays(1))) {
             throw new IllegalArgumentException("Ngày ký hợp đồng phải là ngày trong tương lai");
         }
-        if (!expiryDate.isEqual(signedDate.plusDays(7))) {
+        if (!expiryDate.isAfter(signedDate.plusDays(6))) {
             throw new IllegalArgumentException("Thời gian thuê phải tối thiểu 1 tuần");
         }
 
