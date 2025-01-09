@@ -46,7 +46,7 @@ public class RentalService implements IRentalService {
                     .customerId(rental.getCustomer().getId())
                     .warehouseId(rental.getWarehouse().getId())
                     .lotId(rental.getLot().getId())
-                    .additionalServiceId(rental.getAdditionalService().getId())
+                    .additionalServiceId(rental.getAdditionalService() != null ? rental.getAdditionalService().getId() : null)
                     .contractId(rental.getContract().getId())
                     .rentalType(rental.getRentalType())
                     .price(rental.getPrice())
@@ -116,8 +116,11 @@ public class RentalService implements IRentalService {
             throw new DataIntegrityViolationException("Lô đã được thuê");
         }
 
-        AdditionalService additionalService = additionalServiceRepository.findById(rentalDTO.getAdditionalServiceId())
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy dịch vụ bổ sung"));
+        AdditionalService additionalService = null;
+        if (rentalDTO.getAdditionalServiceId() != null) {
+            additionalService = additionalServiceRepository.findById(rentalDTO.getAdditionalServiceId())
+                    .orElseThrow(() -> new DataNotFoundException("Không tìm thấy dịch vụ bổ sung"));
+        }
 
         Contract contract = contractRepository.findById(rentalDTO.getContractId())
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy hợp đồng"));
@@ -153,7 +156,7 @@ public class RentalService implements IRentalService {
                 .salesId(newRental.getSales().getId())
                 .warehouseId(newRental.getWarehouse().getId())
                 .lotId(newRental.getLot().getId())
-                .additionalServiceId(newRental.getAdditionalService().getId())
+                .additionalServiceId(newRental.getAdditionalService() != null ? newRental.getAdditionalService().getId() : null)
                 .contractId(newRental.getContract().getId())
                 .rentalType(newRental.getRentalType())
                 .price(newRental.getPrice())
