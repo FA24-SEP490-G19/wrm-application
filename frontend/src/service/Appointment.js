@@ -9,14 +9,23 @@ const getAuthConfig = () => ({
 export const getAllItems = async () => {
     try {
         return await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/appointments?page=0&limit=10`,
+            `${import.meta.env.VITE_API_BASE_URL}/appointments?page=0&limit=100`,
             getAuthConfig()
         );
     } catch (e) {
         throw e;
     }
 };
-
+export const getAppointmentBySale = async () => {
+    try {
+        return await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/appointments/sales-appointments?page=0&limit=100`,
+            getAuthConfig()
+        );
+    } catch (e) {
+        throw e;
+    }
+};
 export const createItem = async (appointmentData) => {
     try {
         return await axios.post(
@@ -87,10 +96,12 @@ export const getWarehouseById = async (id) => {
     }
 };
 
-export const getAppointmentBySale = async () => {
+
+
+export const getUpcomingAppointmentsForWarehouse = async () => {
     try {
         return await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/appointments/sales-appointments?page=0&limit=10`,
+            `${import.meta.env.VITE_API_BASE_URL}/appointments/warehouse/upcoming?page=0&limit=10`,
             getAuthConfig()
         );
     } catch (e) {

@@ -18,6 +18,17 @@ export const getAllLots =   async () => {
     }
 };
 
+export const getAllLotsByManager =   async () => {
+    try {
+        return await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/lots/manager?page=0&limit=100`,
+            getAuthConfig()
+        );
+    } catch (e) {
+        throw e;
+    }
+};
+
 export const getLotById = async (id) => {
     try {
         const response =  await axios.get(

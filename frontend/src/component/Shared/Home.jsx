@@ -153,13 +153,13 @@ const WarehouseRental = () => {
 
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center space-x-4">
-                            <a
-                                href="/landing"
-                                className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
-                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
-                            >
-                                Landing Page
-                            </a>
+                            {/*<a*/}
+                            {/*    href="/landing"*/}
+                            {/*    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700*/}
+                            {/*             hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"*/}
+                            {/*>*/}
+                            {/*    Landing Page*/}
+                            {/*</a>*/}
 
 
                             {customer?.role === "ROLE_SALES" && (

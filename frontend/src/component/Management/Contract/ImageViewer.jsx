@@ -212,7 +212,6 @@ const ImageViewer = ({ images, isOpen, onClose,contractId,onImagesUpdate}) => {
                 onClick={e => e.stopPropagation()}
             >
                 <div className="absolute top-4 right-4 z-50 flex space-x-2">
-                    // In the return statement, modify the delete button section:
                     {canModifyImages && (
                         <>
                             <input

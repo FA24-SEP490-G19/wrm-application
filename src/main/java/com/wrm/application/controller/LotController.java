@@ -5,6 +5,7 @@ import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.response.lot.LotListResponse;
 import com.wrm.application.response.lot.LotResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,9 +52,20 @@ public class LotController {
                 .build());
     }
 
-    @GetMapping("/warehouses/{id}")
-    public ResponseEntity<LotResponse> getLotByWarehouseId(@PathVariable Long id) throws Exception {
-        return ResponseEntity.ok(lotService.getLotByWarehouseID(id));
+    @GetMapping("/manager")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    public ResponseEntity<LotListResponse> getLotByWarehouseManager( @RequestParam("page") int page,
+                                                                 @RequestParam("limit") int limit,HttpServletRequest request) {
+        PageRequest pageRequest = PageRequest.of
+                (page,limit, Sort.by("createdDate").descending());
+        Page<LotResponse> lotsPage;
+        lotsPage = lotService.getLotByWarehouseID(pageRequest,request.getRemoteUser());
+        int totalPages = lotsPage.getTotalPages();
+        List<LotResponse> lots = lotsPage.getContent();
+        return ResponseEntity.ok(LotListResponse.builder()
+                .lots(lots)
+                .totalPages(totalPages)
+                .build());
     }
 
     @PutMapping("/update/{id}")

@@ -44,7 +44,7 @@ const FeedbackForm = ({ warehouseId, onSubmit }) => {
     return (
 
         <>
-            {customer.role !== "ROLE_ADMIN" ? (
+            {customer.role !== "ROLE_ADMIN" && customer.role !== "ROLE_SALES" ? (
         <div className="w-full mt-6 bg-white rounded-lg shadow-lg">
             <div className="p-6 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900">Đánh giá kho</h2>

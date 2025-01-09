@@ -24,13 +24,15 @@ const CRMLayout = ({ children }) => {
         { name: 'Thống kê', icon: BarChart2, path: '/statistical', roles: ['ROLE_ADMIN'] },
         { name: 'Thống kê', icon: BarChart2, path: '/SaleDashboard', roles: ['ROLE_SALES'] },
         { name: 'Thống kê', icon: BarChart2, path: '/ManagerDashboard', roles: ['ROLE_MANAGER'] },
-        { name: 'Quản lý kho', icon: Warehouse, path: '/kho', roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] },
+        { name: 'Quản lý kho', icon: Warehouse, path: '/kho', roles: ['ROLE_ADMIN'] },
         { name: 'Quản lý cuộc hẹn', icon: Calendar, path: '/appointment', roles: ['ROLE_ADMIN', 'ROLE_SALES'] },
         { name: 'Quản lý cho thuê', icon: Key, path: '/rental', roles: ['ROLE_ADMIN', 'ROLE_SALES'] },
         { name: 'Quản lý yêu cầu', icon: ClipboardList, path: '/request', roles: ['ROLE_ADMIN', 'ROLE_SALES', 'ROLE_MANAGER'] },
-        { name: 'Quản lý phản hồi', icon: MessageSquare, path: '/feedback', roles: ['ROLE_ADMIN'] },
+        // { name: 'Quản lý phản hồi', icon: MessageSquare, path: '/feedback', roles: ['ROLE_ADMIN'] },
         { name: 'Quản lý người dùng', icon: Users, path: '/user', roles: ['ROLE_ADMIN'] },
         { name: 'Quản lý thanh toán', icon: CreditCard, path: '/payment', roles: ['ROLE_SALES', 'ROLE_ADMIN'] },
+        { name: 'Cuộc hẹn sắp tới', icon: Calendar, path: '/upcoming', roles: ['ROLE_MANAGER'] },
+        { name: 'Hợp đồng sắp hết hạn', icon: Key, path: '/expired', roles: ['ROLE_MANAGER'] },
 
 
 

@@ -2,25 +2,16 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {
     Search, Plus, Loader2, Edit2, Trash2,Eye
 } from 'lucide-react';
-import RentalModal from "./RentalModal.jsx";
 
 import { jwtDecode } from "jwt-decode";
-import {useToast} from "../../context/ToastProvider.jsx";
-import {useAuth} from "../../context/AuthContext.jsx";
-import {getUserById, getWarehouseById} from "../../service/Appointment.js";
-import {
-    createRental,
-    deleteRental,
-    getAllCustomerId, getAllManagerId,
-    getAllRentals,
-    getAllSaleId,
-    updateRentalStatus
-} from "../../service/Reatal.js";
-import CRMLayout from "../Management/Crm.jsx";
-import ContractModal from "../Management/Contract/ContractModal.jsx";
-import {createContract, updateContract} from "../../service/Contract.js";
-import ImageViewer from "../Management/Contract/ImageViewer.jsx";
+
 import axios from "axios";
+import {useToast} from "../../../context/ToastProvider.jsx";
+import {useAuth} from "../../../context/AuthContext.jsx";
+import {getUserById, getWarehouseById} from "../../../service/Appointment.js";
+import {getAllExpiringRentalsForWarehouse, getAllRentals} from "../../../service/Reatal.js";
+import ImageViewer from "../Contract/ImageViewer.jsx";
+import CRMLayout from "../Crm.jsx";
 
 const RentalList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -37,11 +28,11 @@ const RentalList = () => {
     const [warehousesData, setWarehousesData] = useState({});
     const [loadingRelatedData, setLoadingRelatedData] = useState(false);
     const { customer } = useAuth();
+    const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);
     const [selectedContractId, setSelectedContractId] = useState(null);  // Add this line
-    const [currentPage, setCurrentPage] = useState(1);
 
     // Calculate pagination values
     const lastItemIndex = currentPage * itemsPerPage;
@@ -201,20 +192,15 @@ const RentalList = () => {
             const decodedToken = jwtDecode(token);
             let response;
 
-            if (decodedToken.roles !== "ROLE_ADMIN" && decodedToken.roles !== "ROLE_SALES") {
+            if (decodedToken.roles !== "ROLE_MANAGER") {
                 setError('Không có quyền truy cập');
                 showToast('Không có quyền truy cập', 'error');
                 return;
             }
 
             // Update API calls to include pagination parameters
-            if(decodedToken.roles === "ROLE_ADMIN") {
-                response = await getAllRentals();
-            } else if(decodedToken.roles === "ROLE_SALES") {
-                response = await getAllSaleId();
-            } else if(decodedToken.roles === "ROLE_MANAGER") {
-                response = await getAllManaegerId();
-            }
+                response = await getAllExpiringRentalsForWarehouse();
+
 
             const { rentals: rentalList, totalPages, totalItems } = response;
             setRentals(rentalList || []);
@@ -248,82 +234,10 @@ const RentalList = () => {
         setIsContractModalOpen(true);
     };
 
-    const handleViewContract = (rental) => {
-        // Close rental modal if it's open
-        if (isRentalModalOpen) {
-            setIsRentalModalOpen(false);
-        }
-        setModalMode('view');
-        setSelectedContract(rental);
-        setIsContractModalOpen(true);
-    };
-
-    const handleContractModalSubmit = async (contractData) => {
-        try {
-            let response;
-            if (modalMode === 'create') {
-                response = await createContract(contractData);
-                setIsContractModalOpen(false);  // Close modal before showing toast
-                showToast('Thêm mới hợp đồng thành công', 'success');
-            } else {
-                response = await updateContract(selectedContract.id, contractData);
-                setIsContractModalOpen(false);  // Close modal before showing toast
-                showToast('Cập nhật hợp đồng thành công', 'success');
-            }
-            fetchRentals();
-        } catch (error) {
-            showToast(`Thao tác thất bại: ${error.response.data}`, 'error');
-        }
-    };
 
 
-    const handleDeleteRental = async (rentalId) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa đơn thuê kho này?')) {
-            try {
-                await deleteRental(rentalId);
-                showToast('Xóa đơn thuê kho thành công', 'success');
-                fetchRentals();
-            } catch (error) {
-                showToast('Xóa đơn thuê kho thất bại', 'error');
-            }
-        }
-    };
 
-    const handleStatusChange = async (rentalId, newStatus) => {
-        try {
-            await updateRentalStatus(rentalId, newStatus);
-            showToast('Cập nhật trạng thái thành công', 'success');
-            fetchRentals();
-        } catch (error) {
-            showToast('Cập nhật trạng thái thất bại', 'error');
-        }
-    };
 
-    const handleModalSubmit = async (rentalData) => {
-        try {
-            if (modalMode === 'create') {
-                await createRental(rentalData);
-                showToast('Thêm mới đơn thuê kho thành công', 'success');
-            } else {
-                await updateRentalStatus(selectedRental.id, rentalData.status);
-                showToast('Cập nhật đơn thuê kho thành công', 'success');
-            }
-            setIsRentalModalOpen(false);
-            fetchRentals();
-        } catch (error) {
-            const errorMessage = error.response.data ;
-            showToast(errorMessage, 'error');
-        }
-    };
-    const handleRentalModalClose = () => {
-        setIsRentalModalOpen(false);
-        setSelectedRental(null);
-    };
-
-    const handleContractModalClose = () => {
-        setIsContractModalOpen(false);
-        setSelectedContract(null);
-    };
 
     const statusColors = {
         'ACTIVE': 'bg-yellow-50 text-yellow-700 border-yellow-100',
@@ -362,8 +276,8 @@ const RentalList = () => {
         <div className="p-6 space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Quản lý thuê kho</h1>
-                    <p className="text-gray-600">Quản lý các đơn thuê kho trong hệ thống</p>
+                    <h1 className="text-2xl font-bold text-gray-900">Quản lý hợp đồng thuê kho</h1>
+                    <p className="text-gray-600">Danh sách các hợp đồng sắp hết hạn</p>
                 </div>
                 {customer.role === "ROLE_SALES" && (
                     <div className="flex gap-3">
@@ -509,32 +423,6 @@ const RentalList = () => {
                                                 <Eye className="w-5 h-5"/>
                                             </button>
 
-                                            {customer.role === "ROLE_ADMIN" && rental.status === 'PENDING' && (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleStatusChange(rental.id, 'ACTIVE')}
-                                                        className="text-green-600 hover:text-green-900"
-                                                    >
-                                                        Duyệt
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleStatusChange(rental.id, 'EXPIRED')}
-                                                        className="text-red-600 hover:text-red-900"
-                                                    >
-                                                        Từ chối
-                                                    </button>
-                                                </>
-                                            )}
-                                            {customer.role === "ROLE_ADMIN" && (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleDeleteRental(rental.id)}
-                                                        className="text-red-600 hover:text-red-900"
-                                                    >
-                                                        <Trash2 className="w-5 h-5"/>
-                                                    </button>
-                                                </>
-                                            )}
 
                                             <ImageViewer
                                                 images={selectedImages}
@@ -616,30 +504,15 @@ const RentalList = () => {
                 </div>
             </div>
 
-            <RentalModal
-                isOpen={isRentalModalOpen}
-                onClose={() => setIsRentalModalOpen(false)}
-                mode={modalMode}
-                rentalData={selectedRental}
-                onSubmit={handleModalSubmit}
-            />
-
-            <ContractModal
-                isOpen={isContractModalOpen}
-                onClose={() => setIsContractModalOpen(false)}
-                mode={modalMode}
-                contractData={selectedContract}
-                onSubmit={handleContractModalSubmit}
-            />
 
         </div>
     );
 };
 
-const RentalPage = () => (
+const RentalPageForManager = () => (
     <CRMLayout>
         <RentalList/>
     </CRMLayout>
 );
 
-export default RentalPage;
+export default RentalPageForManager;

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
     Search, Filter, Plus, MoreHorizontal, Download,
-    Mail, Phone, Building2, ArrowUpDown, Loader, Edit2, Trash2
+    Mail, Phone, Building2, ArrowUpDown, Loader, Edit2, Trash2,Power
 } from 'lucide-react';
 import CRMLayout from "../Crm.jsx";
-import {createUser, getAllProfile} from "../../../service/Authenticate.js";
+import {activate, createUser, getAllProfile, inactive} from "../../../service/Authenticate.js";
 import {useToast} from "../../../context/ToastProvider.jsx";
 import UserModal from "./UserModal.jsx";
+import {jwtDecode} from "jwt-decode";
 
 const CustomerList = () => {
     const [selectedStatus, setSelectedStatus] = useState('all');
@@ -21,7 +22,15 @@ const CustomerList = () => {
 // Add pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5; // Number of items per page
+    const [currentUserEmail, setCurrentUserEmail] = useState('');
 
+    useEffect(() => {
+        // Get current user email from localStorage when component mounts
+        const token = localStorage.getItem("access_token");
+        const decodedToken = jwtDecode(token);
+        setCurrentUserEmail(decodedToken.sub);
+        fetchCustomers();
+    }, []);
     // Calculate pagination values
     const lastItemIndex = currentPage * itemsPerPage;
     const firstItemIndex = lastItemIndex - itemsPerPage;
@@ -101,13 +110,25 @@ const CustomerList = () => {
     };
 
     const handleDeleteUser = async (userId) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+        if (window.confirm('Bạn có chắc chắn muốn tắt hoạt động của người dùng này?')) {
             try {
-                await deleteUser(userId);
-                showToast('Xóa người dùng thành công', 'success');
+                await inactive(userId);
+                showToast('Tắt hoạt động người dùng thành công', 'success');
                 fetchCustomers();
             } catch (error) {
                 showToast(err.response.data);
+            }
+        }
+    };
+
+    const handleActivateUser = async (userId) => {
+        if (window.confirm('Bạn có chắc chắn muốn kích hoạt người dùng này?')) {
+            try {
+                await activate(userId);
+                showToast('Kích hoạt người dùng thành công', 'success');
+                fetchCustomers();
+            } catch (error) {
+                showToast(error.response.data);
             }
         }
     };
@@ -235,13 +256,32 @@ const CustomerList = () => {
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end space-x-2">
-                                        <button
-                                            onClick={() => handleDeleteUser(customer.id)}
-                                            className="p-1 text-red-600 hover:text-red-800"
-                                            title="Xóa người dùng"
-                                        >
-                                            <Trash2 className="w-5 h-5"/>
-                                        </button>
+                                        {customer.status === 'INACTIVE' ? (
+                                            <button
+                                                onClick={() => handleActivateUser(customer.id)}
+                                                className="p-1 text-green-600 hover:text-green-800"
+                                                title="Kích hoạt người dùng"
+                                            >
+                                                <Power className="w-5 h-5"/>
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleDeleteUser(customer.id)}
+                                                disabled={customer.email === currentUserEmail}
+                                                className={`p-1 ${
+                                                    customer.email === currentUserEmail
+                                                        ? 'text-gray-400 cursor-not-allowed'
+                                                        : 'text-red-600 hover:text-red-800'
+                                                }`}
+                                                title={
+                                                    customer.email === currentUserEmail
+                                                        ? "Không thể tắt hoạt động tài khoản của chính mình"
+                                                        : "Tắt hoạt động người dùng"
+                                                }
+                                            >
+                                                <Trash2 className="w-5 h-5"/>
+                                            </button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>

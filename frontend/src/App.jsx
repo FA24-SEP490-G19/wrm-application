@@ -37,6 +37,8 @@ import RentalHistory from "./component/MyHistory.jsx";
 import SalesDashboard from "./component/SaleDashboard/SalesDashboard.jsx";
 import WarehouseManagerDashboard from "./component/ManagerDashboard/WarehouseManagerDashboard.jsx";
 import VerificationSuccess from "./component/VerificationSuccess/VerificationSuccess.jsx";
+import AppointmentPageForManager from "./component/Management/AppointmentUpcomingForManager/AppointmentPage.jsx";
+import RentalPageForManager from "./component/Management/ExpiringRentalsForWarehouse/RentalPage.jsx";
 
 function App() {
     return (
@@ -77,7 +79,9 @@ function App() {
             <Route path="/ManagerDashboard" element={<ProtectedRoute><WarehouseManagerDashboard /> </ProtectedRoute>} />
             <Route path="/history" element={<ProtectedRoute><RentalHistory /></ProtectedRoute>} />
             <Route path="/payment-return" element={<ProtectedRoute><PaymentSuccess/> </ProtectedRoute>} />
-            <Route path="/forgot" element={<ResetPassword/> } />
+                <Route path="/upcoming" element={<ProtectedRoute><AppointmentPageForManager/> </ProtectedRoute>} />
+                <Route path="/expired" element={<ProtectedRoute><RentalPageForManager/> </ProtectedRoute>} />
+                <Route path="/forgot" element={<ResetPassword/> } />
             <Route path="/active" element={<VerificationSuccess/> } />
 
 

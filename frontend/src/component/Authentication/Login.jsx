@@ -35,9 +35,20 @@ const LoginPage = () => {
         setIsLoading(true);
 
         try {
-            await login({ email, password });
-            // Navigate to dashboard on successful login
-            navigate('/home');
+            const response = await login({ email, password });
+            const userRole = response.decodedToken.role;
+
+            // Check role and navigate accordingly
+            if (userRole === 'ROLE_ADMIN') {
+                navigate('/statistical');
+            }else if (userRole === 'ROLE_MANAGER'){
+                navigate('/ManagerDashboard');
+            }else if (userRole === 'ROLE_SALES'){
+                navigate('/SaleDashboard');
+            }
+            else {
+                navigate('/home');
+            }
         } catch (err) {
             if (err.response) {
                 setError(err.response.data.message || 'Tài khoản hoặc mật khẩu không đúng');

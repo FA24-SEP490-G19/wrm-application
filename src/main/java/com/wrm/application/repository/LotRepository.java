@@ -3,6 +3,8 @@ package com.wrm.application.repository;
 import aj.org.objectweb.asm.commons.Remapper;
 import com.wrm.application.model.Lot;
 import com.wrm.application.response.lot.LotListResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,6 +35,9 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
 
     @Query("SELECT l FROM Lot l WHERE l.warehouse.id = :warehouseId AND l.isDeleted = false")
     List<Lot> findLotsByWarehouseId(@Param("warehouseId") Long warehouseId);
+
+    @Query("SELECT l FROM Lot l WHERE l.isDeleted = false AND l.warehouse.warehouseManager.id = :warehouseManagerId")
+    Page<Lot> findLotsByWarehouseId2(@Param("warehouseManagerId") Long warehouseManagerId, Pageable pageable);
 
     @Query("SELECT COUNT(l) FROM Lot l " +
             "WHERE l.warehouse.id = :warehouseId " +

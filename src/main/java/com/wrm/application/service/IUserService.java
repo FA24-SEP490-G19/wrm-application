@@ -38,4 +38,8 @@ public interface IUserService {
     List<UserDTO> getAllCustomerBySales(String remoteUser) throws Exception;
 
     List<UserDTO> getAllCustomersIsActive();
+
+    UserDTO inactive(Long id);
+
+    UserDTO active(Long id);
 }

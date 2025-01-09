@@ -364,4 +364,22 @@ public class UserService implements IUserService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public UserDTO inactive(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        assert user != null;
+        user.setStatus(UserStatus.INACTIVE);
+        userRepository.save(user);
+        return null;
+    }
+
+    @Override
+    public UserDTO active(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        assert user != null;
+        user.setStatus(UserStatus.ACTIVE);
+        userRepository.save(user);
+        return null;
+    }
 }

@@ -4,17 +4,16 @@ import {
 } from 'lucide-react';
 import CRMLayout from "../Crm.jsx";
 import { useToast } from "../../../context/ToastProvider.jsx";
-import AppointmentModal from "./AppointmentModal.jsx";
+
 import {
     getAllItems,
     createItem,
     updateItem,
-    deleteItem, getUserById, getWarehouseById, getAppointmentBySale
+    deleteItem, getUserById, getWarehouseById, getAppointmentBySale, getUpcomingAppointmentsForWarehouse
 } from "../../../service/Appointment.js";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
-import SaleAssignModal from "./SaleAssignModal.jsx";
 
 const AppointmentList = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -31,13 +30,10 @@ const AppointmentList = () => {
     const [loadingRelatedData, setLoadingRelatedData] = useState(false);
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
-    const [totalItems, setTotalItems] = useState(0);
     const { customer } = useAuth();
     // Add pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5; // Number of items per page
-    const lastItemIndex = currentPage * itemsPerPage;
-    const firstItemIndex = lastItemIndex - itemsPerPage;
     const accept = {
         customer_id: '',
         warehouse_id: '',
@@ -50,12 +46,12 @@ const AppointmentList = () => {
         appointment_date: '',
         status: 'REJECTED'
     };
-
     // Calculate pagination values
-
+    const lastItemIndex = currentPage * itemsPerPage;
+    const firstItemIndex = lastItemIndex - itemsPerPage;
     useEffect(() => {
         fetchItems();
-    }, [currentPage, searchTerm]); //
+    }, [currentPage]);
 
     useEffect(() => {
         if (items.length > 0) {
@@ -95,7 +91,6 @@ const AppointmentList = () => {
         }
         return pages;
     };
-
     const fetchRelatedData = async () => {
         setLoadingRelatedData(true);
         try {
@@ -152,37 +147,34 @@ const AppointmentList = () => {
 
     const fetchItems = async () => {
         try {
-            setLoading(true);
+            let response;
             const token = localStorage.getItem("access_token");
             const decodedToken = jwtDecode(token);
 
-            if (decodedToken.roles !== "ROLE_ADMIN" && decodedToken.roles !== "ROLE_SALES") {
+            setLoading(true);
+            if (decodedToken.roles !== "ROLE_MANAGER") {
                 setError('Không có quyền truy cập');
                 showToast('Không có quyền truy cập', 'error');
                 return;
             }
 
-            let response;
-            if(decodedToken.roles === "ROLE_ADMIN") {
-                response = await getAllItems();
-            } else {
-                response = await getAppointmentBySale();
-            }
 
-            const { appointments, totalPages: totalPagesFromServer } = response.data;
+                response = await getUpcomingAppointmentsForWarehouse(currentPage - 1, itemsPerPage);
 
 
-
+            const { appointments, totalPages: totalPagesFromServer, totalItems } = response.data;
             setItems(appointments || []);
             setError(null);
         } catch (err) {
-            setError(err.response?.data || 'Error fetching data');
-            showToast(err.response?.data || 'Error fetching data');
-
+            setError(err.response.data);
+            showToast(err.response.data);
+            setItems([]);
+            setTotalPages(0);
         } finally {
             setLoading(false);
         }
     };
+
     const handleAddAppointment = () => {
         setModalMode('create');
         setSelectedItem(null);
@@ -243,10 +235,10 @@ const AppointmentList = () => {
         'CANCELLED': 'Đã hủy'
     };
 
-    const filteredItems = items.filter(rental => {
-        if (!rental) return false;
+    const filteredItems = items.filter(item => {
+        if (!item) return false;
         return searchTerm === '' ||
-            Object.values(rental)
+            Object.values(item)
                 .filter(value => value !== null && value !== undefined)
                 .some(value =>
                     value.toString().toLowerCase().includes(searchTerm.toLowerCase())
@@ -314,7 +306,7 @@ const AppointmentList = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Quản lý cuộc hẹn</h1>
-                    <p className="text-gray-600">Dành cho nhân viên sale</p>
+                    <p className="text-gray-600">Danh sách các cuộc hẹn sắp tới</p>
                 </div>
                 {customer.role === "ROLE_SALES" ? (
                 <button
@@ -478,7 +470,7 @@ const AppointmentList = () => {
                                 )}
 
 
-                                {customer.role === "ROLE_ADMIN" && item.status !== 'ACCEPTED' && (
+                                {customer.role === "ROLE_ADMIN" && (
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end space-x-2">
                                             <button
@@ -500,9 +492,8 @@ const AppointmentList = () => {
                 <div className="px-6 py-4 border-t border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
-                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredItems.length)}
-                            trong tổng số {filteredItems.length} cuộc hẹn
-
+                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, items.length)}
+                            trong tổng số {items.length} cuộc hẹn
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -553,28 +544,14 @@ const AppointmentList = () => {
                 </div>
             </div>
 
-            <AppointmentModal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                mode={modalMode}
-                appointmentData={selectedItem}
-                onSubmit={handleModalSubmit}
-            />
-
-            <SaleAssignModal
-                isOpen={isAssignModalOpen}
-                onClose={() => setIsAssignModalOpen(false)}
-                appointmentId={selectedAppointmentId}
-                onAssign={handleAssignSale}
-            />
         </div>
     );
 };
 
-const AppointmentPage = () => (
+const AppointmentPageForManager = () => (
     <CRMLayout>
         <AppointmentList/>
     </CRMLayout>
 );
 
-export default AppointmentPage;
+export default AppointmentPageForManager;

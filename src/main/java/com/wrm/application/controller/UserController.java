@@ -121,7 +121,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_USER') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
             UserDTO user = userService.getUserById(id);
@@ -241,6 +241,20 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PutMapping("/inactive/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> inactive(@PathVariable Long id) {
+        UserDTO updatedProfile = userService.inactive(id);
+        return ResponseEntity.ok(updatedProfile);
+    }
+
+    @PutMapping("/active/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> active(@PathVariable Long id) {
+        UserDTO updatedProfile = userService.active(id);
+        return ResponseEntity.ok(updatedProfile);
     }
 
 }

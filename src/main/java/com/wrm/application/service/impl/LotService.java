@@ -147,17 +147,16 @@ public class LotService implements ILotService {
     }
 
     @Override
-    public LotResponse getLotByWarehouseID(Long id) {
-        Lot lot = (Lot) lotRepository.findLotsByWarehouseId(id);
-
-
-        return LotResponse.builder()
+    public Page<LotResponse> getLotByWarehouseID(PageRequest pageRequest, String remoteUser) {
+        User user = userRepository.findByEmail(remoteUser).orElseThrow();
+        return lotRepository.findLotsByWarehouseId2(user.getId(),pageRequest).map(lot -> LotResponse.builder()
                 .id(lot.getId())
                 .description(lot.getDescription())
                 .size(lot.getSize())
                 .status(lot.getStatus())
                 .warehouseId(lot.getWarehouse().getId())
                 .price(lot.getPrice())
-                .build();
-    }
+                .build());    }
+
+
 }

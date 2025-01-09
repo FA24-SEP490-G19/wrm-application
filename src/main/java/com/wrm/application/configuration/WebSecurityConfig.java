@@ -51,6 +51,8 @@ public class WebSecurityConfig {
                             .requestMatchers(GET,
                                     "/lots/{lotId}").permitAll()
                             .requestMatchers(GET,
+                                    "/lots/manager").permitAll()
+                            .requestMatchers(GET,
                                     "/lots").permitAll()
                             .anyRequest().authenticated();
                 });

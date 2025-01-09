@@ -133,3 +133,27 @@ export const getAllUsers = async () => {
         throw error;
     }
 };
+
+export const inactive = async (id) => {
+    try {
+        return await axios.put(
+            `${import.meta.env.VITE_API_BASE_URL}/users/inactive/${id}`,
+            {}, // Empty object as body since you probably don't need to send data
+            getAuthConfig() // Auth config should be the third parameter
+        )
+    } catch (e) {
+        throw e;
+    }
+}
+
+export const activate = async (id) => {
+    try {
+        return await axios.put(
+            `${import.meta.env.VITE_API_BASE_URL}/users/active/${id}`,
+            {}, // Empty object as body since you probably don't need to send data
+            getAuthConfig() // Auth config should be the third parameter
+        )
+    } catch (e) {
+        throw e;
+    }
+}

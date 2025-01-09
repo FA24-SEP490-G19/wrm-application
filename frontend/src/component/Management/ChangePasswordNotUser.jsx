@@ -35,6 +35,11 @@ const FeatureList = () => {
         { id: 'number', label: 'Một chữ số', test: (pass) => /\d/.test(pass) },
         { id: 'special', label: 'Một ký tự đặc biệt', test: (pass) => /[!@#$%^&*]/.test(pass) }
     ];
+    const validatePassword = (password) => {
+        // Check all requirements are met
+        const isValid = passwordRequirements.every(req => req.test(password));
+        return isValid;
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -42,11 +47,41 @@ const FeatureList = () => {
             ...prev,
             [name]: value
         }));
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
+
+        // Clear previous errors
+        setError('');
+        setSuccess('');
+
+        // If it's the new password field, validate in real-time
+        if (name === 'newPassword') {
+            if (value === formData.oldPassword) {
+                setErrors(prev => ({
+                    ...prev,
+                    newPassword: 'Mật khẩu mới phải khác mật khẩu hiện tại'
+                }));
+            } else {
+                setErrors(prev => ({
+                    ...prev,
+                    newPassword: ''
+                }));
+            }
+        }
+
+        // If it's the confirm password field, check matching
+        if (name === 'confirmPassword') {
+            if (value !== formData.newPassword) {
+                setErrors(prev => ({
+                    ...prev,
+                    confirmPassword: 'Mật khẩu xác nhận không khớp'
+                }));
+            } else {
+                setErrors(prev => ({
+                    ...prev,
+                    confirmPassword: ''
+                }));
+            }
         }
     };
-
     const togglePasswordVisibility = (field) => {
         setShowPasswords(prev => ({
             ...prev,
@@ -56,15 +91,30 @@ const FeatureList = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setSuccess('');
 
-        // Basic validation
+        // Validate all required fields
         if (!formData.oldPassword || !formData.newPassword || !formData.confirmPassword) {
             setError('Vui lòng điền đầy đủ thông tin');
             return;
         }
 
+        // Validate new password meets requirements
+        if (!validatePassword(formData.newPassword)) {
+            setError('Mật khẩu mới không đáp ứng các yêu cầu bảo mật');
+            return;
+        }
+
+        // Validate confirm password matches
         if (formData.newPassword !== formData.confirmPassword) {
             setError('Mật khẩu mới và xác nhận mật khẩu không khớp');
+            return;
+        }
+
+        // Validate new password is different from old password
+        if (formData.oldPassword === formData.newPassword) {
+            setError('Mật khẩu mới phải khác mật khẩu hiện tại');
             return;
         }
 
@@ -72,7 +122,14 @@ const FeatureList = () => {
             setIsLoading(true);
             const { oldPassword, newPassword, confirmPassword } = formData;
             await changePassword({ oldPassword, newPassword, confirmPassword });
-            setSuccess("Đổi mật khẩu thành công") ;
+            setSuccess("Đổi mật khẩu thành công");
+
+            // Clear form after successful change
+            setFormData({
+                oldPassword: '',
+                newPassword: '',
+                confirmPassword: ''
+            });
         } catch (err) {
             if (err.response) {
                 setError(err.response.data.message || 'Mật khẩu không đúng');
@@ -81,12 +138,11 @@ const FeatureList = () => {
             } else {
                 setError('Có lỗi xảy ra, vui lòng thử lại.');
             }
-            console.error('Login error:', err);
+            console.error('Password change error:', err);
         } finally {
             setIsLoading(false);
         }
     };
-
 
     return (
         <div>

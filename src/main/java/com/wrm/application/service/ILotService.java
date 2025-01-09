@@ -22,5 +22,5 @@ public interface ILotService {
 
     List<LotResponse> getAvailableLotsByWarehouseId(Long warehouseId);
 
-    LotResponse getLotByWarehouseID(Long id);
+    Page<LotResponse> getLotByWarehouseID(PageRequest pageRequest, String remoteUser);
 }
