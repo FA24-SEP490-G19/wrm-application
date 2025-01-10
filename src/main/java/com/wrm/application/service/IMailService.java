@@ -44,4 +44,7 @@ public interface IMailService {
 
     @Async
     void sendAccountCreationEmail(User user, String password) throws MessagingException;
+
+    @Async
+    void sendAppointmentCancellationEmail(String email, Appointment appointment) throws MessagingException;
 }

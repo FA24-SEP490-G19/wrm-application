@@ -161,6 +161,15 @@ public class AppointmentService implements IAppointmentService {
         appointment.setDeleted(true);
         appointment.setStatus(AppointmentStatus.CANCELLED);
         appointmentRepository.save(appointment);
+
+        if (appointment.getSales() != null) {
+            mailService.sendAppointmentCancellationEmail(appointment.getSales().getEmail(), appointment);
+        }
+
+        // Send email to admin
+        User admin = userRepository.findByRoleId(2L)
+                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy admin"));
+        mailService.sendAppointmentCancellationEmail(admin.getEmail(), appointment);
     }
 
     @Override
@@ -245,6 +254,9 @@ public class AppointmentService implements IAppointmentService {
         }
         appointment.setSales(sales);
 
+        if(appointment.getStatus().equals(AppointmentStatus.REJECTED)){
+            appointment.setStatus(AppointmentStatus.PENDING);
+        }
         appointmentRepository.save(appointment);
 
         mailService.sendTaskAssignmentNotification(sales.getEmail(), appointment);

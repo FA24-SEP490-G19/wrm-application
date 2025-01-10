@@ -373,11 +373,11 @@ public class RentalService implements IRentalService {
         LocalDate today = LocalDate.now();
 
         for (Rental rental : rentals) {
-            if (rental.getStatus() == RentalStatus.ACTIVE && isOverdue(rental, today)) {
-                // Chuyển trạng thái thành "QUA_HAN_THANH_TOAN"
-                rental.setStatus(RentalStatus.OVERDUE);
-                rentalRepository.save(rental);
-
+            if (isOverdue(rental, today)) {
+                if(rental.getStatus() == RentalStatus.ACTIVE){
+                    rental.setStatus(RentalStatus.OVERDUE);
+                    rentalRepository.save(rental);
+                }
                 // Gửi email thông báo quá hạn
                 mailService.sendOverdueNotification(rental);
             }
