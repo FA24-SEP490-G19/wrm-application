@@ -250,6 +250,7 @@ const RequestList = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div className="flex justify-end space-x-2">
                                         {isAdmin ? (
+
                                             <button
                                                 onClick={() => handleAdminReply(request)}
                                                 className="text-indigo-600 hover:text-indigo-900"
@@ -257,7 +258,9 @@ const RequestList = () => {
                                                 disabled={request.status === 'CANCELLED'}
                                             >
                                                 <MessageCircle className="w-5 h-5"/>
+
                                             </button>
+
                                         ) : (
                                             <>
                                                 {request.status === 'PENDING' && (

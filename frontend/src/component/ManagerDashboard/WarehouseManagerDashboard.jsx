@@ -207,7 +207,7 @@ const WarehouseManagerDashboard = () => {
                     />
                     <StatisticCard
                         title="Hiệu Suất Sử Dụng"
-                        data={metrics.rentedLots}
+                        data={metrics.availableLots}
                         total={totalLots}
                         icon={Home}
                         iconClassName="bg-green-100 text-green-600"

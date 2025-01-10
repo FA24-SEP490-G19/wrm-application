@@ -276,7 +276,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Thông tin cá nhân
                                                 </a>
 
@@ -285,7 +284,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đơn thuê kho
                                                 </a>
                                                 <a
@@ -293,7 +291,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Lịch sử thuê kho
                                                 </a>
                                                 <a
@@ -301,7 +298,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Cuộc hẹn
                                                 </a>
                                                 <a
@@ -309,7 +305,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Yêu cầu
                                                 </a>
                                                 <a
@@ -317,7 +312,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đánh giá
                                                 </a>
                                                 <a
@@ -325,7 +319,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Thanh toán
                                                 </a>
                                                 <a
@@ -333,7 +326,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đổi mật khẩu
                                                 </a>
                                                 <div className="border-t border-gray-100 my-1"></div>
@@ -342,7 +334,6 @@ const RentalByCustomer = () => {
                                                     className="flex items-center w-full px-4 py-2 text-sm text-red-600
                                                          hover:bg-red-50 transition-colors"
                                                 >
-                                                    <LogOut className="w-4 h-4 mr-2 text-red-500"/>
                                                     Đăng xuất
                                                 </button>
                                             </div>
@@ -465,9 +456,7 @@ const RentalByCustomer = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Trạng thái
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Khách hàng
-                                </th>
+
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Kho
                                 </th>
@@ -497,25 +486,7 @@ const RentalByCustomer = () => {
                                         {statusTranslations[rental.status]}
                                     </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {customersData[rental.customer_id] ? (
-                                            <div className="text-sm">
-                                                <div className="font-medium text-gray-900">
-                                                    {customersData[rental.customer_id].fullname}
-                                                </div>
-                                                <div className="text-gray-500">
-                                                    {customersData[rental.customer_id].email}
-                                                </div>
-                                                <div className="text-gray-500">
-                                                    {customersData[rental.customer_id].phone_number}
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="text-sm text-gray-500">
-                                                {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
-                                            </div>
-                                        )}
-                                    </td>
+
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         {warehousesData[rental.warehouse_id] ? (
                                             <div className="text-sm">

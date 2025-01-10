@@ -205,7 +205,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Thông tin cá nhân
                                                 </a>
 
@@ -214,7 +213,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đơn thuê kho
                                                 </a>
                                                 <a
@@ -222,7 +220,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Lịch sử thuê kho
                                                 </a>
                                                 <a
@@ -230,7 +227,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Cuộc hẹn
                                                 </a>
                                                 <a
@@ -238,7 +234,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Yêu cầu
                                                 </a>
                                                 <a
@@ -246,7 +241,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đánh giá
                                                 </a>
                                                 <a
@@ -254,7 +248,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Thanh toán
                                                 </a>
                                                 <a
@@ -262,7 +255,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đổi mật khẩu
                                                 </a>
                                                 <div className="border-t border-gray-100 my-1"></div>
@@ -271,7 +263,6 @@ const MyFeedBack = () => {
                                                     className="flex items-center w-full px-4 py-2 text-sm text-red-600
                                                          hover:bg-red-50 transition-colors"
                                                 >
-                                                    <LogOut className="w-4 h-4 mr-2 text-red-500"/>
                                                     Đăng xuất
                                                 </button>
                                             </div>
@@ -393,7 +384,6 @@ const MyFeedBack = () => {
                         <table className="w-full">
                             <thead>
                             <tr className="border-b border-gray-200">
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kho đánh giá</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Đánh giá</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Phản hồi</th>
@@ -405,12 +395,7 @@ const MyFeedBack = () => {
                             {filteredItems.map((item) => (
                                 <tr key={item.id} className="hover:bg-gray-50">
 
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        <div className="text-sm">
-                                            <div className="text-gray-500">Tên: {item.customerName}</div>
-                                            <div className="text-gray-500">Email: {item.customerEmail}</div>
-                                        </div>
-                                    </td>
+
                                     <td className="px-6 py-4 text-sm text-gray-900">
                                         <div className="text-sm">
                                             <div className="text-gray-500">Mã kho: {item.warehouseId}</div>

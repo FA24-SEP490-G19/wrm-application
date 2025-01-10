@@ -227,7 +227,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Thông tin cá nhân
                                                 </a>
 
@@ -236,7 +235,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đơn thuê kho
                                                 </a>
                                                 <a
@@ -244,7 +242,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Lịch sử thuê kho
                                                 </a>
                                                 <a
@@ -252,7 +249,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Cuộc hẹn
                                                 </a>
                                                 <a
@@ -260,7 +256,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Yêu cầu
                                                 </a>
                                                 <a
@@ -268,7 +263,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đánh giá
                                                 </a>
                                                 <a
@@ -276,7 +270,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <User className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Thanh toán
                                                 </a>
                                                 <a
@@ -284,7 +277,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700
                                                          hover:bg-gray-50 transition-colors"
                                                 >
-                                                    <KeyRound className="w-4 h-4 mr-2 text-gray-400"/>
                                                     Đổi mật khẩu
                                                 </a>
                                                 <div className="border-t border-gray-100 my-1"></div>
@@ -293,7 +285,6 @@ const MyRequestPage = () => {
                                                     className="flex items-center w-full px-4 py-2 text-sm text-red-600
                                                          hover:bg-red-50 transition-colors"
                                                 >
-                                                    <LogOut className="w-4 h-4 mr-2 text-red-500"/>
                                                     Đăng xuất
                                                 </button>
                                             </div>

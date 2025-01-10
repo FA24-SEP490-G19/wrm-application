@@ -13,6 +13,7 @@ import {getAllLots} from "../../service/lot.js";
 import {createAppointment} from "../../service/Appointment.js";
 import AppointmentModal1 from "../Management/Appointment/AppointmentModal1.jsx";
 import FeedbackForm from "../FeedbackForm.jsx";
+import ProportionalWarehouseLotGrid from "../ProportionalWarehouseLotGrid.jsx";
 
 
 // LOT_STATUS_CONFIG remains the same...
@@ -530,7 +531,7 @@ const WarehouseDetailForGuess = () => {
                             <h2 className="text-xl font-bold text-gray-900">Sơ đồ lô hàng</h2>
                         </div>
 
-                        <WarehouseLotGrid
+                        <ProportionalWarehouseLotGrid
                             lots={lots}
                             onLotSelect={setSelectedLot}
                             selectedLot={selectedLot}

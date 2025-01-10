@@ -199,7 +199,7 @@ const RentalList = () => {
             }
 
             // Update API calls to include pagination parameters
-                response = await getAllExpiringRentalsForWarehouse();
+                response = await getAllRentals();
 
 
             const { rentals: rentalList, totalPages, totalItems } = response;
@@ -277,7 +277,7 @@ const RentalList = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Quản lý hợp đồng thuê kho</h1>
-                    <p className="text-gray-600">Danh sách các hợp đồng sắp hết hạn</p>
+                    <p className="text-gray-600">Danh sách các hợp đồng</p>
                 </div>
                 {customer.role === "ROLE_SALES" && (
                     <div className="flex gap-3">

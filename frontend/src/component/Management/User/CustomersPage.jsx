@@ -8,6 +8,7 @@ import {activate, createUser, getAllProfile, inactive} from "../../../service/Au
 import {useToast} from "../../../context/ToastProvider.jsx";
 import UserModal from "./UserModal.jsx";
 import {jwtDecode} from "jwt-decode";
+import {useAuth} from "../../../context/AuthContext.jsx";
 
 const CustomerList = () => {
     const [selectedStatus, setSelectedStatus] = useState('all');
@@ -23,7 +24,14 @@ const CustomerList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5; // Number of items per page
     const [currentUserEmail, setCurrentUserEmail] = useState('');
+    const [selectedRole, setSelectedRole] = useState('all');
 
+// Add role options
+    const roleOptions = [
+        { value: 'all', label: 'Tất cả vai trò' },
+        { value: 'ADMIN', label: 'Quản trị viên' },
+        { value: 'USER', label: 'Người dùng' }
+    ];
     useEffect(() => {
         // Get current user email from localStorage when component mounts
         const token = localStorage.getItem("access_token");
@@ -156,8 +164,9 @@ const CustomerList = () => {
             customer.phone_number?.includes(searchTerm);
 
         const matchesStatus = selectedStatus === 'all' || customer.status === selectedStatus;
+        const matchesRole = selectedRole === 'all' || customer.role === selectedRole;
 
-        return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStatus && matchesRole;
     });
     const currentItems = filteredCustomers.slice(firstItemIndex, lastItemIndex);
     const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
@@ -202,15 +211,30 @@ const CustomerList = () => {
                     </button>
                 </div>
             </div>
+            <div className="flex flex-wrap gap-4 mb-6">
+                <div className="flex items-center space-x-2">
+                    <Filter className="w-5 h-5 text-gray-500"/>
+                    <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="ACTIVE">Hoạt động</option>
+                        <option value="INACTIVE">Không hoạt động</option>
+                    </select>
+                </div>
+
+            </div>
 
             <div className="bg-white rounded-xl shadow">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
                         <tr className="border-b border-gray-200">
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Người dùng</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Liên hệ</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Giới tính</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Vai trò</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
                             <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
                         </tr>
@@ -218,20 +242,23 @@ const CustomerList = () => {
                         <tbody className="divide-y divide-gray-200">
                         {currentItems.map((customer) => (
                             <tr key={customer.email} className="hover:bg-gray-50">
+
                                 <td className="px-6 py-4">
                                     <div>
+
                                         <div className="font-medium text-gray-900">{customer.fullname}</div>
                                         <div className="text-sm text-gray-500">{customer.address}</div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <Mail className="w-4 h-4 mr-2"/>
-                                            {customer.email}
-                                        </div>
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <Phone className="w-4 h-4 mr-2"/>
+                                <div className="space-y-1">
+                                    <div className="flex items-center text-sm text-gray-500">
+                                        <Mail className="w-4 h-4 mr-2"/>
+                                        {customer.email}
+
+                                    </div>
+                                    <div className="flex items-center text-sm text-gray-500">
+                                    <Phone className="w-4 h-4 mr-2"/>
                                             {customer.phone_number}
                                         </div>
                                     </div>
@@ -293,7 +320,7 @@ const CustomerList = () => {
                 <div className="px-6 py-4 border-t border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
-                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredCustomers.length)}
+                        Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredCustomers.length)}
                             trong tổng số {filteredCustomers.length} người dùng
                         </div>
 

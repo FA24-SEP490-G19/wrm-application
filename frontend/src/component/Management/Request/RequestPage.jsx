@@ -287,29 +287,34 @@ const RequestList = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div className="flex justify-end space-x-2">
                                         {isAdmin ? (
-                                            <button
-                                                onClick={() => handleAdminReply(request)}
-                                                className="text-indigo-600 hover:text-indigo-900"
-                                                title="Phản hồi"
-                                                disabled={request.status === 'CANCELLED'}
-                                            >
-                                                <MessageCircle className="w-5 h-5"/>
-                                            </button>
+                                            <>
+                                                {!['APPROVED', 'REJECTED', 'CANCELLED'].includes(request.status) && (
+                                                    <button
+                                                        onClick={() => handleAdminReply(request)}
+                                                        className="text-indigo-600 hover:text-indigo-900"
+                                                        title="Phản hồi"
+                                                    >
+                                                        <MessageCircle className="w-5 h-5"/>
+                                                    </button>
+                                                )}
+                                            </>
                                         ) : (
                                             <>
-                                                <button
-                                                    onClick={() => handleDeleteRequest(request.id)}
-                                                    className="text-red-600 hover:text-red-900"
-                                                    title="Xóa"
-                                                >
-                                                    <Trash2 className="w-5 h-5"/>
-                                                </button>
+                                                {request.status !== 'APPROVED' && (
+                                                    <button
+                                                        onClick={() => handleDeleteRequest(request.id)}
+                                                        className="text-red-600 hover:text-red-900"
+                                                        title="Xóa"
+                                                    >
+                                                        <Trash2 className="w-5 h-5"/>
+                                                    </button>
+                                                )}
                                             </>
                                         )}
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                            ))}
                         </tbody>
                     </table>
                 </div>

@@ -281,13 +281,14 @@ export const Payment = () => {
                                 </td>
                                 <td>
                                     <div className="flex justify-end space-x-2">
-                                        <button
-                                            onClick={() => handleEditPayment(payment)}
-                                            className="p-1 text-blue-600 hover:text-blue-800"
-                                        >
-                                            <Edit2 className="w-5 h-5"/>
-                                        </button>
-
+                                        {payment.status !== 'SUCCESS' && (
+                                            <button
+                                                onClick={() => handleEditPayment(payment)}
+                                                className="p-1 text-blue-600 hover:text-blue-800"
+                                            >
+                                                <Edit2 className="w-5 h-5"/>
+                                            </button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>
@@ -299,7 +300,7 @@ export const Payment = () => {
                 {/* Pagination remains the same */}
                 <div className="px-6 py-4 border-t border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500">
                             Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, currentItems.length)}
                             trong tổng số {currentItems.length} lô hàng
                         </div>

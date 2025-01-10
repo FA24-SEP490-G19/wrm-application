@@ -25,7 +25,7 @@ public class RentalController {
     private final IRentalService rentalService;
 
     @GetMapping("")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<RentalListResponse> getAllRentals(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit,

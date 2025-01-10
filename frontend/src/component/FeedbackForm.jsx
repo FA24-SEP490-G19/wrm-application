@@ -41,10 +41,17 @@ const FeedbackForm = ({ warehouseId, onSubmit }) => {
         }
     };
 
-    return (
+    // Check if customer exists and has a role other than ADMIN or SALES
+    const shouldShowFeedbackForm = customer &&
+        customer.role !== "ROLE_ADMIN" &&
+        customer.role !== "ROLE_SALES";
 
-        <>
-            {customer.role !== "ROLE_ADMIN" && customer.role !== "ROLE_SALES" ? (
+    // If customer is null or not allowed to give feedback, return null or empty fragment
+    if (!shouldShowFeedbackForm) {
+        return null;
+    }
+
+    return (
         <div className="w-full mt-6 bg-white rounded-lg shadow-lg">
             <div className="p-6 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-900">Đánh giá kho</h2>
@@ -99,11 +106,7 @@ const FeedbackForm = ({ warehouseId, onSubmit }) => {
                     </button>
                 </form>
             </div>
-
         </div>
-                ) : ""}
-        </>
-
     );
 };
 
