@@ -318,4 +318,29 @@ public class MailService implements IMailService {
 
         sendEmail(email, subject, htmlContent);
     }
+
+    @Async
+    @Override
+    public void sendAppointmentCancellationEmail(String email, Appointment appointment) throws MessagingException {
+        String subject = "Thông báo hủy lịch hẹn";
+        String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
+                + "<h2 style='color: red;'>Lịch hẹn đã bị hủy</h2>"
+                + "<p>Kính gửi,</p>"
+                + "<p>Lịch hẹn dưới đây đã bị khách hàng hủy:</p>"
+                + "<div style='margin: 20px 0; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px;'>"
+                + "<table style='width: 100%; font-size: 16px; color: #333;'>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã lịch hẹn:</strong></td><td>" + appointment.getId() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Khách hàng:</strong></td><td>" + appointment.getCustomer().getFullName() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Email khách hàng:</strong></td><td>" + appointment.getCustomer().getEmail() + "</td></tr>"
+                + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Kho hàng:</strong></td><td>" + appointment.getWarehouse().getName() + "</td></tr>"
+                + "<tr><td style='padding: 8px;'><strong>Ngày hẹn:</strong></td><td>" + appointment.getAppointmentDate() + "</td></tr>"
+                + "</table>"
+                + "</div>"
+                + "<p>Vui lòng kiểm tra và thực hiện các hành động cần thiết nếu cần thiết.</p>"
+                + "<hr style='border: none; border-top: 1px solid #eee;'/>"
+                + "<p style='font-size: 12px; color: #aaa;'>Trân trọng,<br/>Hệ thống Warehouse Hub</p>"
+                + "</div>";
+
+        sendEmail(email, subject, htmlContent);
+    }
 }
