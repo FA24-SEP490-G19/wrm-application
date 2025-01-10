@@ -94,7 +94,7 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
         try {
             appointmentService.deleteAppointment(id);
