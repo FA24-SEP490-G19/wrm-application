@@ -50,7 +50,7 @@ public class Payment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user ;
 
-    @Column(name = "created_date", nullable = false, updatable = false)
+    @Column(name = "created_date", nullable = false, updatable = true)
     private LocalDateTime createdDate;
 
     @ManyToOne

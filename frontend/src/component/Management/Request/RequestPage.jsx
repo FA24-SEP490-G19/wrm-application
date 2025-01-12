@@ -14,6 +14,7 @@ import {
     deleteRequest
 } from "../../../service/Request.js";
 import { useAuth } from "../../../context/AuthContext.jsx";
+import {getUserById, getWarehouseById} from "../../../service/Appointment.js";
 
 const REQUEST_TYPES = [
     { id: 1, content: "Yêu cầu phản hồi dịch vụ", role_id: 1 },
@@ -35,6 +36,9 @@ const RequestList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMode, setModalMode] = useState('create');
     const [selectedRequest, setSelectedRequest] = useState(null);
+    const [customersData, setCustomersData] = useState({});
+    const [loadingRelatedData, setLoadingRelatedData] = useState(false);
+
     const { customer } = useAuth();
     const isAdmin = customer.role === "ROLE_ADMIN";
     const [currentPage, setCurrentPage] = useState(1);
@@ -44,15 +48,22 @@ const RequestList = () => {
     useEffect(() => {
         fetchRequests();
     }, [currentPage, isAdmin]);
-
+    useEffect(() => {
+        if (requests.length > 0) {
+            fetchRelatedData();
+        }
+    }, [requests]);
     const fetchRequests = async () => {
         try {
             setLoading(true);
+
             const response = isAdmin ?
                 await getAllRequests() :
                 await getMyRequests();
 
             setRequests(response.requests || []);
+            // Fetch customers data
+
             setError(null);
         } catch (err) {
             setError(err.response.data);
@@ -63,7 +74,26 @@ const RequestList = () => {
             setLoading(false);
         }
     };
+    const fetchRelatedData = async () => {
+        setLoadingRelatedData(true);
+        try {
 
+            const customerIds = [...new Set(requests.map(request => request.user_id))];
+
+            const customerPromises = customerIds.map(id => getUserById(id));
+            const customersResponses = await Promise.all(customerPromises);
+            const customersMap = customersResponses.reduce((acc, customer) => {
+                acc[customer.id] = customer;
+                return acc;
+            }, {});
+            setCustomersData(customersMap);
+
+        } catch (error) {
+            console.error('Error fetching related data:', error);
+        } finally {
+            setLoadingRelatedData(false);
+        }
+    };
     const handleAddRequest = () => {
         setModalMode('create');
         setSelectedRequest(null);
@@ -232,6 +262,9 @@ const RequestList = () => {
                         <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                STT
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 ID
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -239,6 +272,12 @@ const RequestList = () => {
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Nội dung
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Ngày tạo
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Ngày phản hồi
                             </th>
                             {isAdmin && (
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -256,64 +295,91 @@ const RequestList = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                         {currentItems
-                            .map((request) => (
-                            <tr key={request.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {request.id}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {request.type}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    <div className="max-w-xs overflow-hidden text-ellipsis">
-                                        {request.description}
-                                    </div>
+                            .map((request, index) => (
+                                <tr key={request.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        {firstItemIndex + index + 1} {/* Calculate Serial Number */}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {request.id}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {request.type}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        <div className="max-w-xs overflow-hidden text-ellipsis">
+                                            {request.description}
+                                        </div>
 
                                         <div className="mt-1 text-sm text-gray-500">
                                             <strong>Phản hồi:</strong> {request.admin_response}
                                         </div>
 
-                                </td>
-                                {isAdmin && (
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        ID: {request.user_id}
                                     </td>
-                                )}
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[request.status]}`}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {new Date(request?.created_date).toLocaleString('vi-VN')}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {new Date(request?.admin_response_date).toLocaleString('vi-VN')}
+
+                                    </td>
+                                    {isAdmin && (
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {customersData[request.user_id] ? (
+                                                <div className="text-sm">
+                                                    <div className="font-medium text-gray-900">
+                                                        {customersData[request.user_id].fullname}
+                                                    </div>
+                                                    <div className="text-gray-500">
+                                                        {customersData[request.user_id].email}
+                                                    </div>
+                                                    <div className="text-gray-500">
+                                                        {customersData[request.user_id].phone_number}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-sm text-gray-500">
+                                                    {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
+                                                </div>
+                                            )}
+                                        </td>
+                                    )}
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[request.status]}`}>
                                         {statusTranslations[request.status]}
                                     </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div className="flex justify-end space-x-2">
-                                        {isAdmin ? (
-                                            <>
-                                                {!['APPROVED', 'REJECTED', 'CANCELLED'].includes(request.status) && (
-                                                    <button
-                                                        onClick={() => handleAdminReply(request)}
-                                                        className="text-indigo-600 hover:text-indigo-900"
-                                                        title="Phản hồi"
-                                                    >
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div className="flex justify-end space-x-2">
+                                            {isAdmin ? (
+                                                <>
+                                                    {!['APPROVED', 'REJECTED', 'CANCELLED'].includes(request.status) && (
+                                                        <button
+                                                            onClick={() => handleAdminReply(request)}
+                                                            className="text-indigo-600 hover:text-indigo-900"
+                                                            title="Phản hồi"
+                                                        >
                                                         <MessageCircle className="w-5 h-5"/>
-                                                    </button>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <>
-                                                {request.status !== 'APPROVED' && (
-                                                    <button
-                                                        onClick={() => handleDeleteRequest(request.id)}
-                                                        className="text-red-600 hover:text-red-900"
-                                                        title="Xóa"
-                                                    >
-                                                        <Trash2 className="w-5 h-5"/>
-                                                    </button>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
+                                                        </button>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {request.status !== 'APPROVED' && (
+                                                        <button
+                                                            onClick={() => handleDeleteRequest(request.id)}
+                                                            className="text-red-600 hover:text-red-900"
+                                                            title="Xóa"
+                                                        >
+                                                            <Trash2 className="w-5 h-5"/>
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
                             ))}
                         </tbody>
                     </table>

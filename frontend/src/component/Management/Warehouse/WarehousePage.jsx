@@ -318,6 +318,8 @@ const FeatureList = () => {
                     <table className="w-full">
                         <thead>
                         <tr className="border-b border-gray-200">
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">STT</th>
+                            {/* New Serial Number Column */}
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Id</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Tên</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Địa chỉ</th>
@@ -325,49 +327,44 @@ const FeatureList = () => {
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Mô tả</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Ảnh</th>
-
-                            {/*<th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Hình ảnh</th>*/}
-
-                            {customer.role === "ROLE_ADMIN" ? (
+                            {customer.role === "ROLE_ADMIN" && (
                                 <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
-                            ) : ""}
+                            )}
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                        {currentItems.map((item) => (
+                        {currentItems.map((item, index) => (
                             <tr key={item.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 text-sm text-gray-900">
-                                    {item.id}
+                                    {firstItemIndex + index + 1} {/* Calculate Serial Number */}
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    {item.name}
-                                </td>
-
-                                <td className="px-6 py-4 text-sm text-gray-500">
-                                    {item.address}
-                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">{item.id}</td>
+                                <td className="px-6 py-4 text-sm text-gray-900">{item.name}</td>
+                                <td className="px-6 py-4 text-sm text-gray-500">{item.address}</td>
                                 <td className="px-6 py-4 text-sm text-gray-500">
                                     {item.size.toFixed(2)} m²
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    {item.description}
-                                </td>
-
+                                <td className="px-6 py-4 text-sm text-gray-900">{item.description}</td>
                                 <td className="px-6 py-4">
-                                    <span
-                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusColors[item.status] || 'bg-gray-50 text-gray-700 border-gray-100'}`}>
-                                        {getStatusLabel(item.status)}
-                                    </span>
+                            <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                                    statusColors[item.status] || "bg-gray-50 text-gray-700 border-gray-100"
+                                }`}
+                            >
+                                {getStatusLabel(item.status)}
+                            </span>
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-900">
                                     {item.fullThumbnailPath ? (
                                         <img
-                                            src={`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${item.fullThumbnailPath.split('\\').pop()}`}
+                                            src={`${import.meta.env.VITE_API_BASE_URL}/warehouses/images/${item.fullThumbnailPath
+                                                .split("\\")
+                                                .pop()}`}
                                             alt="Warehouse thumbnail"
                                             className="w-16 h-16 object-cover rounded-lg"
                                             onError={(e) => {
-                                                e.target.src = '/placeholder.jpg';
-                                                e.target.classList.add('opacity-50');
+                                                e.target.src = "/placeholder.jpg";
+                                                e.target.classList.add("opacity-50");
                                             }}
                                         />
                                     ) : (
@@ -377,126 +374,29 @@ const FeatureList = () => {
                                         </div>
                                     )}
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                    <button
-                                        onClick={() => handleViewFeedbacks(item.feedbackDTOS)}
-                                        className="flex items-center text-indigo-600 hover:text-indigo-800 gap-1"
-                                    >
-                                        <MessageSquare className="w-4 h-4"/>
-                                        <span>{item.feedbackDTOS?.length || 0} đánh giá</span>
-                                    </button>
-                                </td>
-
-                                {/*<td className="px-6 py-4">*/}
-                                {/*    {item.images && item.images.length > 0 ? (*/}
-                                {/*        <div className="flex items-center">*/}
-                                {/*            <button*/}
-                                {/*                onClick={() => handleViewImages(item)}*/}
-                                {/*                className="flex items-center text-indigo-600 hover:text-indigo-800"*/}
-                                {/*            >*/}
-                                {/*                <Image className="w-5 h-5 mr-1"/>*/}
-                                {/*                <span>{item.images.length} ảnh</span>*/}
-                                {/*            </button>*/}
-                                {/*            /!* Optional: Add a small preview of the first image *!/*/}
-                                {/*            <img*/}
-                                {/*                src={item.images[0]}*/}
-                                {/*                alt=""*/}
-                                {/*                className="w-8 h-8 ml-2 rounded object-cover"*/}
-                                {/*                onError={(e) => {*/}
-                                {/*                    e.target.style.display = 'none';*/}
-                                {/*                    console.error('Failed to load image:', item.images[0]);*/}
-                                {/*                }}*/}
-                                {/*            />*/}
-                                {/*        </div>*/}
-                                {/*    ) : (*/}
-                                {/*        <span className="text-gray-400">Không có ảnh</span>*/}
-                                {/*    )}*/}
-                                {/*</td>*/}
-
-
-
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex justify-end space-x-2">
-                                            <button
-                                                onClick={() => handleEditWarehouse(item)}
-                                                className="p-1 text-blue-600 hover:text-blue-800"
-                                            >
-                                                <Edit2 className="w-5 h-5"/>
-                                            </button>
-                                            {customer.role === "ROLE_ADMIN" ? (
+                                <td className="px-6 py-4 text-right">
+                                    <div className="flex justify-end space-x-2">
+                                        <button
+                                            onClick={() => handleEditWarehouse(item)}
+                                            className="p-1 text-blue-600 hover:text-blue-800"
+                                        >
+                                            <Edit2 className="w-5 h-5"/>
+                                        </button>
+                                        {customer.role === "ROLE_ADMIN" && (
                                             <button
                                                 onClick={() => handleDeleteWarehouse(item.id)}
                                                 className="p-1 text-red-600 hover:text-red-800"
                                             >
-                                                <Trash2 className="w-5 h-5"/>
+                                                <Trash2 className="w-5 h-5" />
                                             </button>
-                                                ) : ""}
-                                        </div>
-                                    </td>
-
-
-
+                                        )}
+                                    </div>
+                                </td>
                             </tr>
                         ))}
                         </tbody>
                     </table>
                 </div>
-
-                {/* Pagination */}
-                {/* Updated Pagination */}
-                <div className="px-6 py-4 border-t border-gray-200">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="text-sm text-gray-500">
-                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredItems.length)}
-                            trong tổng số {filteredItems.length} kho
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            {/* Previous button */}
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
-                                    ${currentPage === 1
-                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
-                            >
-                                Trước
-                            </button>
-
-                            {/* Page numbers */}
-                            <div className="hidden sm:flex items-center gap-2">
-                                {getPageNumbers().map((page, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => page !== '...' && setCurrentPage(page)}
-                                        disabled={page === '...'}
-                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                                            ${page === currentPage
-                                            ? 'bg-indigo-600 text-white'
-                                            : page === '...'
-                                                ? 'text-gray-400 cursor-default'
-                                                : 'hover:bg-gray-50 text-gray-700'}`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Next button */}
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors
-                                    ${currentPage === totalPages
-                                    ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-                                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
-                            >
-                                Sau
-                            </button>
-                        </div>
-                </div>
-            </div>
             </div>
 
             {isImagePreviewOpen && (

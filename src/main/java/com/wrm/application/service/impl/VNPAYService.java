@@ -260,6 +260,7 @@ public class VNPAYService {
     public void updatePayment(Long id, int amount) {
         Payment payment = paymentRepository.findById(id).orElseThrow() ;
         payment.setAmount((double) amount);
+        payment.setCreatedDate(LocalDateTime.now());
         paymentRepository.save(payment);
     }
 }

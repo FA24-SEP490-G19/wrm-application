@@ -317,6 +317,9 @@ const RentalList = () => {
                         <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                STT
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 ID
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -350,8 +353,11 @@ const RentalList = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                         {currentItems
-                            .map((rental) => (
+                            .map((rental,index) => (
                                 <tr key={rental.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        {firstItemIndex + index + 1} {/* Calculate Serial Number */}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {rental.id}
                                     </td>

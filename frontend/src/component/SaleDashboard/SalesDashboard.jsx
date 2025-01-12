@@ -11,6 +11,7 @@ import {
 } from './salesDashboardService.js';
 import CRMLayout from "../Management/Crm.jsx";
 import RevenueCharts from './RevenueCharts';
+import {useNavigate} from "react-router-dom";
 
 const Card = ({ children, className = '' }) => (
     <div className={`bg-white rounded-lg shadow ${className}`}>
@@ -23,6 +24,7 @@ const SalesDashboard = () => {
     const [monthlyStats, setMonthlyStats] = useState([]);
     const [quarterlyStats, setQuarterlyStats] = useState([]);
     const [yearlyStats, setYearlyStats] = useState([]);
+    const navigate = useNavigate();
     const [metrics, setMetrics] = useState({
         pendingAppointments: 0,
         expiringRentals: 0,
@@ -75,9 +77,12 @@ const SalesDashboard = () => {
         }
     };
 
-    const MetricCard = ({ title, value, icon: Icon, iconClassName }) => (
+    const MetricCard = ({ title, value, icon: Icon, iconClassName, path }) => (
         <Card>
-            <div className="flex items-center p-6">
+            <div
+                className="flex items-center p-6 cursor-pointer hover:bg-gray-50 transition-colors rounded-lg"
+                onClick={() => navigate(path)}
+            >
                 <div className={`rounded-full p-3 ${iconClassName}`}>
                     <Icon className="h-6 w-6" />
                 </div>
@@ -108,7 +113,7 @@ const SalesDashboard = () => {
     return (
         <CRMLayout>
             <div className="p-6 bg-gray-50 min-h-screen">
-                <h1 className="text-3xl font-bold mb-8">Bảng Điều Khiển Bán Hàng</h1>
+                <h1 className="text-3xl font-bold mb-8">Thống kê</h1>
 
                 {/* Year Selector */}
                 <div className="mb-6">
@@ -132,24 +137,29 @@ const SalesDashboard = () => {
                         value={metrics.pendingAppointments}
                         icon={Calendar}
                         iconClassName="bg-blue-100 text-blue-600"
+                        path="/appointment"
                     />
                     <MetricCard
                         title="Đơn Thuê Sắp Hết Hạn"
                         value={metrics.expiringRentals}
                         icon={Clock}
                         iconClassName="bg-red-100 text-red-600"
+                        path="/rental"
+
                     />
                     <MetricCard
                         title="Hợp Đồng Đã Ký"
                         value={metrics.signedRentals}
                         icon={Users}
                         iconClassName="bg-green-100 text-green-600"
+                        path="/rental"
                     />
                     <MetricCard
                         title="Cuộc Hẹn Sắp Tới"
                         value={metrics.upcomingAppointments}
                         icon={Calendar}
                         iconClassName="bg-purple-100 text-purple-600"
+                        path="/appointment"
                     />
                 </div>
 

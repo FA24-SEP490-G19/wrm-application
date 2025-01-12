@@ -173,13 +173,13 @@ const MyFeedBack = () => {
 
                             {customer?.role === "ROLE_USER" ? (
                                 <div className="flex items-center space-x-4">
-                                    <div><a
-                                        href="/landing"
-                                        className="flex items-center px-4 py-2 text-sm font-medium text-gray-700
-                                         hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
-                                    >
-                                        Landing Page
-                                    </a></div>
+                                    {/*<div><a*/}
+                                    {/*    href="/landing"*/}
+                                    {/*    className="flex items-center px-4 py-2 text-sm font-medium text-gray-700*/}
+                                    {/*     hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"*/}
+                                    {/*>*/}
+                                    {/*    Landing Page*/}
+                                    {/*</a></div>*/}
                                     {/* Profile Dropdown */}
                                     <div className="relative">
 
@@ -384,6 +384,7 @@ const MyFeedBack = () => {
                         <table className="w-full">
                             <thead>
                             <tr className="border-b border-gray-200">
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">STT</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kho đánh giá</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Đánh giá</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Phản hồi</th>
@@ -392,9 +393,11 @@ const MyFeedBack = () => {
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                            {filteredItems.map((item) => (
+                            {filteredItems.map((item,index) => (
                                 <tr key={item.id} className="hover:bg-gray-50">
-
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        {index + 1} {/* Calculate Serial Number */}
+                                    </td>
 
                                     <td className="px-6 py-4 text-sm text-gray-900">
                                         <div className="text-sm">
@@ -417,19 +420,19 @@ const MyFeedBack = () => {
                                         </div>
                                     </td>
 
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                            {item.comment}
-                            </td>
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        {item.comment}
+                                    </td>
 
 
-                        </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-            {/* Pagination */}
-            <div className="px-6 py-4 border-t border-gray-200">
+                    {/* Pagination */}
+                    <div className="px-6 py-4 border-t border-gray-200">
                 <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">
                         Số lượng {items.length} phản hồi đang được hiển thị

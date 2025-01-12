@@ -200,14 +200,14 @@ const WarehouseManagerDashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <StatisticCard
                         title="Tình Trạng Lot"
-                        data={metrics.rentedLots}
+                        data={metrics.availableLots}
                         total={totalLots}
                         icon={Package}
                         iconClassName="bg-blue-100 text-blue-600"
                     />
                     <StatisticCard
                         title="Hiệu Suất Sử Dụng"
-                        data={metrics.availableLots}
+                        data={metrics.rentedLots}
                         total={totalLots}
                         icon={Home}
                         iconClassName="bg-green-100 text-green-600"

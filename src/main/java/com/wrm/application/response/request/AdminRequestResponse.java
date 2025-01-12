@@ -29,6 +29,10 @@ public class AdminRequestResponse {
     @Enumerated(EnumType.STRING)
     private RequestStatus status;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
+    @JsonProperty("created_date")
+    private LocalDateTime createdDate;
+
     @JsonProperty("admin_response")
     private String adminResponse;
 

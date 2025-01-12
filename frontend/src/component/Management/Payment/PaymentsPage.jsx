@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import PaymentModal from "./PaymentModal.jsx";
 import CRMLayout from "../Crm.jsx";
+import {jwtDecode} from "jwt-decode";
 export const Payment = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [payments, setPayments] = useState([]);
@@ -42,6 +43,13 @@ export const Payment = () => {
     const fetchPayments = async () => {
         try {
             setLoading(true);
+            const token = localStorage.getItem("access_token");
+            const decodedToken = jwtDecode(token);
+            if (decodedToken.roles === "ROLE_MANAGER") {
+                setError('Không có quyền truy cập');
+                showToast('Không có quyền truy cập', 'error');
+                return;
+            }
             const [paymentsResponse] = await Promise.all([
                 axiosInstance.get('/payment-requests'),
             ]);
@@ -246,10 +254,12 @@ export const Payment = () => {
                     <table className="w-full">
                         <thead>
                         <tr className="bg-gray-50">
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">STT</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian tạo</th>
-                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian thanh toán</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian thanh toán
+                            </th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Khách hàng</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500"></th>
@@ -257,8 +267,11 @@ export const Payment = () => {
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                        {currentItems.map((payment) => (
+                        {currentItems.map((payment,index) => (
                             <tr key={payment.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    {firstItemIndex + index + 1} {/* Calculate Serial Number */}
+                                </td>
                                 <td className="px-6 py-4">
                                     <div className="text-sm">
                                         <div className="font-medium text-gray-900">{payment.orderInfo}</div>

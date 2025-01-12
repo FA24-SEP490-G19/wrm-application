@@ -25,13 +25,9 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
 
     useEffect(() => {
         if (mode === 'edit' && appointmentData) {
-            const appointmentDate = new Date(appointmentData.appointment_date)
-                .toISOString()
-                .slice(0, 16);
-
             setFormData({
                 ...appointmentData,
-                appointment_date: appointmentDate
+                appointment_date: formatDateForInput(appointmentData.appointment_date)
             });
         } else {
             setFormData(initialFormState);
@@ -52,6 +48,11 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
             console.error('Error fetching options:', error);
         }
         setLoading(false);
+    };
+    const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().slice(0, 16); // Format for datetime-local input
     };
 
     const validateForm = () => {
@@ -91,6 +92,7 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'appointment_date') {
+            // Validate time first
             if (!validateAppointmentTime(value)) {
                 setErrors(prev => ({
                     ...prev,
@@ -98,11 +100,22 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
                 }));
                 return;
             }
+
+            // Format the date for display
+            const date = new Date(value);
+            if (!isNaN(date.getTime())) {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: value
+                }));
+            }
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
         }
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+
         // Clear error if exists
         if (errors[name]) {
             setErrors(prev => ({
@@ -122,6 +135,19 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
         ${error ? 'focus:ring-red-500 focus:border-red-500' : 'focus:ring-indigo-500 focus:border-indigo-500'}
         transition-colors
     `;
+
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // Use 24-hour format
+        }).replace(/[,]/g, ''); // Remove any commas
+    };
 
     return (
         <>
@@ -197,7 +223,14 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
                                         value={formData.appointment_date}
                                         onChange={handleChange}
                                         className={inputClasses(errors.appointment_date)}
+                                        min={new Date().toISOString().slice(0, 16)} // Prevent past dates
+                                        lang="vi-VN" // Set Vietnamese locale
                                     />
+                                    {formData.appointment_date && (
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            Thời gian đã chọn: {formatDateForDisplay(formData.appointment_date)}
+                                        </p>
+                                    )}
                                     {errors.appointment_date && (
                                         <p className="mt-1 text-sm text-red-600">{errors.appointment_date}</p>
                                     )}

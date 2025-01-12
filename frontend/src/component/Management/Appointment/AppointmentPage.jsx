@@ -347,6 +347,9 @@ const AppointmentList = () => {
                         <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                STT
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 ID
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -368,13 +371,17 @@ const AppointmentList = () => {
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                        {currentItems.map((item) => (
+                        {currentItems.map((item, index) => (
                             <tr key={item.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    {firstItemIndex + index + 1} {/* Calculate Serial Number */}
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {item.id}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[item.status]}`}>
+                    <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[item.status]}`}>
                         {statusTranslations[item.status]}
                     </span>
                                 </td>
@@ -462,7 +469,7 @@ const AppointmentList = () => {
                                                     } catch (error) {
                                                         showToast('Duyệt cuộc hẹn thất bại', 'error');
                                                     }
-                                                }}                                                className="text-red-600 hover:text-red-900"
+                                                }} className="text-red-600 hover:text-red-900"
                                                 title="Từ chối"
                                             >
                                                 <XCircle className="w-5 h-5"/>
@@ -498,7 +505,7 @@ const AppointmentList = () => {
                 </div>
 
                 <div className="px-6 py-4 border-t border-gray-200">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
                             Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredItems.length)}
                             trong tổng số {filteredItems.length} cuộc hẹn

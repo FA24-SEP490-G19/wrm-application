@@ -30,6 +30,10 @@ public class RequestResponse {
     private String adminResponse;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
+    @JsonProperty("created_date")
+    private LocalDateTime createdDate;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm a")
     @JsonProperty("admin_response_date")
     private LocalDateTime adminResponseDate;
 }

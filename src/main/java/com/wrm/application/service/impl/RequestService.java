@@ -39,6 +39,8 @@ public class RequestService implements IRequestService {
                         .description(request.getDescription())
                         .status(request.getStatus())
                         .adminResponse(request.getAdminResponse())
+                        .createdDate(request.getCreatedDate())
+                        .adminResponseDate(request.getAdminResponseDate())
                         .build());
     }
 
@@ -79,6 +81,8 @@ public class RequestService implements IRequestService {
                     .description(request.getDescription())
                     .adminResponse(request.getAdminResponse())
                     .status(request.getStatus())
+                    .createdDate(request.getCreatedDate())
+                    .adminResponseDate(request.getAdminResponseDate())
                     .build();
         });
     }

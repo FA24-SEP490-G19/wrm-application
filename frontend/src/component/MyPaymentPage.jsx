@@ -29,7 +29,7 @@ const MyPaymentPage = () => {
     const [modalMode, setModalMode] = useState('create');
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 20;
     const { customer,logOut } = useAuth();
     const [users, setUsers] = useState({});
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -428,16 +428,22 @@ const MyPaymentPage = () => {
                         <table className="w-full">
                             <thead>
                             <tr className="bg-gray-50">
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">STT</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Số tiền</th>
-                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian thanh toán</th>
+                                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thời gian thanh
+                                    toán
+                                </th>
                                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Link thanh toán
                                 </th>
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                            {currentItems.map((payment) => (
+                            {currentItems.map((payment,index) => (
                                 <tr key={payment.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        {index + 1} {/* Calculate Serial Number */}
+                                    </td>
                                     <td className="px-6 py-4">
                                         <div className="text-sm">
                                             <div className="font-medium text-gray-900">{payment.orderInfo}</div>
@@ -454,19 +460,19 @@ const MyPaymentPage = () => {
                                     </td>
 
                                     <td className="px-6 py-4">
-                                        {payment.paymentStatus !== 'SUCCESS'?
-                                        <button
-                                            onClick={() => createAndRedirectToPayment(payment)}
-                                            disabled={payment.paymentStatus === 'SUCCESS'}
-                                            className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                                                payment.status === 'SUCCESS'
-                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-green-600 text-white hover:bg-green-700'
-                                            }`}
-                                        >
-                                            Thanh Toán
-                                        </button>
-                                        : "Đã thanh toán"}
+                                        {payment.paymentStatus !== 'SUCCESS' ?
+                                            <button
+                                                onClick={() => createAndRedirectToPayment(payment)}
+                                                disabled={payment.paymentStatus === 'SUCCESS'}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                                                    payment.status === 'SUCCESS'
+                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                        : 'bg-green-600 text-white hover:bg-green-700'
+                                                }`}
+                                            >
+                                                Thanh Toán
+                                            </button>
+                                            : "Đã thanh toán"}
 
                                     </td>
                                 </tr>

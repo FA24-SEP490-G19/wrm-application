@@ -30,11 +30,7 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
         }
     }, [isOpen, mode, contractData]);
 
-    const formatDateForInput = (dateString) => {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toISOString().split('T')[0]; // Only get the date part
-    };
+
 
     const validateForm = () => {
         const errors = {};
@@ -103,6 +99,26 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
         );
 
         setImagePreviewUrls([...imagePreviewUrls, ...newPreviewUrls]);
+    };
+    const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        // Format for date input
+        return date.toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).split('/').reverse().join('-'); // Convert dd/mm/yyyy to yyyy-mm-dd for input
+    };
+
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }); // Shows as dd/mm/yyyy
     };
 
     const removeImage = (index) => {
@@ -195,7 +211,13 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
                                             className={`mt-1 block w-full rounded-lg border ${
                                                 errors.signed_date ? 'border-red-300' : 'border-gray-300'
                                             } px-3 py-2`}
+                                            lang="vi-VN"
                                         />
+                                        {formData.signed_date && (
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                Ngày đã chọn: {formatDateForDisplay(formData.signed_date)}
+                                            </p>
+                                        )}
                                         {errors.signed_date && (
                                             <p className="mt-1 text-sm text-red-600">{errors.signed_date}</p>
                                         )}
@@ -213,7 +235,13 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
                                             className={`mt-1 block w-full rounded-lg border ${
                                                 errors.expiry_date ? 'border-red-300' : 'border-gray-300'
                                             } px-3 py-2`}
+                                            lang="vi-VN"
                                         />
+                                        {formData.expiry_date && (
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                Ngày đã chọn: {formatDateForDisplay(formData.expiry_date)}
+                                            </p>
+                                        )}
                                         {errors.expiry_date && (
                                             <p className="mt-1 text-sm text-red-600">{errors.expiry_date}</p>
                                         )}
@@ -223,11 +251,13 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
                                         <label className="block text-sm font-medium text-gray-700">
                                             Hình ảnh hợp đồng
                                         </label>
-                                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                                        <div
+                                            className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                                             <div className="space-y-1 text-center">
-                                                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                                                <Upload className="mx-auto h-12 w-12 text-gray-400"/>
                                                 <div className="flex text-sm text-gray-600">
-                                                    <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-indigo-600 hover:text-indigo-500">
+                                                    <label htmlFor="file-upload"
+                                                           className="relative cursor-pointer rounded-md font-medium text-indigo-600 hover:text-indigo-500">
                                                         <span>Tải ảnh lên</span>
                                                         <input
                                                             id="file-upload"
@@ -263,7 +293,7 @@ const ContractModal = ({ isOpen, onClose, mode, contractData, onSubmit, onImageU
                                                             onClick={() => removeImage(index)}
                                                             className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
                                                         >
-                                                            <Trash2 className="w-4 h-4" />
+                                                            <Trash2 className="w-4 h-4"/>
                                                         </button>
                                                     </div>
                                                 ))}

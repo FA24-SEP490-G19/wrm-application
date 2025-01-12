@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {
-    Search, Plus, Loader2, Edit2, Trash2,Eye
+    Search, Plus, Loader2, Edit2, Trash2, Eye, Pencil
 } from 'lucide-react';
 import RentalModal from "./RentalModal.jsx";
 
@@ -13,7 +13,7 @@ import {
     deleteRental,
     getAllCustomerId, getAllManagerId,
     getAllRentals,
-    getAllSaleId,
+    getAllSaleId, updateRentalSale,
     updateRentalStatus
 } from "../../service/Reatal.js";
 import CRMLayout from "../Management/Crm.jsx";
@@ -42,6 +42,7 @@ const RentalList = () => {
     const [selectedImages, setSelectedImages] = useState([]);
     const [selectedContractId, setSelectedContractId] = useState(null);  // Add this line
     const [currentPage, setCurrentPage] = useState(1);
+    const [saleData, setSaleData] = useState({});
 
     // Calculate pagination values
     const lastItemIndex = currentPage * itemsPerPage;
@@ -167,8 +168,23 @@ const RentalList = () => {
     const fetchRelatedData = async () => {
         setLoadingRelatedData(true);
         try {
+            const saleIds = [...new Set(rentals.map(rental => rental.sales_id).filter(id => id != null))];
             const customerIds = [...new Set(rentals.map(rental => rental.customer_id))];
             const warehouseIds = [...new Set(rentals.map(rental => rental.warehouse_id))];
+
+
+            // Fetch sales data
+            if (saleIds.length > 0) {
+                const salePromises = saleIds.map(id => getUserById(id));
+                const saleResponses = await Promise.all(salePromises);
+                const saleMap = saleResponses.reduce((acc, sales) => {
+                    if (sales) {  // Check if response exists
+                        acc[sales.id] = sales;
+                    }
+                    return acc;
+                }, {});
+                setSaleData(prev => ({ ...prev, ...saleMap }));
+            }
 
             // Fetch customers data
             const customerPromises = customerIds.map(id => getUserById(id));
@@ -305,13 +321,13 @@ const RentalList = () => {
                 await createRental(rentalData);
                 showToast('Thêm mới đơn thuê kho thành công', 'success');
             } else {
-                await updateRentalStatus(selectedRental.id, rentalData.status);
+                await updateRentalSale(selectedRental.id, rentalData.sale_id);
                 showToast('Cập nhật đơn thuê kho thành công', 'success');
             }
             setIsRentalModalOpen(false);
             fetchRentals();
         } catch (error) {
-            const errorMessage = error.response.data ;
+            const errorMessage = error.response?.data || 'Có lỗi xảy ra';
             showToast(errorMessage, 'error');
         }
     };
@@ -356,6 +372,14 @@ const RentalList = () => {
                 <Loader2 className="w-8 h-8 text-indigo-600 animate-spin"/>
             </div>
         );
+    }
+
+
+
+    function handleEditRental(rental) {
+        setModalMode("edit");
+        setSelectedRental(rental);
+        setIsRentalModalOpen(true);
     }
 
     return (
@@ -403,13 +427,17 @@ const RentalList = () => {
                         <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                STT
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 ID
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Trạng thái
-                            </th>
+
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Khách hàng
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Sale
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Kho
@@ -426,7 +454,9 @@ const RentalList = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Thời hạn hợp đồng
                             </th>
-
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Trạng thái
+                            </th>
                             {customer.role === "ROLE_ADMIN" ? (
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Thao tác
@@ -436,17 +466,15 @@ const RentalList = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                         {currentItems
-                            .map((rental) => (
+                            .map((rental,index) => (
                                 <tr key={rental.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        {firstItemIndex + index + 1} {/* Calculate Serial Number */}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {rental.id}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[rental.status]}`}>
-                                        {statusTranslations[rental.status]}
-                                    </span>
-                                    </td>
+
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         {customersData[rental.customer_id] ? (
                                             <div className="text-sm">
@@ -458,6 +486,25 @@ const RentalList = () => {
                                                 </div>
                                                 <div className="text-gray-500">
                                                     {customersData[rental.customer_id].phone_number}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-gray-500">
+                                                {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        {saleData[rental.sales_id] ? (
+                                            <div className="text-sm">
+                                                <div className="font-medium text-gray-900">
+                                                    {saleData[rental.sales_id].fullname}
+                                                </div>
+                                                <div className="text-gray-500">
+                                                    {saleData[rental.sales_id].email}
+                                                </div>
+                                                <div className="text-gray-500">
+                                                    {saleData[rental.sales_id].phone_number}
                                                 </div>
                                             </div>
                                         ) : (
@@ -497,7 +544,12 @@ const RentalList = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {new Date(rental.end_date).toLocaleDateString('vi-VN')}
                                     </td>
-
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[rental.status]}`}>
+                                        {statusTranslations[rental.status]}
+                                    </span>
+                                    </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end space-x-2">
@@ -511,6 +563,7 @@ const RentalList = () => {
 
                                             {customer.role === "ROLE_ADMIN" && rental.status === 'PENDING' && (
                                                 <>
+
                                                     <button
                                                         onClick={() => handleStatusChange(rental.id, 'ACTIVE')}
                                                         className="text-green-600 hover:text-green-900"
@@ -527,6 +580,12 @@ const RentalList = () => {
                                             )}
                                             {customer.role === "ROLE_ADMIN" && (
                                                 <>
+                                                    <button
+                                                        onClick={() => handleEditRental(rental)}
+                                                        className="text-blue-600 hover:text-blue-900"
+                                                    >
+                                                        <Pencil className="w-5 h-5"/>
+                                                    </button>
                                                     <button
                                                         onClick={() => handleDeleteRental(rental.id)}
                                                         className="text-red-600 hover:text-red-900"
@@ -557,7 +616,7 @@ const RentalList = () => {
                 <div className="bg-white px-4 py-3 border-t border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
-                        Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredRentals.length)}
+                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredRentals.length)}
                             trong tổng số {filteredRentals.length} đơn thuê kho
                         </div>
 

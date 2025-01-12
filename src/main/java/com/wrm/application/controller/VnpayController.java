@@ -87,7 +87,6 @@ public class VnpayController {
     }
 
 
-    //Khách hàng click thanh toán sẽ tạo ra link
     @PutMapping("/update/{id}")
     public void updatePayment(@PathVariable Long id,@RequestParam("amount") int amount) {
          vnpayService.updatePayment(id,amount);

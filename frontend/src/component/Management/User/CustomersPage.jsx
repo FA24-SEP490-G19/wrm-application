@@ -232,6 +232,7 @@ const CustomerList = () => {
                     <table className="w-full">
                         <thead>
                         <tr className="border-b border-gray-200">
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">STT</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Liên hệ</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Giới tính</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Vai trò</th>
@@ -240,9 +241,11 @@ const CustomerList = () => {
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                        {currentItems.map((customer) => (
+                        {currentItems.map((customer,index) => (
                             <tr key={customer.email} className="hover:bg-gray-50">
-
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    {firstItemIndex + index + 1} {/* Calculate Serial Number */}
+                                </td>
                                 <td className="px-6 py-4">
                                     <div>
 
@@ -251,14 +254,14 @@ const CustomerList = () => {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                <div className="space-y-1">
-                                    <div className="flex items-center text-sm text-gray-500">
-                                        <Mail className="w-4 h-4 mr-2"/>
-                                        {customer.email}
+                                    <div className="space-y-1">
+                                        <div className="flex items-center text-sm text-gray-500">
+                                            <Mail className="w-4 h-4 mr-2"/>
+                                            {customer.email}
 
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-500">
-                                    <Phone className="w-4 h-4 mr-2"/>
+                                        </div>
+                                        <div className="flex items-center text-sm text-gray-500">
+                                            <Phone className="w-4 h-4 mr-2"/>
                                             {customer.phone_number}
                                         </div>
                                     </div>
@@ -318,7 +321,7 @@ const CustomerList = () => {
                 </div>
 
                 <div className="px-6 py-4 border-t border-gray-200">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
                         Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredCustomers.length)}
                             trong tổng số {filteredCustomers.length} người dùng

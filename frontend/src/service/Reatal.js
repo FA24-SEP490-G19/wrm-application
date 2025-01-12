@@ -80,6 +80,20 @@ export const updateRentalStatus = async (id, status) => {
     }
 };
 
+
+export const updateRentalSale = async (id, salesId) => {
+    try {
+        const response = await axios.put(
+            `http://localhost:8080/rentals/update-rental-sales/${id}?salesId=${salesId}`,
+            {},  // Empty body since we're passing data via query params
+            getAuthConfig()
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const deleteRental = async (id) => {
     try {
         const response = await axios.delete(

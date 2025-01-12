@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
-import {getAllCustomers, getAllCustomersIsActive} from "../../service/Authenticate.js";
+import {getAllCustomers, getAllCustomersIsActive, getAllSales} from "../../service/Authenticate.js";
 import {getAllItems} from "../../service/WareHouse.js";
 
 const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
@@ -12,12 +12,15 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         contract_id: '',
         rental_type: 'MONTHLY',
         price: '', // Will store float values
+        sale_id:''
     };
 
     const [formData, setFormData] = useState(initialFormState);
+    const [selectedSaleId, setSelectedSaleId] = useState('');
     const [errors, setErrors] = useState({});
     const [warehouses, setWarehouses] = useState([]);
     const [customers, setCustomers] = useState([]);
+    const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(false);
     const [availableLots, setAvailableLots] = useState([]);
     const [availableContracts, setAvailableContracts] = useState([]);
@@ -34,12 +37,10 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
     useEffect(() => {
         if (mode === 'edit' && rentalData) {
             setFormData({
-                ...rentalData,
-                rental_items: rentalData.rental_items?.map(item => ({
-                    ...item,
-                })) || [initialFormState.rental_items[0]]
+                ...initialFormState,
+                sale_id: rentalData.sales_id || '',
             });
-        } else {
+        } else if (mode === 'create') {
             setFormData(initialFormState);
         }
     }, [mode, rentalData, isOpen]);
@@ -87,11 +88,14 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
         setLoading(true);
         try {
             const warehousesResponse = await getAllItems();
+            const salesResponse = await getAllSales();
             const customersResponse = await getAllCustomersIsActive();
             await fetchContracts(); // Add this line
 
             setWarehouses(warehousesResponse.data.warehouses);
             setCustomers(customersResponse.data || []);
+            setSales(salesResponse.data || []);
+
         } catch (error) {
             console.error('Error fetching options:', error);
         }
@@ -123,15 +127,25 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
     };
     const handleSubmit = (e) => {
         e.preventDefault();
-        const validationErrors = validateForm();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
+
+        // Only validate all fields in create mode
+        if (mode === 'create') {
+            const validationErrors = validateForm();
+            if (Object.keys(validationErrors).length > 0) {
+                setErrors(validationErrors);
+                return;
+            }
+        } else {
+            // In edit mode, only validate sale_id
+            if (!formData.sale_id) {
+                setErrors({ sale_id: 'Vui lòng chọn nhân viên sale' });
+                return;
+            }
         }
 
         const submitData = {
             ...formData,
-            price: parseFloat(formData.price) // Simply convert string to float
+            price: mode === 'create' ? parseFloat(formData.price) : undefined // Only convert price in create mode
         };
 
         onSubmit(submitData);
@@ -366,6 +380,31 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                                     </>
                                 )}
 
+                                {mode === 'edit' && (
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Chọn nhân viên sale
+                                        </label>
+                                        <select
+                                            name="sale_id"
+                                            value={formData.sale_id}
+                                            onChange={handleChange}
+                                            className={inputClasses(errors.sale_id)}
+                                            required
+                                        >
+                                            <option value="">Chọn nhân viên</option>
+                                            {sales.map(sale => (
+                                                <option key={sale.id} value={sale.id}>
+                                                    {sale.fullname} - {sale.email}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errors.sale_id && (
+                                            <p className="mt-1 text-sm text-red-600">{errors.sale_id}</p>
+                                        )}
+                                    </div>)}
+
                                 {/* Submit buttons */}
                                 <div className="flex justify-end space-x-3 pt-6">
                                     <button
@@ -379,7 +418,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                                         type="submit"
                                         className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
                                     >
-                                    {mode === 'create' ? 'Tạo mới' : 'Cập nhật'}
+                                        {mode === 'create' ? 'Tạo mới' : 'Cập nhật'}
                                     </button>
                                 </div>
                             </form>
