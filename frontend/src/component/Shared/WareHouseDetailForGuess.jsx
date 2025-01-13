@@ -560,21 +560,13 @@ const WarehouseDetailForGuess = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="bg-gray-50 rounded-xl p-4">
                                             <p className="text-sm text-gray-500 mb-1">Mã lô</p>
-                                            <p className="font-medium text-gray-900">Lô {selectedLot.id}</p>
+                                            <p className="font-medium text-gray-900">{selectedLot.description}</p>
                                         </div>
                                         <div className="bg-gray-50 rounded-xl p-4">
                                             <p className="text-sm text-gray-500 mb-1">Diện tích</p>
                                             <p className="font-medium text-gray-900">{selectedLot.size.toLocaleString()} m²</p>
                                         </div>
-                                        <div className="bg-gray-50 rounded-xl p-4">
-                                            <p className="text-sm text-gray-500 mb-1">Giá thuê</p>
-                                            <p className="font-medium text-indigo-600">
-                                                {new Intl.NumberFormat('vi-VN', {
-                                                    style: 'currency',
-                                                    currency: 'VND'
-                                                }).format(selectedLot.price)}
-                                            </p>
-                                        </div>
+
                                         <div className="bg-gray-50 rounded-xl p-4">
                                             <p className="text-sm text-gray-500 mb-1">Trạng thái</p>
                                             <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full 
