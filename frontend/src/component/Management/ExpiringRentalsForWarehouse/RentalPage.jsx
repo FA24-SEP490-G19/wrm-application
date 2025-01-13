@@ -9,7 +9,7 @@ import axios from "axios";
 import {useToast} from "../../../context/ToastProvider.jsx";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {getUserById, getWarehouseById} from "../../../service/Appointment.js";
-import {getAllExpiringRentalsForWarehouse, getAllRentals} from "../../../service/Reatal.js";
+import {getAllExpiringRentalsForWarehouse, getAllRentalByManager, getAllRentals} from "../../../service/Reatal.js";
 import ImageViewer from "../Contract/ImageViewer.jsx";
 import CRMLayout from "../Crm.jsx";
 
@@ -199,7 +199,7 @@ const RentalList = () => {
             }
 
             // Update API calls to include pagination parameters
-                response = await getAllRentals();
+                response = await getAllRentalByManager();
 
 
             const { rentals: rentalList, totalPages, totalItems } = response;

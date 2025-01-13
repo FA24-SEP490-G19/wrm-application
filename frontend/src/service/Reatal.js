@@ -16,6 +16,15 @@ export const getAllRentals = async () => {
     }
 };
 
+export const getAllRentalByManager = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8080/rentals/warehouse?page=0&limit=100`, getAuthConfig());
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const getAllExpiringRentalsForWarehouse = async () => {
     try {
         const response = await axios.get(`http://localhost:8080/rentals/warehouse/expiring?page=0&limit=100`, getAuthConfig());
