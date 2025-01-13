@@ -237,7 +237,11 @@ public class WarehouseService implements IWarehouseService {
         warehouse.setStatus(warehouseDTO.getStatus());
         warehouse.setSize(warehouseDTO.getSize());
         warehouse.setAddress(warehouseDTO.getAddress());
-        //warehouse.setWarehouseManager(warehouseManager);
+        if (warehouseDTO.getWarehouseManagerId() != null) {
+            User user = userRepository.findById(warehouseDTO.getWarehouseManagerId()).orElse(null);
+            warehouse.setWarehouseManager(user);
+        }
+
 
         warehouseRepository.save(warehouse);
         return WarehouseResponse.builder()

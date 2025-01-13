@@ -380,9 +380,9 @@ const MyRequestPage = () => {
                 <div className="flex justify-between items-center">
 
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Quản lý yêu cầu</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">Yêu cầu của bạn</h1>
                         <p className="text-gray-600">
-                            {'Quản lý các yêu cầu của bạn'}
+                            {'Danh sách các yêu cầu của bạn'}
                         </p>
                     </div>
 

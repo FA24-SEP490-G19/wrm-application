@@ -288,9 +288,7 @@ const RequestList = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Trạng thái
                             </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Thao tác
-                            </th>
+
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -307,14 +305,23 @@ const RequestList = () => {
                                         {request.type}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-900">
-                                        <div className="max-w-xs overflow-hidden text-ellipsis">
-                                            {request.description}
-                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="max-w-md">
+                                                <div className="font-medium mb-1">Nội dung:</div>
+                                                <div className="whitespace-pre-wrap break-words">
+                                                    {request.description}
+                                                </div>
+                                            </div>
 
-                                        <div className="mt-1 text-sm text-gray-500">
-                                            <strong>Phản hồi:</strong> {request.admin_response}
+                                            {request.admin_response && (
+                                                <div className="max-w-md mt-3">
+                                                    <div className="font-medium text-gray-700 mb-1">Phản hồi:</div>
+                                                    <div className="whitespace-pre-wrap break-words text-gray-600">
+                                                        {request.admin_response}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {new Date(request?.created_date).toLocaleString('vi-VN')}
@@ -325,7 +332,7 @@ const RequestList = () => {
                                     </td>
                                     {isAdmin && (
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {customersData[request.user_id] ? (
+                                        {customersData[request.user_id] ? (
                                                 <div className="text-sm">
                                                     <div className="font-medium text-gray-900">
                                                         {customersData[request.user_id].fullname}

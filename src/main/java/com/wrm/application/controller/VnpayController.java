@@ -86,7 +86,6 @@ public class VnpayController {
         return vnpayService.createOrder(request, amount, orderInfor, baseUrl);
     }
 
-
     @PutMapping("/update/{id}")
     public void updatePayment(@PathVariable Long id,@RequestParam("amount") int amount) {
          vnpayService.updatePayment(id,amount);
@@ -94,9 +93,9 @@ public class VnpayController {
 
     @GetMapping("/customers")
     @PreAuthorize("hasRole('ROLE_SALES') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> getAllCustomers() {
+    public ResponseEntity<?> getAllCustomers(HttpServletRequest request) {
         try {
-            List<RentalDTO> customers = vnpayService.getAllCustomers();
+            List<RentalDTO> customers = vnpayService.getAllCustomers(request.getRemoteUser());
             return ResponseEntity.ok(customers);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

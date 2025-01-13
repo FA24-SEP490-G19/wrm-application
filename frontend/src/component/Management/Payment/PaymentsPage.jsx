@@ -16,7 +16,7 @@ export const Payment = () => {
     const { showToast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 30;
     const { customer } = useAuth();
     const [users, setUsers] = useState({});
     const [modalMode, setModalMode] = useState('create');

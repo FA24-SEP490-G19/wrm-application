@@ -111,6 +111,16 @@ const CustomerList = () => {
         setIsModalOpen(true);
     };
 
+    const ROLE_MAPPINGS = {
+        1: 'User',
+        2: 'Admin',
+        3: 'Sale',
+        4: 'Manager'
+    };
+
+    const getRoleName = (roleId) => {
+        return ROLE_MAPPINGS[roleId] || 'Unknown Role';
+    };
     const handleEditUser = (user) => {
         setModalMode('edit');
         setSelectedUser(user);
@@ -164,7 +174,7 @@ const CustomerList = () => {
             customer.phone_number?.includes(searchTerm);
 
         const matchesStatus = selectedStatus === 'all' || customer.status === selectedStatus;
-        const matchesRole = selectedRole === 'all' || customer.role === selectedRole;
+        const matchesRole = selectedRole === 'all' || customer.roleId.toString() === selectedRole;
 
         return matchesSearch && matchesStatus && matchesRole;
     });
@@ -225,6 +235,21 @@ const CustomerList = () => {
                     </select>
                 </div>
 
+                <div className="flex items-center space-x-2">
+                    <Building2 className="w-5 h-5 text-gray-500"/>
+                    <select
+                        value={selectedRole}
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <option value="all">Tất cả vai trò</option>
+                        <option value="1">User</option>
+                        <option value="2">Admin</option>
+                        <option value="3">Sale</option>
+                        <option value="4">Manager</option>
+                    </select>
+                </div>
+
             </div>
 
             <div className="bg-white rounded-xl shadow">
@@ -233,6 +258,7 @@ const CustomerList = () => {
                         <thead>
                         <tr className="border-b border-gray-200">
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">STT</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Thông tin</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Liên hệ</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Giới tính</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Vai trò</th>
@@ -269,6 +295,11 @@ const CustomerList = () => {
                                 <td className="px-6 py-4">
                                         <span className="text-sm text-gray-900">
                                             {customer.gender === 'MALE' ? 'Nam' : 'Nữ'}
+                                        </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                        <span className="text-sm text-gray-900">
+                                            {getRoleName(customer.roleId)}
                                         </span>
                                 </td>
                                 <td className="px-6 py-4">
@@ -321,8 +352,8 @@ const CustomerList = () => {
                 </div>
 
                 <div className="px-6 py-4 border-t border-gray-200">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="text-sm text-gray-500">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="text-sm text-gray-500">
                         Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredCustomers.length)}
                             trong tổng số {filteredCustomers.length} người dùng
                         </div>

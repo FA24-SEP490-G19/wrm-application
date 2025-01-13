@@ -1,17 +1,17 @@
 // RequestModal.jsx
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { useAuth } from "../../../context/AuthContext.jsx";
+import React, {useState, useEffect} from 'react';
+import {X} from 'lucide-react';
+import {useAuth} from "../../../context/AuthContext.jsx";
 
 const REQUEST_TYPES = [
-    { id: 1, content: "Yêu cầu phản hồi dịch vụ", role_id: 1 },
-    { id: 2, content: "Yêu cầu tạo tài khoản khách hàng mới", role_id: 3 },
-    { id: 3, content: "Yêu cầu báo cáo doanh thu", role_id: 3 },
-    { id: 4, content: "Yêu cầu tài liệu quảng cáo", role_id: 3 },
-    { id: 5, content: "Yêu cầu bảo trì", role_id: 4 },
-    { id: 6, content: "Báo cáo sự cố", role_id: 4 },
-    { id: 7, content: "Yêu cầu kiểm toán hàng tồn kho", role_id: 4 },
-    { id: 8, content: "Yêu cầu cải thiện/nâng cấp", role_id: 4 }
+    {id: 1, content: "Yêu cầu phản hồi dịch vụ", role_id: 1},
+    {id: 2, content: "Yêu cầu tạo tài khoản khách hàng mới", role_id: 3},
+    {id: 3, content: "Yêu cầu báo cáo doanh thu", role_id: 3},
+    {id: 4, content: "Yêu cầu tài liệu quảng cáo", role_id: 3},
+    {id: 5, content: "Yêu cầu bảo trì", role_id: 4},
+    {id: 6, content: "Báo cáo sự cố", role_id: 4},
+    {id: 7, content: "Yêu cầu kiểm toán hàng tồn kho", role_id: 4},
+    {id: 8, content: "Yêu cầu cải thiện/nâng cấp", role_id: 4}
 ];
 
 const ROLE_MAPPINGS = {
@@ -20,8 +20,8 @@ const ROLE_MAPPINGS = {
     'ROLE_MANAGER': 4
 };
 
-const RequestModal = ({ isOpen, onClose, mode, requestData, onSubmit }) => {
-    const { customer } = useAuth();
+const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
+    const {customer} = useAuth();
     const userRoleId = ROLE_MAPPINGS[customer.role];
 
     const initialFormState = {
@@ -138,7 +138,8 @@ const RequestModal = ({ isOpen, onClose, mode, requestData, onSubmit }) => {
                                             </label>
                                             <div className="mt-1 p-3 bg-gray-50 rounded-lg">
                                                 <p><strong>Loại yêu cầu:</strong> {requestData?.type}</p>
-                                                <p className="mt-2"><strong>Nội dung:</strong> {requestData?.description}</p>
+                                                <p className="mt-2"><strong>Nội
+                                                    dung:</strong> {requestData?.description}</p>
                                             </div>
                                         </div>
 
@@ -162,12 +163,23 @@ const RequestModal = ({ isOpen, onClose, mode, requestData, onSubmit }) => {
                                             <label className="block text-sm font-medium text-gray-700">
                                                 Phản hồi <span className="text-red-500">*</span>
                                             </label>
-                                            <textarea
-                                                value={formData.adminResponse}
-                                                onChange={(e) => setFormData({...formData, adminResponse: e.target.value})}
-                                                className={`${inputClasses(errors.adminResponse)} h-32`}
-                                                placeholder="Nhập phản hồi..."
-                                            />
+                                            <div className="relative">
+        <textarea
+            value={formData.adminResponse}
+            onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 100) {  // 500 character limit
+                    setFormData({...formData, adminResponse: value});
+                }
+            }}
+            maxLength={100}
+            className={`${inputClasses(errors.adminResponse)} h-32`}
+            placeholder="Nhập phản hồi..."
+        />
+                                                <div className="absolute bottom-2 right-2 text-sm text-gray-500">
+                                                    {formData.adminResponse.length}/100
+                                                </div>
+                                            </div>
                                             {errors.adminResponse && (
                                                 <p className="mt-1 text-sm text-red-600">{errors.adminResponse}</p>
                                             )}
@@ -186,7 +198,10 @@ const RequestModal = ({ isOpen, onClose, mode, requestData, onSubmit }) => {
                                             ) : (
                                                 <select
                                                     value={formData.type_id}
-                                                    onChange={(e) => setFormData({...formData, type_id: e.target.value})}
+                                                    onChange={(e) => setFormData({
+                                                        ...formData,
+                                                        type_id: e.target.value
+                                                    })}
                                                     className={inputClasses(errors.type_id)}
                                                 >
                                                     <option value="">Chọn loại yêu cầu</option>
@@ -208,7 +223,10 @@ const RequestModal = ({ isOpen, onClose, mode, requestData, onSubmit }) => {
                                             </label>
                                             <textarea
                                                 value={formData.description}
-                                                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                                                onChange={(e) => setFormData({
+                                                    ...formData,
+                                                    description: e.target.value
+                                                })}
                                                 className={`${inputClasses(errors.description)} h-32`}
                                                 placeholder="Nhập nội dung yêu cầu..."
                                             />

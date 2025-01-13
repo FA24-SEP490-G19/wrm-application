@@ -358,9 +358,7 @@ const AppointmentList = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Khách hàng
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Môi giới(sale)
-                            </th>
+
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Kho
                             </th>
@@ -396,25 +394,6 @@ const AppointmentList = () => {
                                             </div>
                                             <div className="text-gray-500">
                                                 {customersData[item.customer_id].phone_number}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="text-sm text-gray-500">
-                                            {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
-                                        </div>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {saleData[item.sales_id] ? (
-                                        <div className="text-sm">
-                                            <div className="font-medium text-gray-900">
-                                                {saleData[item.sales_id].fullname}
-                                            </div>
-                                            <div className="text-gray-500">
-                                                {saleData[item.sales_id].email}
-                                            </div>
-                                            <div className="text-gray-500">
-                                                {saleData[item.sales_id].phone_number}
                                             </div>
                                         </div>
                                     ) : (

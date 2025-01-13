@@ -357,8 +357,8 @@ const MyFeedBack = () => {
                 </div>
                 <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Quản lý Phản hồi </h1>
-                        <p className="text-gray-600">Dành cho người dùng</p>
+                        <h1 className="text-2xl font-bold text-gray-900">Đánh giá </h1>
+                        <p className="text-gray-600">Dành cho đánh giá của bạn</p>
                     </div>
 
                 </div>

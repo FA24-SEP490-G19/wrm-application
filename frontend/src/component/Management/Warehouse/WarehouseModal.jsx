@@ -96,6 +96,7 @@ export const WarehouseLotGrid = ({ lots, onRemoveLot }) => {
         </div>
     );
 };
+
 const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
     const { customer } = useAuth();
 
@@ -259,7 +260,9 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
     const [thumbnailPreview, setThumbnailPreview] = useState('');
     const statusOptions = [
         { value: 'ACTIVE', label: 'Hoạt động' },
-        { value: 'INACTIVE', label: 'Không hoạt động' }
+        { value: 'INACTIVE', label: 'Không hoạt động' },
+        { value: 'UNDER_MAINTENANCE', label: 'Bảo trì' }
+
     ];
 
 
@@ -432,6 +435,15 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                 }
             } else if (mode === 'edit' && warehouseData) {
                 try {
+                    try {
+                        setLoadingManagers(true);
+                        const response = await ManagerNotHaveWarehouse();
+                        setManagers(response.data || []);
+                    } catch (error) {
+                        console.error('Error fetching managers:', error);
+                    } finally {
+                        setLoadingManagers(false);
+                    }
                     // Fetch images when opening in edit mode
                     const images = await warehouseImageService.getImages(warehouseData.id);
                     const imageUrls = images.map(img =>
@@ -445,6 +457,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                             `http://localhost:8080/warehouses/images/${warehouseData.fullThumbnailPath.split('\\').pop()}`
                         );
                     }
+
 
                     // Set other form data
                     setFormData({
@@ -840,7 +853,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
                                     {/* Right column */}
                                     <div className="space-y-4">
-                                        {mode === 'create' && (
+
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700">
                                                     Người quản lý
@@ -865,7 +878,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                                     </p>
                                                 )}
                                             </div>
-                                        )}
+
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">

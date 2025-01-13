@@ -63,6 +63,7 @@ public class WarehouseMapper {
                 .thumbnail(warehouse.getThumbnail())
                 .fullThumbnailPath(warehouse.getThumbnail())
                 .warehouseImages(imagesDTOs)
+                .warehouseManager(warehouse.getWarehouseManager())
                 .feedbackDTOS(feedbackDTOS)
                 .build();
     }

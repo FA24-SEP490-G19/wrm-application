@@ -261,6 +261,7 @@ public class UserService implements IUserService {
                         .address(user.getAddress())
                         .gender(user.getGender())
                         .status(user.getStatus())
+                        .roleId(user.getRole().getId())
                         .build())
                 .collect(Collectors.toList());
     }

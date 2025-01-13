@@ -55,7 +55,6 @@ function App() {
                 <Route path="/MyRequest" element={<ProtectedRoute><MyRequestPage /></ProtectedRoute>} />
             <Route path="/MyFeedback" element={<ProtectedRoute><MyFeedBack /></ProtectedRoute>} />
             <Route path="/payment_user" element={<ProtectedRoute><MyPaymentPage /></ProtectedRoute>} />
-
             <Route path="/profile" element={<ProfileCRUD />} />
             <Route path="/warehouse" element={<WarehouseList />} />
             <Route path="/warehouse/:id" element={<ProtectedRoute><WarehouseDetail /></ProtectedRoute>} />

@@ -243,8 +243,9 @@ public class VNPAYService {
         return paymentRepository.findByUserId(user.getId());
     }
 
-    public List<RentalDTO> getAllCustomers() {
-        return rentalRepository.findAllRentalsWithCustomerDetails().stream()
+    public List<RentalDTO> getAllCustomers(String email) {
+        User user1 = userRepository.findByEmail(email).orElseThrow() ;
+        return rentalRepository.findAllRentalsWithCustomerDetails(user1.getId()).stream()
                 .map(user -> RentalDTO.builder()
                         .rentalId(user.getId())
                         .customerName(user.getCustomer().getFullName())

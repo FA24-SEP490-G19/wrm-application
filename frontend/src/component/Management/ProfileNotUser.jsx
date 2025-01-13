@@ -10,6 +10,7 @@ import CRMLayout from "./Crm.jsx";
 import {useToast} from "../../context/ToastProvider.jsx";
 import {useAuth} from "../../context/AuthContext.jsx";
 import {getProfile, updateProfile} from "../../service/Authenticate.js";
+import {Toast} from "../Shared/Toast.jsx";
 
 
 const ProfileCRUD = () => {
@@ -94,27 +95,42 @@ const ProfileCRUD = () => {
         }
     };
 
+    const hasSpecialCharacters = (str) => {
+        const specialCharsRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
+        return specialCharsRegex.test(str);
+    };
+
+    const isValidPhoneNumber = (phone) => {
+        const phoneRegex = /^\d{10,11}$/;
+        return phoneRegex.test(phone);
+    };
+
     const validateForm = () => {
         const newErrors = {};
 
+        // Email validation (existing)
         if (!formData.email) {
             newErrors.email = 'Email là bắt buộc';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = 'Định dạng email không hợp lệ';
         }
 
-
+        // Full name validation
         if (!formData.fullName) {
             newErrors.fullName = 'Tên là bắt buộc';
+        } else if (hasSpecialCharacters(formData.fullName)) {
+            newErrors.fullName = 'Tên không được chứa ký tự đặc biệt';
         }
 
+        // Phone number validation
         if (!formData.phoneNumber) {
             newErrors.phoneNumber = 'Số điện thoại là bắt buộc';
+        } else if (!isValidPhoneNumber(formData.phoneNumber)) {
+            newErrors.phoneNumber = 'Số điện thoại phải chứa 10-11 số, không chứa kí tự chữ';
         }
 
         return newErrors;
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const validationErrors = validateForm();
@@ -294,6 +310,12 @@ const ProfileCRUD = () => {
                                     Số điện thoại
                                 </label>
                                 {renderField('Phone Number', 'phoneNumber', formData.phoneNumber, 'tel')}
+                                {errors.phoneNumber && (
+                                    <p className="mt-2 text-sm text-red-600 flex items-center">
+                                        <AlertCircle className="w-4 h-4 mr-1" />
+                                        {errors.phoneNumber}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Address */}

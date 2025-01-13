@@ -185,7 +185,8 @@ const FeatureList = () => {
     const getStatusLabel = (status) => {
         const statusLabels = {
             'ACTIVE': 'Hoạt động',
-            'INACTIVE': 'Không hoạt động'
+            'INACTIVE': 'Không hoạt động',
+            'UNDER_MAINTENANCE':'Bảo trì'
         };
         return statusLabels[status] || status;
     };
@@ -242,9 +243,6 @@ const FeatureList = () => {
             </div>
         );
     }
-
-
-
 
     return (
         <div className="p-6 space-y-6">
@@ -325,11 +323,10 @@ const FeatureList = () => {
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Địa chỉ</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Kích thước</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Mô tả</th>
+                            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Quản lí</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Trạng thái</th>
                             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Ảnh</th>
-                            {customer.role === "ROLE_ADMIN" && (
-                                <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Thao tác</th>
-                            )}
+
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -345,6 +342,7 @@ const FeatureList = () => {
                                     {item.size.toFixed(2)} m²
                                 </td>
                                 <td className="px-6 py-4 text-sm text-gray-900">{item.description}</td>
+                                <td className="px-6 py-4 text-sm text-gray-900">{item.warehouseManager.email}</td>
                                 <td className="px-6 py-4">
                             <span
                                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
@@ -374,6 +372,15 @@ const FeatureList = () => {
                                         </div>
                                     )}
                                 </td>
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                    <button
+                                        onClick={() => handleViewFeedbacks(item.feedbackDTOS)}
+                                        className="flex items-center text-indigo-600 hover:text-indigo-800 gap-1"
+                                    >
+                                        <MessageSquare className="w-4 h-4"/>
+                                        <span>{item.feedbackDTOS?.length || 0} đánh giá</span>
+                                    </button>
+                                </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end space-x-2">
                                         <button
@@ -387,7 +394,7 @@ const FeatureList = () => {
                                                 onClick={() => handleDeleteWarehouse(item.id)}
                                                 className="p-1 text-red-600 hover:text-red-800"
                                             >
-                                                <Trash2 className="w-5 h-5" />
+                                                <Trash2 className="w-5 h-5"/>
                                             </button>
                                         )}
                                     </div>
@@ -402,7 +409,8 @@ const FeatureList = () => {
             {isImagePreviewOpen && (
                 <div className="fixed inset-0 z-50 overflow-y-auto">
                     <div className="flex items-center justify-center min-h-screen p-4">
-                        <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setIsImagePreviewOpen(false)} />
+                        <div className="fixed inset-0 bg-black bg-opacity-25"
+                             onClick={() => setIsImagePreviewOpen(false)}/>
                         <div className="relative bg-white rounded-xl p-6 max-w-2xl w-full">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-lg font-medium">Hình ảnh kho</h3>
