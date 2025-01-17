@@ -30,6 +30,8 @@ export const Payment = () => {
         }
     });
 
+
+
     // Calculate pagination
     const lastItemIndex = currentPage * itemsPerPage;
     const firstItemIndex = lastItemIndex - itemsPerPage;
@@ -50,11 +52,21 @@ export const Payment = () => {
                 showToast('Không có quyền truy cập', 'error');
                 return;
             }
-            const [paymentsResponse] = await Promise.all([
-                axiosInstance.get('/payment-requests'),
-            ]);
-            setPayments(paymentsResponse.data);
-            setError(null);
+            if (decodedToken.roles === "ROLE_SALES") {
+                const [paymentsResponse] = await Promise.all([
+                    axiosInstance.get('/payment-requests/sales'),
+                ]);
+                setPayments(paymentsResponse.data);
+                setError(null);
+            }else if(decodedToken.roles === "ROLE_ADMIN"){
+                const [paymentsResponse] = await Promise.all([
+                    axiosInstance.get('/payment-requests'),
+                ]);
+                setPayments(paymentsResponse.data);
+                setError(null);
+            }
+
+
         } catch (err) {
             setError(err.response?.data?.message || err.message);
             showToast(err.response?.data?.message || err.message, 'error');

@@ -63,8 +63,10 @@ const WarehouseLotGrid = ({ lots, onLotSelect, selectedLot, onRemoveLot, readOnl
                             <p className="font-medium text-base truncate">{lot.description || `Lô ${lot.id}`}</p>
                             <p className="text-sm mt-1">{lot.size}m²</p>
                             <p className="text-sm">({sizePercentage.toFixed(1)}% tổng diện tích)</p>
+                            <p className="text-sm mt-1">Khách hàng đã thuê: {lot.customer}</p>
+
                         </div>
-                        {StatusIcon && <StatusIcon className="w-4 h-4" />}
+                        {StatusIcon && <StatusIcon className="w-4 h-4"/>}
                     </div>
                 </div>
                 <div className="flex justify-between items-end">

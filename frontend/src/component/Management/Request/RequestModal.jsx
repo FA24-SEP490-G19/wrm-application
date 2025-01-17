@@ -27,7 +27,7 @@ const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
     const initialFormState = {
         type_id: '',
         description: '',
-        status: 'PENDING',
+        status: '',
         adminResponse: ''
     };
 
@@ -47,7 +47,7 @@ const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
                 setFormData({
                     ...requestData,
                     adminResponse: '',
-                    status: requestData.status || 'PENDING'
+                    status: ''  // Changed from 'PENDING' to empty string to trigger validation
                 });
             } else {
                 setFormData(initialFormState);
@@ -57,7 +57,6 @@ const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
             setErrors({});
         }
     }, [mode, requestData, isOpen]);
-
     const availableRequestTypes = REQUEST_TYPES.filter(type => type.role_id === userRoleId);
 
     const validateForm = () => {
@@ -67,6 +66,9 @@ const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
             if (!formData.adminResponse?.trim()) {
                 newErrors.adminResponse = 'Phản hồi không được để trống';
             }
+            if (!formData.status || formData.status === '') {  // Modified this check
+                newErrors.status = 'Vui lòng chọn trạng thái';
+            }
         } else {
             if (!formData.type_id) newErrors.type_id = 'Loại yêu cầu không được để trống';
             if (!formData.description) newErrors.description = 'Nội dung không được để trống';
@@ -74,10 +76,12 @@ const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
 
         return newErrors;
     };
-
     const handleSubmit = (e) => {
         e.preventDefault();
         const validationErrors = validateForm();
+        console.log('Validation errors:', validationErrors); // Add this line for debugging
+        console.log('Form data:', formData); // Add this line for debugging
+
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
@@ -96,7 +100,6 @@ const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
             });
         }
     };
-
     const inputClasses = (error) => `
         mt-1 block w-full rounded-xl border
         ${error ? 'border-red-300' : 'border-gray-300'}
@@ -152,11 +155,13 @@ const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
                                                 onChange={(e) => setFormData({...formData, status: e.target.value})}
                                                 className={inputClasses(errors.status)}
                                             >
-                                                <option value="PENDING">Đang chờ</option>
+                                                <option value="">Chọn trạng thái</option>
                                                 <option value="APPROVED">Chấp nhận</option>
                                                 <option value="REJECTED">Từ chối</option>
-                                                <option value="CANCELLED">Đã hủy</option>
                                             </select>
+                                            {errors.status && (
+                                                <p className="mt-1 text-sm text-red-600">{errors.status}</p>
+                                            )}
                                         </div>
 
                                         <div>
@@ -193,7 +198,7 @@ const RequestModal = ({isOpen, onClose, mode, requestData, onSubmit}) => {
                                             </label>
                                             {mode === 'edit' ? (
                                                 <div className={`${inputClasses()} bg-gray-50`}>
-                                                    {REQUEST_TYPES.find(t => t.id.toString() === formData.type_id)?.content}
+                                                {REQUEST_TYPES.find(t => t.id.toString() === formData.type_id)?.content}
                                                 </div>
                                             ) : (
                                                 <select

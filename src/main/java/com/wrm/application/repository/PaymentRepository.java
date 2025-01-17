@@ -100,4 +100,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT p FROM Payment p WHERE p.rental.id = :rentalId ORDER BY p.createdDate DESC LIMIT 1")
     Payment findLatestPaymentByRentalId(@Param("rentalId") Long rentalId);
+
+    @Query("SELECT p FROM Payment p WHERE p.rental.sales.id = :saleId ORDER BY p.createdDate DESC")
+    List<Payment> findAllBySales(@Param("saleId") Long saleId);
 }

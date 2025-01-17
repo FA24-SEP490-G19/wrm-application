@@ -340,8 +340,8 @@ const WarehouseLandingPage = () => {
                             {[
                                 {
                                     title: 'Gói Cơ Bản',
-                                    price: '5.000.000',
-                                    period: '/tháng',
+                                    price: '100.000',
+                                    period: '/m²',
                                     description: 'Phù hợp cho doanh nghiệp nhỏ',
                                     features: [
                                         'Diện tích 50m²',
@@ -353,8 +353,8 @@ const WarehouseLandingPage = () => {
                                 },
                                 {
                                     title: 'Gói Nâng Cao',
-                                    price: '10.000.000',
-                                    period: '/tháng',
+                                    price: '100.000',
+                                    period: '/m²',
                                     highlight: true,
                                     description: 'Phù hợp cho doanh nghiệp vừa',
                                     features: [

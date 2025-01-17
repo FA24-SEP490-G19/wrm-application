@@ -216,6 +216,14 @@ public class VNPAYService {
                 .collect(Collectors.toList());
     }
 
+    public List<PaymentResponse> getAllPaymentsBySale(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow();
+        List<Payment> payments = paymentRepository.findAllBySales(user.getId());
+        return payments.stream()
+                .map(this::mapToPaymentResponse)
+                .collect(Collectors.toList());
+    }
+
     public void confirm(Long id){
         Payment payment = paymentRepository.findById(id).orElseThrow() ;
         payment.setPaymentStatus("Đã thanh toán");
@@ -264,4 +272,6 @@ public class VNPAYService {
         payment.setCreatedDate(LocalDateTime.now());
         paymentRepository.save(payment);
     }
+
+
 }

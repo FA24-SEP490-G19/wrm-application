@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Star } from 'lucide-react';
 import {useAuth} from "../context/AuthContext.jsx";
 
-const FeedbackForm = ({ warehouseId, onSubmit }) => {
+const FeedbackForm = ({ warehouseId, onSubmit,feedbacks  }) => {
     const [rating, setRating] = useState(0);
     const [hoveredRating, setHoveredRating] = useState(0);
     const [comment, setComment] = useState('');
@@ -44,7 +44,7 @@ const FeedbackForm = ({ warehouseId, onSubmit }) => {
     // Check if customer exists and has a role other than ADMIN or SALES
     const shouldShowFeedbackForm = customer &&
         customer.role !== "ROLE_ADMIN" &&
-        customer.role !== "ROLE_SALES";
+        customer.role !== "ROLE_SALES" ;
 
     // If customer is null or not allowed to give feedback, return null or empty fragment
     if (!shouldShowFeedbackForm) {

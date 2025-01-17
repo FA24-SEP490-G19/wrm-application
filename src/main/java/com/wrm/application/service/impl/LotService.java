@@ -1,6 +1,7 @@
 package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.LotStatus;
+import com.wrm.application.constant.enums.RentalStatus;
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
@@ -15,12 +16,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LotService implements ILotService {
     private final LotRepository lotRepository;
     private final UserRepository userRepository;
@@ -29,13 +32,18 @@ public class LotService implements ILotService {
 
     @Override
     public Page<LotResponse> getAllLots(PageRequest pageRequest) {
-        return lotRepository.findAll(pageRequest).map(lot -> LotResponse.builder()
+        return lotRepository.findLotsWithCustomers(pageRequest).map(lot -> LotResponse.builder()
                 .id(lot.getId())
                 .description(lot.getDescription())
                 .size(lot.getSize())
                 .status(lot.getStatus())
                 .warehouseId(lot.getWarehouse().getId())
                 .price(lot.getPrice())
+                .customer(lot.getRentals().stream()
+                        .filter(rental -> rental.getStatus() == RentalStatus.ACTIVE)
+                        .findFirst()
+                        .map(rental -> rental.getCustomer().getFullName())
+                        .orElse(null))
                 .build());
     }
 

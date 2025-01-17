@@ -329,7 +329,7 @@ const RentalList = () => {
                                 Khách hàng
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Kho
+                                Lot
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Hình thức thuê
@@ -387,20 +387,15 @@ const RentalList = () => {
                                         )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        {warehousesData[rental.warehouse_id] ? (
                                             <div className="text-sm">
                                                 <div className="font-medium text-gray-900">
                                                     {warehousesData[rental.warehouse_id].name}
                                                 </div>
                                                 <div className="text-gray-500">
-                                                    {warehousesData[rental.warehouse_id].address}
+                                                    Lot {rental.lotId}
                                                 </div>
                                             </div>
-                                        ) : (
-                                            <div className="text-sm text-gray-500">
-                                                {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
-                                            </div>
-                                        )}
+
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {rentalTypeTranslations[rental.rental_type]}

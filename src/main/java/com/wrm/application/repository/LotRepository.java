@@ -4,6 +4,7 @@ import aj.org.objectweb.asm.commons.Remapper;
 import com.wrm.application.model.Lot;
 import com.wrm.application.response.lot.LotListResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -49,6 +50,9 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
             "AND l.status = 'OCCUPIED' AND l.isDeleted = false")
     int countRentedLots(@Param("warehouseId") Long warehouseId);
 
+    @Query("SELECT l FROM Lot l " +
+            "JOIN l.rentals r " )
+    Page<Lot> findLotsWithCustomers(Pageable pageable);
 }
 
 

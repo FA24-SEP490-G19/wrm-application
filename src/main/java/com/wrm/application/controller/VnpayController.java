@@ -37,6 +37,14 @@ public class VnpayController {
         return ResponseEntity.ok(payments);
     }
 
+
+    @GetMapping("/payment-requests/sales")
+    @PreAuthorize("hasRole('ROLE_SALES')")
+    public ResponseEntity<List<PaymentResponse>> getAllPaymentsBySale(HttpServletRequest req) {
+        List<PaymentResponse> payments = vnpayService.getAllPaymentsBySale(req.getRemoteUser());
+        return ResponseEntity.ok(payments);
+    }
+
     //Hàm get ra tất cả các đơn thanh toán theo user
     @GetMapping("/payment-requests/confirm/user")
     @PreAuthorize("hasRole('ROLE_USER')")
