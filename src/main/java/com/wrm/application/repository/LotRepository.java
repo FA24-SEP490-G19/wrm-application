@@ -50,8 +50,9 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
             "AND l.status = 'OCCUPIED' AND l.isDeleted = false")
     int countRentedLots(@Param("warehouseId") Long warehouseId);
 
-    @Query("SELECT l FROM Lot l " +
-            "JOIN l.rentals r " )
+    @Query("SELECT DISTINCT l FROM Lot l " +
+            "LEFT JOIN l.rentals r " +
+            "LEFT JOIN l.warehouse w")
     Page<Lot> findLotsWithCustomers(Pageable pageable);
 }
 
