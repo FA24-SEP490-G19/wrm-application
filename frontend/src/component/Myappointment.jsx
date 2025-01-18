@@ -12,8 +12,16 @@ import {useToast} from "../context/ToastProvider.jsx";
 import {useAuth} from "../context/AuthContext.jsx";
 import logo from "../assets/logo.png";
 import {useNavigate} from "react-router-dom";
-
+const searchFieldTranslations = {
+    'all': 'Tất cả',
+    'id': 'ID',
+    'status': 'Trạng thái',
+    'sale': 'Nhân viên sale',
+    'warehouse': 'Kho',
+    'date': 'Thời gian'
+};
 const MyAppointment = () => {
+    const [searchField, setSearchField] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -157,12 +165,44 @@ const MyAppointment = () => {
 
     const filteredItems = items.filter(item => {
         if (!item) return false;
-        return searchTerm === '' ||
-            Object.values(item)
-                .filter(value => value !== null && value !== undefined)
-                .some(value =>
-                    value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        if (!searchTerm) return true;
+
+        const searchLower = searchTerm.toLowerCase();
+        const warehouse = warehousesData[item.warehouse_id] || {};
+        const sale = saleData[item.sales_id] || {};
+
+        switch (searchField) {
+            case 'id':
+                return item.id.toString().toLowerCase().includes(searchLower);
+            case 'status':
+                return statusTranslations[item.status]?.toLowerCase().includes(searchLower);
+            case 'sale':
+                return (
+                    sale.fullname?.toLowerCase().includes(searchLower) ||
+                    sale.email?.toLowerCase().includes(searchLower) ||
+                    sale.phone_number?.toLowerCase().includes(searchLower)
                 );
+            case 'warehouse':
+                return (
+                    warehouse.name?.toLowerCase().includes(searchLower) ||
+                    warehouse.address?.toLowerCase().includes(searchLower)
+                );
+            case 'date':
+                const appointmentDate = new Date(item.appointment_date).toLocaleString('vi-VN').toLowerCase();
+                return appointmentDate.includes(searchLower);
+            case 'all':
+            default:
+                return (
+                    item.id.toString().toLowerCase().includes(searchLower) ||
+                    statusTranslations[item.status]?.toLowerCase().includes(searchLower) ||
+                    sale.fullname?.toLowerCase().includes(searchLower) ||
+                    sale.email?.toLowerCase().includes(searchLower) ||
+                    sale.phone_number?.toLowerCase().includes(searchLower) ||
+                    warehouse.name?.toLowerCase().includes(searchLower) ||
+                    warehouse.address?.toLowerCase().includes(searchLower) ||
+                    new Date(item.appointment_date).toLocaleString('vi-VN').toLowerCase().includes(searchLower)
+                );
+        }
     });
 
     if (loading) {
@@ -394,12 +434,23 @@ const MyAppointment = () => {
 
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div className="sm:w-48">
+                        <select
+                            value={searchField}
+                            onChange={(e) => setSearchField(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                        >
+                            {Object.entries(searchFieldTranslations).map(([key, label]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
+                        </select>
+                    </div>
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
                         <input
                             type="text"
-                            placeholder="Tìm kiếm cuộc hẹn..."
+                            placeholder={`Tìm kiếm theo ${searchFieldTranslations[searchField]}...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"

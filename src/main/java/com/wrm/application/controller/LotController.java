@@ -5,6 +5,7 @@ import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.response.lot.LotListResponse;
 import com.wrm.application.response.lot.LotResponse;
+import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,12 @@ public class LotController {
     public ResponseEntity<List<LotResponse>> getAvailableLots(
             @PathVariable Long id) {
         return ResponseEntity.ok(lotService.getAvailableLotsByWarehouseId(id));
+    }
+
+    @GetMapping("/manager/{id}")
+    public ResponseEntity<LotResponse> getLotById(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok(lotService.getLotById(id));
+
     }
 
 

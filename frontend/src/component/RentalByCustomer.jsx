@@ -13,6 +13,7 @@ import ImageViewer from "./Management/Contract/ImageViewer.jsx";
 import axios from "axios";
 const RentalByCustomer = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchField, setSearchField] = useState('all');
     const [rentals, setRentals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -198,14 +199,43 @@ const RentalByCustomer = () => {
     };
     const filteredRentals = rentals.filter(rental => {
         if (!rental) return false;
-        return searchTerm === '' ||
-            Object.values(rental)
-                .filter(value => value !== null && value !== undefined)
-                .some(value =>
-                    value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-                );
-    });
+        if (!searchTerm) return true;
 
+        const searchLower = searchTerm.toLowerCase();
+        const warehouse = warehousesData[rental.warehouse_id] || {};
+
+        switch (searchField) {
+            case 'id':
+                return rental.id.toString().toLowerCase().includes(searchLower);
+            case 'warehouse':
+                return (
+                    warehouse.name?.toLowerCase().includes(searchLower) ||
+                    warehouse.address?.toLowerCase().includes(searchLower)
+                );
+            case 'type':
+                return rentalTypeTranslations[rental.rental_type]?.toLowerCase().includes(searchLower);
+            case 'price':
+                return rental.price.toString().includes(searchLower);
+            case 'date':
+                const startDate = new Date(rental.start_date).toLocaleDateString('vi-VN').toLowerCase();
+                const endDate = new Date(rental.end_date).toLocaleDateString('vi-VN').toLowerCase();
+                return startDate.includes(searchLower) || endDate.includes(searchLower);
+            case 'status':
+                return statusTranslations[rental.status]?.toLowerCase().includes(searchLower);
+            case 'all':
+            default:
+                return (
+                    rental.id.toString().toLowerCase().includes(searchLower) ||
+                    warehouse.name?.toLowerCase().includes(searchLower) ||
+                    warehouse.address?.toLowerCase().includes(searchLower) ||
+                    rentalTypeTranslations[rental.rental_type]?.toLowerCase().includes(searchLower) ||
+                    rental.price.toString().includes(searchLower) ||
+                    new Date(rental.start_date).toLocaleDateString('vi-VN').toLowerCase().includes(searchLower) ||
+                    new Date(rental.end_date).toLocaleDateString('vi-VN').toLowerCase().includes(searchLower) ||
+                    statusTranslations[rental.status]?.toLowerCase().includes(searchLower)
+                );
+        }
+    });
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
@@ -433,11 +463,35 @@ const RentalByCustomer = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="sm:w-48">
+                        <select
+                            value={searchField}
+                            onChange={(e) => setSearchField(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                        >
+                            <option value="all">Tất cả</option>
+                            <option value="id">ID</option>
+                            <option value="warehouse">Kho</option>
+                            <option value="type">Hình thức thuê</option>
+                            <option value="price">Giá thuê</option>
+                            <option value="date">Thời gian</option>
+                            <option value="status">Trạng thái</option>
+                        </select>
+                    </div>
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
                         <input
                             type="text"
-                            placeholder="Tìm kiếm đơn thuê kho..."
+                            placeholder={`Tìm kiếm theo ${
+                                searchField === 'all' ? 'tất cả' :
+                                    searchField === 'id' ? 'ID' :
+                                        searchField === 'warehouse' ? 'kho' :
+                                            searchField === 'type' ? 'hình thức thuê' :
+                                                searchField === 'price' ? 'giá thuê' :
+                                                    searchField === 'date' ? 'thời gian' :
+                                                        searchField === 'status' ? 'trạng thái' :
+                                                            searchField
+                            }...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"

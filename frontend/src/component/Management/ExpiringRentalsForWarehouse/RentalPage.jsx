@@ -9,7 +9,12 @@ import axios from "axios";
 import {useToast} from "../../../context/ToastProvider.jsx";
 import {useAuth} from "../../../context/AuthContext.jsx";
 import {getUserById, getWarehouseById} from "../../../service/Appointment.js";
-import {getAllExpiringRentalsForWarehouse, getAllRentalByManager, getAllRentals} from "../../../service/Reatal.js";
+import {
+    getAllExpiringRentalsForWarehouse,
+    getAllRentalByManager,
+    getAllRentals,
+    getLotById
+} from "../../../service/Reatal.js";
 import ImageViewer from "../Contract/ImageViewer.jsx";
 import CRMLayout from "../Crm.jsx";
 
@@ -26,6 +31,7 @@ const RentalList = () => {
     const [selectedContract, setSelectedContract] = useState(null);
     const [customersData, setCustomersData] = useState({});
     const [warehousesData, setWarehousesData] = useState({});
+    const [lotData, setLotsData] = useState({});
     const [loadingRelatedData, setLoadingRelatedData] = useState(false);
     const { customer } = useAuth();
     const [currentPage, setCurrentPage] = useState(1);
@@ -160,6 +166,7 @@ const RentalList = () => {
         try {
             const customerIds = [...new Set(rentals.map(rental => rental.customer_id))];
             const warehouseIds = [...new Set(rentals.map(rental => rental.warehouse_id))];
+            const lotIds = [...new Set(rentals.map(rental => rental.lot_id))];
 
             // Fetch customers data
             const customerPromises = customerIds.map(id => getUserById(id));
@@ -178,6 +185,16 @@ const RentalList = () => {
                 return acc;
             }, {});
             setWarehousesData(warehousesMap);
+
+
+            // Fetch lots data
+            const lotPromises = lotIds.map(id => getLotById(id));
+            const lotsResponses = await Promise.all(lotPromises);
+            const lotsMap = lotsResponses.reduce((acc, lot) => {
+                acc[lot.id] = lot;
+                return acc;
+            }, {});
+            setLotsData(lotsMap);
         } catch (error) {
             console.error('Error fetching related data:', error);
         } finally {
@@ -387,17 +404,21 @@ const RentalList = () => {
                                         )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
+                                        {warehousesData[rental.warehouse_id] && lotData[rental.lot_id] ? (
                                             <div className="text-sm">
                                                 <div className="font-medium text-gray-900">
-                                                    {warehousesData[rental.warehouse_id].name}
+                                                    {lotData[rental.lot_id]?.description || 'Không có mô tả'}
                                                 </div>
                                                 <div className="text-gray-500">
-                                                    Lot {rental.lotId}
+                                                    Kho: {warehousesData[rental.warehouse_id].name}
                                                 </div>
                                             </div>
-
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        ) : (
+                                            <div className="text-sm text-gray-500">
+                                                {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
+                                            </div>
+                                        )}
+                                    </td>                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {rentalTypeTranslations[rental.rental_type]}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -446,7 +467,7 @@ const RentalList = () => {
                 <div className="bg-white px-4 py-3 border-t border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
-                        Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredRentals.length)}
+                            Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredRentals.length)}
                             trong tổng số {filteredRentals.length} đơn thuê kho
                         </div>
 

@@ -27,7 +27,7 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
         if (mode === 'edit' && appointmentData) {
             setFormData({
                 ...appointmentData,
-                appointment_date: formatDateForInput(appointmentData.appointment_date)
+                appointment_date: '' // Set to empty initially
             });
         } else {
             setFormData(initialFormState);
@@ -220,12 +220,18 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
                                     <input
                                         type="datetime-local"
                                         name="appointment_date"
-                                        value={formData.appointment_date}
+                                        // Initially empty, but shows selected value after choosing
+                                        value={formData.appointment_date || ''}
                                         onChange={handleChange}
                                         className={inputClasses(errors.appointment_date)}
-                                        min={new Date().toISOString().slice(0, 16)} // Prevent past dates
-                                        lang="vi-VN" // Set Vietnamese locale
+                                        min={new Date().toISOString().slice(0, 16)}
+                                        lang="vi-VN"
                                     />
+                                    {!formData.appointment_date && (
+                                        <p className="mt-1 text-sm text-gray-500">
+                                            Chọn thời gian muốn cập nhật
+                                        </p>
+                                    )}
                                     {formData.appointment_date && (
                                         <p className="mt-1 text-sm text-gray-500">
                                             Thời gian đã chọn: {formatDateForDisplay(formData.appointment_date)}
@@ -236,24 +242,6 @@ const AppointmentModal = ({isOpen, onClose, mode, appointmentData, onSubmit}) =>
                                     )}
                                 </div>
 
-                                {mode === 'edit' && (
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Trạng thái
-                                        </label>
-                                        <select
-                                            name="status"
-                                            value={formData.status}
-                                            onChange={handleChange}
-                                            className={inputClasses(errors.status)}
-                                        >
-                                            <option value="PENDING">Đang chờ</option>
-                                            <option value="ACCEPTED">Đã duyệt</option>
-                                            <option value="REJECTED">Từ chối</option>
-                                            <option value="CANCELLED">Đã hủy</option>
-                                        </select>
-                                    </div>
-                                )}
 
                                 <div className="flex justify-end space-x-3 pt-6">
                                     <button

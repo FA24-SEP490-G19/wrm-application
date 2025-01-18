@@ -296,18 +296,7 @@ const FeatureList = () => {
                     />
                 </div>
                 {/* Add your custom filters here */}
-                <button
-                    onClick={() => setSearchTerms({
-                        id: '',
-                        name: '',
-                        address: '',
-                        size: '',
-                        status: ''
-                    })}
-                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-xl hover:bg-gray-50"
-                >
-                    Xóa bộ lọc
-                </button>
+
             </div>
 
             {/* Item List */}
@@ -404,6 +393,66 @@ const FeatureList = () => {
                         </tbody>
                     </table>
                 </div>
+                {/* Add this after your table div */}
+                {totalPages > 0 && (
+                    <div className="flex items-center justify-between px-6 py-4 bg-white border-t border-gray-200">
+                        <div className="flex items-center">
+                            <p className="text-sm text-gray-700">
+                                Hiển thị{' '}
+                                <span className="font-medium">{firstItemIndex + 1}</span>
+                                {' '}-{' '}
+                                <span className="font-medium">
+                    {Math.min(lastItemIndex, filteredItems.length)}
+                </span>
+                                {' '}trong{' '}
+                                <span className="font-medium">{filteredItems.length}</span>
+                                {' '}kết quả
+                            </p>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium 
+                    ${currentPage === 1
+                                    ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                    : 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300'}`}
+                            >
+                                Trước
+                            </button>
+
+                            <div className="flex gap-2">
+                                {getPageNumbers().map((pageNum, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => typeof pageNum === 'number' && setCurrentPage(pageNum)}
+                                        className={`px-3 py-2 rounded-lg text-sm font-medium 
+                            ${pageNum === currentPage
+                                            ? 'bg-indigo-600 text-white'
+                                            : pageNum === '...'
+                                                ? 'text-gray-400 cursor-default'
+                                                : 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300'}`}
+                                        disabled={pageNum === '...'}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium 
+                    ${currentPage === totalPages
+                                    ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                    : 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300'}`}
+                            >
+                                Tiếp
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {isImagePreviewOpen && (

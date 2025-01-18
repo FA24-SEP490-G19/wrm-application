@@ -18,8 +18,15 @@ import logo from "../assets/logo.png";
 import {useAuth} from "../context/AuthContext.jsx";
 import {useToast} from "../context/ToastProvider.jsx";
 import {useNavigate} from "react-router-dom";
-
+const searchFieldTranslations = {
+    'all': 'Tất cả',
+    'orderInfo': 'Thông tin',
+    'amount': 'Số tiền',
+    'paymentStatus': 'Trạng thái thanh toán'
+};
 const MyPaymentPage = () => {
+    const [searchField, setSearchField] = useState('all');
+    const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -29,7 +36,7 @@ const MyPaymentPage = () => {
     const [modalMode, setModalMode] = useState('create');
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 20;
+    const itemsPerPage = 30;
     const { customer,logOut } = useAuth();
     const [users, setUsers] = useState({});
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -93,16 +100,35 @@ const MyPaymentPage = () => {
 
 
     const filteredPayments = payments.filter(payment => {
-        if (!searchTerm) return true;
+        if (!payment) return false;
+
         const searchLower = searchTerm.toLowerCase();
-        const user = users[payment.user_id];
-        return (
-            payment.description?.toLowerCase().includes(searchLower) ||
-            user?.username?.toLowerCase().includes(searchLower) ||
-            user?.email?.toLowerCase().includes(searchLower)
-        );
+
+        // Status filtering
+        const statusMatch = paymentStatusFilter === 'all' ||
+            payment.paymentStatus === paymentStatusFilter;
+
+        // Search filtering
+        const searchMatch = searchTerm === '' ||
+            (searchField === 'all' ? (
+                payment.orderInfo?.toLowerCase().includes(searchLower) ||
+                payment.amount.toString().toLowerCase().includes(searchLower) ||
+                payment.paymentStatus?.toLowerCase().includes(searchLower)
+            ) : (
+                searchField === 'orderInfo' ? payment.orderInfo?.toLowerCase().includes(searchLower) :
+                    searchField === 'amount' ? payment.amount.toString().toLowerCase().includes(searchLower) :
+                        searchField === 'paymentStatus' ? payment.paymentStatus?.toLowerCase().includes(searchLower) :
+                            false
+            ));
+
+        return statusMatch && searchMatch;
     });
 
+    // Get unique payment statuses for filtering
+    const uniquePaymentStatuses = [
+        'all',
+        ...new Set(payments.map(payment => payment.paymentStatus).filter(Boolean))
+    ];
 
     const currentItems = filteredPayments.slice(firstItemIndex, lastItemIndex);
 
@@ -409,12 +435,44 @@ const MyPaymentPage = () => {
                 </div>
 
                 {/* Search */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    {/* Search Field Dropdown */}
+                    <div className="sm:w-48">
+                        <select
+                            value={searchField}
+                            onChange={(e) => setSearchField(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                        >
+                            {Object.entries(searchFieldTranslations).map(([key, label]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Payment Status Filter */}
+                    <div className="sm:w-48">
+                        <select
+                            value={paymentStatusFilter}
+                            onChange={(e) => setPaymentStatusFilter(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                        >
+                            {uniquePaymentStatuses.map(status => (
+                                <option key={status} value={status}>
+                                    {status === 'all' ? 'Tất cả trạng thái' :
+                                        status === 'SUCCESS' ? 'Thành công' :
+                                            status === 'PENDING' ? 'Chờ thanh toán' :
+                                                status}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Search Input */}
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
                         <input
                             type="text"
-                            placeholder="Tìm kiếm theo mô tả, ID người dùng..."
+                            placeholder={`Tìm kiếm theo ${searchFieldTranslations[searchField]}...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -439,7 +497,7 @@ const MyPaymentPage = () => {
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                            {currentItems.map((payment,index) => (
+                            {currentItems.map((payment, index) => (
                                 <tr key={payment.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 text-sm text-gray-900">
                                         {index + 1} {/* Calculate Serial Number */}

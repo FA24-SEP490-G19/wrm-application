@@ -11,9 +11,14 @@ import {getAllFeedback, getMyFeedback} from "../service/Feedback.js";
 import {jwtDecode} from "jwt-decode";
 import logo from "../assets/logo.png";
 import {useNavigate} from "react-router-dom";
-
+const searchFieldTranslations = {
+    'all': 'Tất cả',
+    'warehouse': 'Kho',
+    'comment': 'Phản hồi'
+};
 
 const MyFeedBack = () => {
+    const [searchField, setSearchField] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [items, setItems] = useState([]);
@@ -108,17 +113,29 @@ const MyFeedBack = () => {
     // Filter items based on search term and status
     const filteredItems = items.filter(item => {
         if (!item) return false;
+        if (!searchTerm) return true;
 
-        const matchesSearch = searchTerm === '' ||
-            Object.values(item)
-                .filter(value => value !== null && value !== undefined)
-                .some(value =>
-                    value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        const searchLower = searchTerm.toLowerCase();
+
+        switch (searchField) {
+            case 'warehouse':
+                return (
+                    item.warehouseId.toString().toLowerCase().includes(searchLower) ||
+                    item.warehouseName.toLowerCase().includes(searchLower)
                 );
-
-        const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
-
-        return matchesSearch && matchesStatus;
+            case 'rating':
+                return item.rating.toString().includes(searchLower);
+            case 'comment':
+                return item.comment.toLowerCase().includes(searchLower);
+            case 'all':
+            default:
+                return (
+                    item.warehouseId.toString().toLowerCase().includes(searchLower) ||
+                    item.warehouseName.toLowerCase().includes(searchLower) ||
+                    item.rating.toString().includes(searchLower) ||
+                    item.comment.toLowerCase().includes(searchLower)
+                );
+        }
     });
 
     if (loading) {
@@ -364,18 +381,30 @@ const MyFeedBack = () => {
                 </div>
 
                 {/* Filters and Search */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div className="sm:w-48">
+                        <select
+                            value={searchField}
+                            onChange={(e) => setSearchField(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                        >
+                            {Object.entries(searchFieldTranslations).map(([key, label]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
                         <input
                             type="text"
-                            placeholder="Search..."
+                            placeholder={`Tìm kiếm theo ${searchFieldTranslations[searchField]}...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         />
                     </div>
-                    {/* Add your custom filters here */}
                 </div>
 
                 {/* Item List */}
@@ -393,7 +422,7 @@ const MyFeedBack = () => {
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
-                            {filteredItems.map((item,index) => (
+                            {filteredItems.map((item, index) => (
                                 <tr key={item.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 text-sm text-gray-900">
                                         {index + 1} {/* Calculate Serial Number */}
@@ -433,9 +462,9 @@ const MyFeedBack = () => {
 
                     {/* Pagination */}
                     <div className="px-6 py-4 border-t border-gray-200">
-                <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">
-                        Số lượng {items.length} phản hồi đang được hiển thị
+                        <div className="flex items-center justify-between">
+                            <div className="text-sm text-gray-500">
+                                Số lượng {items.length} phản hồi đang được hiển thị
                             </div>
                             <div className="flex gap-2">
                                 <button

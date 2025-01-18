@@ -24,6 +24,7 @@ const WarehouseRental = () => {
     // Calculate pagination values
     const lastItemIndex = currentPage * itemsPerPage;
     const firstItemIndex = lastItemIndex - itemsPerPage;
+    const [searchCriteria, setSearchCriteria] = useState('all');
 
 
     // Handle page changes
@@ -32,7 +33,34 @@ const WarehouseRental = () => {
         // Scroll to warehouse listings
         document.querySelector('#warehouse-listings')?.scrollIntoView({ behavior: 'smooth' });
     };
+    const getFilteredWarehouses = () => {
+        if (!searchTerm) return warehouses.filter(warehouse => warehouse.status === 'ACTIVE');
 
+        const searchLower = searchTerm.toLowerCase();
+        return warehouses.filter(warehouse => {
+            if (!warehouse.status === 'ACTIVE') return false;
+
+            switch (searchCriteria) {
+                case 'name':
+                    return warehouse.name?.toLowerCase().includes(searchLower);
+                case 'address':
+                    return warehouse.address?.toLowerCase().includes(searchLower);
+                case 'description':
+                    return warehouse.description?.toLowerCase().includes(searchLower);
+                case 'size':
+                    const searchSize = parseFloat(searchTerm);
+                    if (isNaN(searchSize)) return false;
+                    return warehouse.size <= searchSize;
+                case 'all':
+                default:
+                    return (
+                        warehouse.name?.toLowerCase().includes(searchLower) ||
+                        warehouse.address?.toLowerCase().includes(searchLower) ||
+                        warehouse.description?.toLowerCase().includes(searchLower)
+                    );
+            }
+        });
+    };
     // Generate page numbers
     const getPageNumbers = () => {
         const pages = [];
@@ -91,17 +119,8 @@ const WarehouseRental = () => {
     };
 
     // Filter warehouses based on search
-    const filteredWarehouses = warehouses.filter(warehouse => {
-        if (!searchTerm) return true;
+    const filteredWarehouses = getFilteredWarehouses();
 
-        const searchLower = searchTerm.toLowerCase();
-        return (
-            warehouse.name?.toLowerCase().includes(searchLower) ||
-            warehouse.address?.toLowerCase().includes(searchLower) ||
-            warehouse.description?.toLowerCase().includes(searchLower) ||
-            warehouse.warehouse_manager_name?.toLowerCase().includes(searchLower)
-        );
-    });
     const totalPages = Math.ceil(filteredWarehouses.length / itemsPerPage);
     const currentItems = filteredWarehouses.slice(firstItemIndex, lastItemIndex);
     // Status badge colors
@@ -376,19 +395,38 @@ const WarehouseRental = () => {
                         Tìm kiếm và quản lý kho của bạn một cách hiệu quả
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
-                        <div className="relative w-full max-w-md">
-                            <Search
-                                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"/>
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm theo tên, địa chỉ..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 pr-4 py-3 rounded-full w-full shadow-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            />
+                        <div className="relative w-full max-w-md flex">
+                            <div className="relative flex-grow">
+                                <Search
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder={`Tìm kiếm ${
+                                        searchCriteria === 'name' ? 'theo tên' :
+                                            searchCriteria === 'address' ? 'theo địa chỉ' :
+                                                searchCriteria === 'description' ? 'theo mô tả' :
+                                                    searchCriteria === 'size' ? 'theo diện tích' :
+                                                        'tất cả'
+                                    }...`}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10 pr-4 py-3 rounded-l-full w-full shadow-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                />
+                            </div>
+                            <select
+                                value={searchCriteria}
+                                onChange={(e) => setSearchCriteria(e.target.value)}
+                                className="px-4 py-3 rounded-r-full border-l border-gray-200 shadow-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white text-gray-700"
+                            >
+                                <option value="all">Tất cả</option>
+                                <option value="name">Tên kho</option>
+                                <option value="address">Địa chỉ</option>
+                                <option value="description">Mô tả</option>
+                                <option value="size">Diện tích</option>
+                            </select>
                         </div>
-                    </div>
-                </div>
+                    </div>                </div>
             </div>
 
             {/* Features Grid */}

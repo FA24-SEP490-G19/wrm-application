@@ -60,7 +60,7 @@ function App() {
             <Route path="/warehouse/:id" element={<ProtectedRoute><WarehouseDetail /></ProtectedRoute>} />
             <Route path="/warehouse_guess/:id" element={<AuthRoute><WarehouseDetailForGuess /></AuthRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /> </ProtectedRoute>} />
-            <Route path="/user" element={<CustomersPage />} />
+            <Route path="/user" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
             <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/home/guess" element={<AuthRoute><HomeForGuess /></AuthRoute>} />
             <Route path="/kho" element={<ProtectedRoute><WarehousePage /> </ProtectedRoute>} />

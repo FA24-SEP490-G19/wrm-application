@@ -22,7 +22,13 @@ import {createRequest, deleteRequest, getAllRequests, getMyRequests, updateReque
 import MyRequestModal from "./MyRequestModal.jsx";
 import logo from "../assets/logo.png";
 import {useNavigate} from "react-router-dom";
-
+const searchFieldTranslations = {
+    'all': 'Tất cả',
+    'id': 'ID',
+    'type': 'Loại yêu cầu',
+    'description': 'Nội dung',
+    'status': 'Trạng thái'
+};
 
 const REQUEST_TYPES = [
     { id: 1, content: "Yêu cầu phản hồi dịch vụ", role_id: 1 },
@@ -36,6 +42,8 @@ const REQUEST_TYPES = [
 ];
 
 const MyRequestPage = () => {
+    const [searchField, setSearchField] = useState('all');
+    const [selectedType, setSelectedType] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -151,14 +159,35 @@ const MyRequestPage = () => {
 
     const filteredRequests = requests.filter(request => {
         if (!request) return false;
-        return searchTerm === '' ||
-            Object.values(request)
-                .filter(value => value !== null && value !== undefined)
-                .some(value =>
-                    value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-                );
+        if (!searchTerm && selectedType === 'all') return true;
+
+        const searchLower = searchTerm.toLowerCase();
+
+        // Type filtering
+        const typeMatch = selectedType === 'all' || request.type === selectedType;
+
+        // Search filtering
+        const searchMatch = searchTerm === '' ||
+            (searchField === 'all' ? (
+                request.id.toString().toLowerCase().includes(searchLower) ||
+                request.type.toLowerCase().includes(searchLower) ||
+                request.description.toLowerCase().includes(searchLower) ||
+                request.status.toLowerCase().includes(searchLower)
+            ) : (
+                searchField === 'id' ? request.id.toString().toLowerCase().includes(searchLower) :
+                    searchField === 'type' ? request.type.toLowerCase().includes(searchLower) :
+                        searchField === 'description' ? request.description.toLowerCase().includes(searchLower) :
+                            searchField === 'status' ? request.status.toLowerCase().includes(searchLower) :
+                                false
+            ));
+
+        return typeMatch && searchMatch;
     });
 
+    const uniqueRequestTypes = [
+        'all',
+        ...new Set(requests.map(request => request.type))
+    ];
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -396,12 +425,41 @@ const MyRequestPage = () => {
 
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    {/* Search Field Dropdown */}
+                    <div className="sm:w-48">
+                        <select
+                            value={searchField}
+                            onChange={(e) => setSearchField(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                        >
+                            {Object.entries(searchFieldTranslations).map(([key, label]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Request Type Filter */}
+                    <div className="sm:w-48">
+                        <select
+                            value={selectedType}
+                            onChange={(e) => setSelectedType(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                        >
+                            {uniqueRequestTypes.map(type => (
+                                <option key={type} value={type}>
+                                    {type === 'all' ? 'Tất cả loại yêu cầu' : type}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Search Input */}
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
                         <input
                             type="text"
-                            placeholder="Tìm kiếm yêu cầu..."
+                            placeholder={`Tìm kiếm theo ${searchFieldTranslations[searchField]}...`}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"

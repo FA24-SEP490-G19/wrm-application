@@ -294,6 +294,17 @@ public class RentalController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/info/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_SALES') or hasRole('ROLE_MANAGER') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getRentalInfo(@PathVariable Long id) {
+        try {
+            RentalResponse rental = rentalService.getRentalById(id);
+            return ResponseEntity.ok(rental);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
 
 

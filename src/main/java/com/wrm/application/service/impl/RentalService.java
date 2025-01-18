@@ -261,9 +261,9 @@ public class RentalService implements IRentalService {
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         Warehouse warehouse = warehouseRepository.findByManagerId(warehouseManager.getId())
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+                .orElse(null);
 
-        return rentalRepository.findByWarehouseId(warehouse.getId(), pageRequest).map(rental -> {
+        return   rentalRepository.findByWarehouseId(warehouse.getId(), pageRequest).map(rental -> {
             return RentalResponse.builder()
                     .id(rental.getId())
                     .salesId(rental.getSales().getId())

@@ -841,9 +841,10 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                                 name="size"
                                                 value={formData.size}
                                                 onChange={handleChange}
-                                                className={inputClasses(errors.size)}
+                                                className={`${inputClasses(errors.size)} ${mode === 'edit' ? 'disabled:bg-gray-100 disabled:cursor-not-allowed' : ''}`}
                                                 placeholder="Nhập kích thước"
                                                 step="0.01"
+                                                disabled={mode === 'edit'}
                                             />
                                             {errors.size && (
                                                 <p className="mt-1 text-sm text-red-600">{errors.size}</p>
@@ -854,12 +855,12 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                                     {/* Right column */}
                                     <div className="space-y-4">
 
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700">
-                                                    Người quản lý
-                                                </label>
-                                                <select
-                                                    name="warehouse_manager_id"
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Người quản lý
+                                            </label>
+                                            <select
+                                                name="warehouse_manager_id"
                                                     value={formData.warehouse_manager_id}
                                                     onChange={handleChange}
                                                     className={`${inputClasses(errors.warehouse_manager_id)} ${loadingManagers ? 'cursor-wait' : ''}`}

@@ -139,7 +139,9 @@ public class AppointmentService implements IAppointmentService {
         }
 
         appointment.setStatus(appointmentDTO.getStatus());
-
+        if (appointmentDTO.getAppointmentDate() != null) {
+            appointment.setAppointmentDate(appointmentDTO.getAppointmentDate());
+        }
         appointmentRepository.save(appointment);
 
         mailService.sendAppointmentUpdateNotification(appointment.getCustomer().getEmail(), appointment);

@@ -29,6 +29,7 @@ const REQUEST_TYPES = [
 
 const RequestList = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchField, setSearchField] = useState('all');
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -204,12 +205,47 @@ const RequestList = () => {
 
     const filteredRequests = requests.filter(request => {
         if (!request) return false;
-        return searchTerm === '' ||
-            Object.values(request)
-                .filter(value => value !== null && value !== undefined)
-                .some(value =>
-                    value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        if (!searchTerm) return true;
+
+        const searchLower = searchTerm.toLowerCase();
+        const customer = customersData[request.user_id] || {};
+
+        switch (searchField) {
+            case 'id':
+                return request.id.toString().toLowerCase().includes(searchLower);
+            case 'type':
+                return request.type?.toLowerCase().includes(searchLower);
+            case 'content':
+                return request.description?.toLowerCase().includes(searchLower);
+            case 'response':
+                return request.admin_response?.toLowerCase().includes(searchLower);
+            case 'status':
+                return statusTranslations[request.status]?.toLowerCase().includes(searchLower);
+            case 'date':
+                const createdDate = new Date(request.created_date).toLocaleString('vi-VN').toLowerCase();
+                const responseDate = new Date(request.admin_response_date).toLocaleString('vi-VN').toLowerCase();
+                return createdDate.includes(searchLower) || responseDate.includes(searchLower);
+            case 'user':
+                return (
+                    customer.fullname?.toLowerCase().includes(searchLower) ||
+                    customer.email?.toLowerCase().includes(searchLower) ||
+                    customer.phone_number?.toLowerCase().includes(searchLower)
                 );
+            case 'all':
+            default:
+                return (
+                    request.id.toString().includes(searchLower) ||
+                    request.type?.toLowerCase().includes(searchLower) ||
+                    request.description?.toLowerCase().includes(searchLower) ||
+                    request.admin_response?.toLowerCase().includes(searchLower) ||
+                    statusTranslations[request.status]?.toLowerCase().includes(searchLower) ||
+                    new Date(request.created_date).toLocaleString('vi-VN').toLowerCase().includes(searchLower) ||
+                    new Date(request.admin_response_date).toLocaleString('vi-VN').toLowerCase().includes(searchLower) ||
+                    customer.fullname?.toLowerCase().includes(searchLower) ||
+                    customer.email?.toLowerCase().includes(searchLower) ||
+                    customer.phone_number?.toLowerCase().includes(searchLower)
+                );
+        }
     });
 
     const currentItems = filteredRequests.slice(firstItemIndex, lastItemIndex);
@@ -244,11 +280,37 @@ const RequestList = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
+                <div className="sm:w-48">
+                    <select
+                        value={searchField}
+                        onChange={(e) => setSearchField(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    >
+                        <option value="all">Tất cả</option>
+                        <option value="id">ID</option>
+                        <option value="type">Loại yêu cầu</option>
+                        <option value="content">Nội dung</option>
+                        <option value="response">Phản hồi</option>
+                        <option value="status">Trạng thái</option>
+                        <option value="date">Thời gian</option>
+                        {isAdmin && <option value="user">Người yêu cầu</option>}
+                    </select>
+                </div>
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
                     <input
                         type="text"
-                        placeholder="Tìm kiếm yêu cầu..."
+                        placeholder={`Tìm kiếm theo ${
+                            searchField === 'all' ? 'tất cả' :
+                                searchField === 'id' ? 'ID' :
+                                    searchField === 'type' ? 'loại yêu cầu' :
+                                        searchField === 'content' ? 'nội dung' :
+                                            searchField === 'response' ? 'phản hồi' :
+                                                searchField === 'status' ? 'trạng thái' :
+                                                    searchField === 'date' ? 'thời gian' :
+                                                        searchField === 'user' ? 'người yêu cầu' :
+                                                            searchField
+                        }...`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -332,7 +394,7 @@ const RequestList = () => {
                                     </td>
                                     {isAdmin && (
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                        {customersData[request.user_id] ? (
+                                            {customersData[request.user_id] ? (
                                                 <div className="text-sm">
                                                     <div className="font-medium text-gray-900">
                                                         {customersData[request.user_id].fullname}
@@ -367,7 +429,7 @@ const RequestList = () => {
                                                             className="text-indigo-600 hover:text-indigo-900"
                                                             title="Phản hồi"
                                                         >
-                                                        <MessageCircle className="w-5 h-5"/>
+                                                            <MessageCircle className="w-5 h-5"/>
                                                         </button>
                                                     )}
                                                 </>

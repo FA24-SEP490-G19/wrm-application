@@ -2,6 +2,7 @@ package com.wrm.application.service;
 
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.response.lot.LotResponse;
+import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -23,4 +24,6 @@ public interface ILotService {
     List<LotResponse> getAvailableLotsByWarehouseId(Long warehouseId);
 
     Page<LotResponse> getLotByWarehouseID(PageRequest pageRequest, String remoteUser);
+
+    LotResponse getLotById(Long id);
 }

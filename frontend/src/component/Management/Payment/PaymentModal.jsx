@@ -133,24 +133,23 @@ const PaymentModal = ({ isOpen, onClose, onSubmit,mode,payment }) => {
         const { name, value } = e.target;
 
         if (name === 'user_id') {
-            // When user is selected, find their rental_id
-            const selectedUser = users.find(user => user.customer_id.toString() === value);
+            const selectedUser = users.find(user => `${user.customer_id}-${user.contract_id}` === value);
+
             setFormData(prev => ({
                 ...prev,
                 [name]: value,
-                rental_id: selectedUser?.rental_id || ''  // Set rental_id when user is selected
+                rental_id: selectedUser?.rental_id || '',
+                orderInfo: selectedUser ?
+                    `Thanh toán hợp đồng #${selectedUser.contract_id} của khách hàng ${selectedUser.customer_name}` :
+                    ''
             }));
         } else if (name === 'amount') {
-            // Existing amount handling code...
             const numericValue = value.replace(/[^0-9]/g, '');
-            const formattedValue = numericValue ? parseInt(numericValue).toLocaleString('vi-VN') : '';
-
             setFormData(prev => ({
                 ...prev,
                 [name]: numericValue
             }));
-
-            e.target.value = formattedValue;
+            e.target.value = numericValue ? parseInt(numericValue).toLocaleString('vi-VN') : '';
         } else {
             setFormData(prev => ({
                 ...prev,
@@ -162,7 +161,6 @@ const PaymentModal = ({ isOpen, onClose, onSubmit,mode,payment }) => {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
     };
-
     if (!isOpen) return null;
 
     const inputClasses = (error) => `
@@ -198,31 +196,34 @@ const PaymentModal = ({ isOpen, onClose, onSubmit,mode,payment }) => {
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 {mode === 'create' ? (
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Khách hàng</label>
-                                    <select
-                                        name="user_id"
-                                        value={formData.user_id}
-                                        onChange={handleChange}
-                                        className={inputClasses(errors.user_id)}
-                                    >
-                                        <option value="">Chọn khách hàng</option>
-                                        {users.map(user => (
-                                            <option key={user.customer_id} value={user.customer_id}>
-                                                {`${user.customer_name} (Mã hợp đồng: ${user.contract_id})`}
-                                                {user.start_date && user.end_date
-                                                    ? ` - ${formatDate(user.start_date)} đến ${formatDate(user.end_date)}`
-                                                    : ""}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.user_id && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
-                                    )}
-                                </div>
-                                    ) : ""}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Khách hàng</label>
+                                        <select
+                                            name="user_id"
+                                            value={`${formData.user_id}`} // This should match exactly what we set in handleChange
+                                            onChange={handleChange}
+                                            className={inputClasses(errors.user_id)}
+                                        >
+                                            <option value="">Chọn khách hàng</option>
+                                            {users.map(user => (
+                                                <option
+                                                    key={`${user.customer_id}-${user.contract_id}`}
+                                                    value={`${user.customer_id}-${user.contract_id}`}
+                                                >
+                                                    {`${user.customer_name} (Mã hợp đồng: ${user.contract_id})`}
+                                                    {user.start_date && user.end_date
+                                                        ? ` - ${formatDate(user.start_date)} đến ${formatDate(user.end_date)}`
+                                                        : ""}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errors.user_id && (
+                                            <p className="mt-1 text-sm text-red-600">{errors.user_id}</p>
+                                        )}
+                                    </div>
+                                ) : ""}
 
-                                        <div>
+                                <div>
                                     <label className="block text-sm font-medium text-gray-700">Số tiền (VNĐ)</label>
                                     <div className="relative">
                                         <input

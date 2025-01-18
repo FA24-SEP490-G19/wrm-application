@@ -26,9 +26,9 @@ public class WarehouseManagerDashboardService implements IWarehouseManagerDashbo
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         Warehouse warehouse = warehouseRepository.findByManagerId(manager.getId())
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+                .orElse(null);
 
-        return lotRepository.countAvailableLots(warehouse.getId());
+        return warehouse == null ? 0 : lotRepository.countAvailableLots(warehouse.getId());
     }
 
     @Override
@@ -37,9 +37,9 @@ public class WarehouseManagerDashboardService implements IWarehouseManagerDashbo
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         Warehouse warehouse = warehouseRepository.findByManagerId(manager.getId())
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+                .orElse(null);
 
-        return lotRepository.countRentedLots(warehouse.getId());
+        return warehouse == null ? 0 : lotRepository.countRentedLots(warehouse.getId());
     }
 
     @Override
@@ -48,12 +48,12 @@ public class WarehouseManagerDashboardService implements IWarehouseManagerDashbo
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         Warehouse warehouse = warehouseRepository.findByManagerId(manager.getId())
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+                .orElse(null);
 
         LocalDateTime today = LocalDate.now().atStartOfDay();
         LocalDateTime endDate = today.plusDays(10);
 
-        return appointmentRepository.countUpcomingAppointmentsForWarehouse(warehouse.getId(), today, endDate);
+        return warehouse == null ? 0 :  appointmentRepository.countUpcomingAppointmentsForWarehouse(warehouse.getId(), today, endDate);
     }
 
     @Override
@@ -62,11 +62,11 @@ public class WarehouseManagerDashboardService implements IWarehouseManagerDashbo
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy người dùng"));
 
         Warehouse warehouse = warehouseRepository.findByManagerId(manager.getId())
-                .orElseThrow(() -> new DataNotFoundException("Không tìm thấy kho hàng"));
+                .orElse(null);
 
         LocalDateTime today = LocalDate.now().atStartOfDay();
         LocalDateTime endDate = today.plusDays(10);
 
-        return rentalRepository.countExpiringRentalsForWarehouse(today, endDate, warehouse.getId());
+        return warehouse == null ? 0 : rentalRepository.countExpiringRentalsForWarehouse(today, endDate, warehouse.getId());
     }
 }

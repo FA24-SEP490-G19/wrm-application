@@ -17,7 +17,9 @@ import axios from "axios";
 import SaleAssignModal from "./SaleAssignModal.jsx";
 
 const AppointmentList = () => {
+    const [searchField, setSearchField] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -32,6 +34,7 @@ const AppointmentList = () => {
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
     const [totalItems, setTotalItems] = useState(0);
+
     const { customer } = useAuth();
     // Add pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -55,7 +58,7 @@ const AppointmentList = () => {
 
     useEffect(() => {
         fetchItems();
-    }, [currentPage, searchTerm]); //
+    }, [currentPage]); //
 
     useEffect(() => {
         if (items.length > 0) {
@@ -243,15 +246,65 @@ const AppointmentList = () => {
         'CANCELLED': 'Đã hủy'
     };
 
-    const filteredItems = items.filter(rental => {
-        if (!rental) return false;
-        return searchTerm === '' ||
-            Object.values(rental)
-                .filter(value => value !== null && value !== undefined)
-                .some(value =>
-                    value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-                );
-    });
+    const getFilteredItems = () => {
+        if (!searchTerm) return items;
+
+        const searchLower = searchTerm.toLowerCase();
+        return items.filter(item => {
+            const customer = customersData[item.customer_id] || {};
+            const warehouse = warehousesData[item.warehouse_id] || {};
+            const sale = saleData[item.sales_id] || {};
+
+            switch (searchField) {
+                case 'id':
+                    return item.id.toString().toLowerCase().includes(searchLower);
+                case 'customer':
+                    return (
+                        customer.fullname?.toLowerCase().includes(searchLower) ||
+                        customer.email?.toLowerCase().includes(searchLower) ||
+                        customer.phone_number?.toLowerCase().includes(searchLower)
+                    );
+                case 'sales':
+                    return (
+                        sale.fullname?.toLowerCase().includes(searchLower) ||
+                        sale.email?.toLowerCase().includes(searchLower) ||
+                        sale.phone_number?.toLowerCase().includes(searchLower)
+                    );
+                case 'warehouse':
+                    return (
+                        warehouse.name?.toLowerCase().includes(searchLower) ||
+                        warehouse.address?.toLowerCase().includes(searchLower)
+                    );
+                case 'status':
+                    return statusTranslations[item.status]?.toLowerCase().includes(searchLower);
+                case 'date':
+                    const appointmentDate = new Date(item.appointment_date)
+                        .toLocaleString('vi-VN')
+                        .toLowerCase();
+                    return appointmentDate.includes(searchLower);
+                case 'all':
+                default:
+                    return (
+                        item.id.toString().includes(searchLower) ||
+                        customer.fullname?.toLowerCase().includes(searchLower) ||
+                        customer.email?.toLowerCase().includes(searchLower) ||
+                        customer.phone_number?.toLowerCase().includes(searchLower) ||
+                        warehouse.name?.toLowerCase().includes(searchLower) ||
+                        warehouse.address?.toLowerCase().includes(searchLower) ||
+                        statusTranslations[item.status]?.toLowerCase().includes(searchLower) ||
+                        new Date(item.appointment_date)
+                            .toLocaleString('vi-VN')
+                            .toLowerCase()
+                            .includes(searchLower) ||
+                        sale.fullname?.toLowerCase().includes(searchLower) ||
+                        sale.email?.toLowerCase().includes(searchLower) ||
+                        sale.phone_number?.toLowerCase().includes(searchLower)
+                    );
+            }
+        });
+    };
+
+    const filteredItems = getFilteredItems();
 
     const currentItems = filteredItems.slice(firstItemIndex, lastItemIndex);
     const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
@@ -317,23 +370,49 @@ const AppointmentList = () => {
                     <p className="text-gray-600">Dành cho nhân viên sale</p>
                 </div>
                 {customer.role === "ROLE_SALES" ? (
-                <button
-                    onClick={handleAddAppointment}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
-                >
+                    <button
+                        onClick={handleAddAppointment}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center gap-2"
+                    >
 
-                    <Plus className="w-4 h-4"/>
-                    Thêm mới cuộc hẹn
-                </button>
-                    ) : "" }
+                        <Plus className="w-4 h-4"/>
+                        Thêm mới cuộc hẹn
+                    </button>
+                ) : ""}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
+                <div className="sm:w-48">
+                    <select
+                        value={searchField}
+                        onChange={(e) => setSearchField(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    >
+                        <option value="all">Tất cả</option>
+                        <option value="id">ID</option>
+                        <option value="customer">Khách hàng</option>
+                        {customer.role === "ROLE_ADMIN" && (
+                            <option value="sales">Nhân viên sale</option>
+                        )}
+                        <option value="warehouse">Kho</option>
+                        <option value="status">Trạng thái</option>
+                        <option value="date">Thời gian</option>
+                    </select>
+                </div>
+
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
                     <input
                         type="text"
-                        placeholder="Tìm kiếm cuộc hẹn..."
+                        placeholder={`Tìm kiếm theo ${
+                            searchField === 'all' ? 'tất cả' :
+                                searchField === 'customer' ? 'khách hàng' :
+                                    searchField === 'sales' ? 'nhân viên sale' :
+                                        searchField === 'warehouse' ? 'kho' :
+                                            searchField === 'status' ? 'trạng thái' :
+                                                searchField === 'date' ? 'thời gian' :
+                                                    searchField
+                        }...`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -358,6 +437,12 @@ const AppointmentList = () => {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Khách hàng
                             </th>
+                            {customer.role === "ROLE_ADMIN" && (
+
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Sale
+                                </th>
+                            )}
 
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Kho
@@ -402,6 +487,27 @@ const AppointmentList = () => {
                                         </div>
                                     )}
                                 </td>
+                                {customer.role === "ROLE_ADMIN" && (
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        {saleData[item.sales_id] ? (
+                                            <div className="text-sm">
+                                                <div className="font-medium text-gray-900">
+                                                    {saleData[item.sales_id].fullname}
+                                                </div>
+                                                <div className="text-gray-500">
+                                                    {saleData[item.sales_id].email}
+                                                </div>
+                                                <div className="text-gray-500">
+                                                    {saleData[item.sales_id].phone_number}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-gray-500">
+                                                {loadingRelatedData ? 'Đang tải...' : 'Không có thông tin'}
+                                            </div>
+                                        )}
+                                    </td>
+                                )}
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     {warehousesData[item.warehouse_id] ? (
                                         <div className="text-sm">
@@ -424,6 +530,12 @@ const AppointmentList = () => {
                                 {customer.role === "ROLE_SALES" && item.status === "PENDING" && (
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end space-x-2">
+                                            <button
+                                                onClick={() => handleEditAppointment(item)}
+                                                className="text-indigo-600 hover:text-indigo-900"
+                                            >
+                                                <Edit2 className="w-5 h-5"/>
+                                            </button>
                                             <button
                                                 onClick={async () => {
                                                     try {
@@ -484,7 +596,7 @@ const AppointmentList = () => {
                 </div>
 
                 <div className="px-6 py-4 border-t border-gray-200">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="text-sm text-gray-500">
                             Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, filteredItems.length)}
                             trong tổng số {filteredItems.length} cuộc hẹn

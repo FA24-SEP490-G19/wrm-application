@@ -2,6 +2,7 @@ package com.wrm.application.service.impl;
 
 import com.wrm.application.constant.enums.LotStatus;
 import com.wrm.application.constant.enums.RentalStatus;
+import com.wrm.application.dto.FeedbackDTO;
 import com.wrm.application.dto.LotDTO;
 import com.wrm.application.exception.DataNotFoundException;
 import com.wrm.application.exception.InvalidParamException;
@@ -9,8 +10,10 @@ import com.wrm.application.exception.PermissionDenyException;
 import com.wrm.application.model.Lot;
 import com.wrm.application.model.User;
 import com.wrm.application.model.Warehouse;
+import com.wrm.application.model.WarehouseImage;
 import com.wrm.application.repository.*;
 import com.wrm.application.response.lot.LotResponse;
+import com.wrm.application.response.warehouse.WarehouseDetailResponse;
 import com.wrm.application.service.ILotService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -166,6 +170,20 @@ public class LotService implements ILotService {
                 .price(lot.getPrice())
                 .build());
     }
+
+    @Override
+    public LotResponse getLotById(Long id) {
+        Lot lot = lotRepository.findById(id).orElseThrow() ;
+        return LotResponse.builder()
+                .id(lot.getId())
+                .size(lot.getSize())
+                .description(lot.getDescription())
+                .price(lot.getPrice())
+                .status(lot.getStatus())
+                .warehouseId(lot.getWarehouse().getId())
+                .build();
+    }
+
 
 
 }

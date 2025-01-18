@@ -9,6 +9,7 @@ import PaymentModal from "./PaymentModal.jsx";
 import CRMLayout from "../Crm.jsx";
 import {jwtDecode} from "jwt-decode";
 export const Payment = () => {
+    const [searchField, setSearchField] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -101,13 +102,38 @@ export const Payment = () => {
     const filteredPayments = payments.filter(payment => {
         if (!searchTerm) return true;
         const searchLower = searchTerm.toLowerCase();
-        const user = users[payment.user_id];
-        return (
-            payment.orderInfo?.toLowerCase().includes(searchLower) ||
-            user?.email?.toLowerCase().includes(searchLower)
-        );
-    });
 
+        switch (searchField) {
+            case 'id':
+                return payment.id.toString().toLowerCase().includes(searchLower);
+            case 'info':
+                return payment.orderInfo?.toLowerCase().includes(searchLower);
+            case 'amount':
+                return payment.amount.toString().includes(searchLower);
+            case 'customer':
+                return (
+                    payment.user?.fullName?.toLowerCase().includes(searchLower)
+                );
+            case 'status':
+                const statusText = payment.status === 'SUCCESS' ? 'đã thanh toán' : 'đang đợi thanh toán';
+                return statusText.includes(searchLower);
+            case 'date':
+                const createdDate = formatDate(payment.createdDate).toLowerCase();
+                const paymentDate = formatDate(payment.paymentTime).toLowerCase();
+                return createdDate.includes(searchLower) || paymentDate.includes(searchLower);
+            case 'all':
+            default:
+                return (
+                    payment.id.toString().includes(searchLower) ||
+                    payment.orderInfo?.toLowerCase().includes(searchLower) ||
+                    payment.amount.toString().includes(searchLower) ||
+                    payment.user?.fullName?.toLowerCase().includes(searchLower) ||
+                    formatDate(payment.createdDate).toLowerCase().includes(searchLower) ||
+                    formatDate(payment.paymentTime).toLowerCase().includes(searchLower) ||
+                    (payment.status === 'SUCCESS' ? 'đã thanh toán' : 'đang đợi thanh toán').includes(searchLower)
+                );
+        }
+    });
     const currentItems = filteredPayments.slice(firstItemIndex, lastItemIndex);
 
     const getPageNumbers = () => {
@@ -247,15 +273,38 @@ export const Payment = () => {
 
             {/* Search */}
             <div className="flex flex-col sm:flex-row gap-4">
+                <div className="sm:w-48">
+                    <select
+                        value={searchField}
+                        onChange={(e) => setSearchField(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                    >
+                        <option value="all">Tất cả</option>
+                        <option value="info">Thông tin</option>
+                        <option value="amount">Số tiền</option>
+                        <option value="customer">Khách hàng</option>
+                        <option value="date">Thời gian</option>
+                        <option value="status">Trạng thái</option>
+                    </select>
+                </div>
+
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
                     <input
                         type="text"
-                        placeholder="Tìm kiếm theo mô tả, email khách hàng..."
+                        placeholder={`Tìm kiếm theo ${
+                            searchField === 'all' ? 'tất cả' :
+                                searchField === 'id' ? 'ID' :
+                                    searchField === 'info' ? 'thông tin' :
+                                        searchField === 'amount' ? 'số tiền' :
+                                            searchField === 'customer' ? 'khách hàng' :
+                                                searchField === 'date' ? 'thời gian' :
+                                                    searchField === 'status' ? 'trạng thái' :
+                                                        searchField
+                        }...`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2
-                                 focus:ring-indigo-500 focus:border-indigo-500"
+                        className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                 </div>
             </div>
@@ -279,7 +328,7 @@ export const Payment = () => {
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                        {currentItems.map((payment,index) => (
+                        {currentItems.map((payment, index) => (
                             <tr key={payment.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 text-sm text-gray-900">
                                     {firstItemIndex + index + 1} {/* Calculate Serial Number */}
@@ -325,7 +374,7 @@ export const Payment = () => {
                 {/* Pagination remains the same */}
                 <div className="px-6 py-4 border-t border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-500">
                             Hiển thị {firstItemIndex + 1}-{Math.min(lastItemIndex, currentItems.length)}
                             trong tổng số {currentItems.length} lô hàng
                         </div>

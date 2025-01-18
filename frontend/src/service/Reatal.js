@@ -25,6 +25,19 @@ export const getAllRentalByManager = async () => {
     }
 };
 
+export const getLotById = async (id) => {
+    try {
+        const response = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/lots/manager/${id}`,
+            getAuthConfig()
+
+        );
+        return response.data;
+    } catch (e) {
+        throw e;
+    }
+};
+
 export const getAllExpiringRentalsForWarehouse = async () => {
     try {
         const response = await axios.get(`http://localhost:8080/rentals/warehouse/expiring?page=0&limit=100`, getAuthConfig());
