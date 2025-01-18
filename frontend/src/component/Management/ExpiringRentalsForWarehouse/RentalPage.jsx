@@ -53,14 +53,14 @@ const RentalList = () => {
         try {
             // First get the image IDs
             const response = await axios.get(
-                `https://api.g42.biz/contracts/${contractId}/images`,
+                ` https://api.g42.biz/contracts/${contractId}/images`,
                 getAuthConfig()
             );
             const imageIds = response.data;
 
             // Keep track of image URLs with their auth config
             const imageUrls = imageIds.map(imageId => ({
-                url: `https://api.g42.biz/contracts/images/${imageId}`,
+                url: ` https://api.g42.biz/contracts/images/${imageId}`,
                 config: getAuthConfig()
             }));
 

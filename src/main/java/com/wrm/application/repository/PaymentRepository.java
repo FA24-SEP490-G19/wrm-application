@@ -36,7 +36,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT MONTH(p.paymentTime) AS month, SUM(p.amount) AS totalRevenue " +
             "FROM Payment p " +
-            "JOIN Rental r ON r.customer.id = p.user.id " +
+            "JOIN Rental r ON r.id = p.rental.id " +
             "WHERE YEAR(p.paymentTime) = :year AND p.paymentStatus = 'SUCCESS' AND r.sales.id = :salesId " +
             "GROUP BY MONTH(p.paymentTime) " +
             "ORDER BY MONTH(p.paymentTime)")
@@ -44,7 +44,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT QUARTER(p.paymentTime) AS quarter, SUM(p.amount) AS totalRevenue " +
             "FROM Payment p " +
-            "JOIN Rental r ON r.customer.id = p.user.id " +
+            "JOIN Rental r ON r.id = p.rental.id " +
             "WHERE YEAR(p.paymentTime) = :year AND p.paymentStatus = 'SUCCESS' AND r.sales.id = :salesId " +
             "GROUP BY QUARTER(p.paymentTime) " +
             "ORDER BY QUARTER(p.paymentTime)")
@@ -52,7 +52,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     @Query("SELECT YEAR(p.paymentTime) AS year, SUM(p.amount) AS totalRevenue " +
             "FROM Payment p " +
-            "JOIN Rental r ON r.customer.id = p.user.id " +
+            "JOIN Rental r ON r.id = p.rental.id " +
             "WHERE p.paymentStatus = 'SUCCESS' AND r.sales.id = :salesId " +
             "GROUP BY YEAR(p.paymentTime) " +
             "ORDER BY YEAR(p.paymentTime)")

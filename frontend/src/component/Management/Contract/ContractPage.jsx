@@ -45,7 +45,7 @@ const ContractList = () => {
     const uploadContractImages = async (contractId, imageLinks) => {
         try {
             const response = await axios.post(
-                `https://api.g42.biz/contracts/${contractId}/add-images`,
+                ` https://api.g42.biz/contracts/${contractId}/add-images`,
                 {
                     contract_img_link: imageLinks
                 },

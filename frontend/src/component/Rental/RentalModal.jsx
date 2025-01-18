@@ -275,7 +275,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                                                 <option value="">Chọn lô hàng</option>
                                                 {availableLots.map(lot => (
                                                     <option key={lot.id} value={lot.id}>
-                                                        {lot.description} - {lot.size}m² - {lot.price}
+                                                        {lot.description} - {lot.size}m²
                                                     </option>
                                                 ))}
                                             </select>
@@ -322,7 +322,7 @@ const RentalModal = ({ isOpen, onClose, mode, rentalData, onSubmit }) => {
                                                 value={formData.price}
                                                 onChange={handleChange}
                                                 className={inputClasses(errors.price)}
-                                                placeholder={`Nhập giá thuê/${formData.rental_type === 'MONTHLY' ? 'tháng' : 'ngày'}`}
+                                                placeholder={`Nhập giá thuê${formData.rental_type === 'MONTHLY' ? '/tháng' : ''}`}
                                                 step="0.01"
                                                 min="0"
                                             />

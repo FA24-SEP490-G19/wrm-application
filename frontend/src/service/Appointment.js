@@ -64,7 +64,7 @@ export const deleteItem = async (id) => {
 export const getMyAppointment = async () => {
     try {
         const response = await axios.get(
-            `https://api.g42.biz/appointments/my-appointments?page=0&limit=15`,
+            ` https://api.g42.biz/appointments/my-appointments?page=0&limit=15`,
             getAuthConfig()
         );
         return response.data;

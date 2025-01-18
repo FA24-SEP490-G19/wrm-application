@@ -329,7 +329,7 @@ public class RentalService implements IRentalService {
 
                 // Gửi request đến endpoint auto-create-payment
                 String endpointUrl = String.format(
-                        "https://api.g42.biz/payment/auto-create-payment?amount=%d&orderInfo=%s&id=%d&rentalId=%d",
+                        " https://api.g42.biz/payment/auto-create-payment?amount=%d&orderInfo=%s&id=%d&rentalId=%d",
                         amount, orderInfo, userId, rental.getId()
                 );
 

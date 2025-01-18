@@ -38,7 +38,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit,mode,payment }) => {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('https://api.g42.biz/payment/customers', {
+            const response = await fetch(' https://api.g42.biz/payment/customers', {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem("access_token")}`,
                 }
@@ -92,7 +92,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit,mode,payment }) => {
                 params.append('id', parseInt(formData.user_id));
                 params.append('rentalId', formData.rental_id);  // Add rental_id to params
 
-                const response = await fetch('https://api.g42.biz/payment/submitOrder', {
+                const response = await fetch(' https://api.g42.biz/payment/submitOrder', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -104,7 +104,7 @@ const PaymentModal = ({ isOpen, onClose, onSubmit,mode,payment }) => {
                 window.location.href = paymentUrl;
             } else {
                 // Update only needs amount
-                const response = await fetch(`https://api.g42.biz/payment/update/${payment.id}?amount=${parseInt(formData.amount)}`, {
+                const response = await fetch(` https://api.g42.biz/payment/update/${payment.id}?amount=${parseInt(formData.amount)}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem("access_token")}`

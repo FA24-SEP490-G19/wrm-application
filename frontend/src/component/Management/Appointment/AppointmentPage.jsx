@@ -320,7 +320,7 @@ const AppointmentList = () => {
     const handleAssignSale = async (appointmentId, salesId) => {
         try {
             await axios.put(
-                `https://api.g42.biz/appointments/assign/${appointmentId}`,
+                ` https://api.g42.biz/appointments/assign/${appointmentId}`,
                 { sales_id: salesId },
                 {
                     headers: {
@@ -346,7 +346,7 @@ const AppointmentList = () => {
     const handleUpdateStatus = async (appointmentId, newStatus) => {
         try {
             await axios.put(
-                `https://api.g42.biz/appointments/${appointmentId}`,
+                ` https://api.g42.biz/appointments/${appointmentId}`,
                 { status: newStatus },
                 {
                     headers: {

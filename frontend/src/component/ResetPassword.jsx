@@ -13,7 +13,7 @@ const ResetPassword = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('https://api.g42.biz/users/reset-password?email=' + email, {
+            const response = await fetch(' https://api.g42.biz/users/reset-password?email=' + email, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

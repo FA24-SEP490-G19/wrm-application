@@ -247,7 +247,7 @@ public class MailService implements IMailService {
                 + "<p>Xin chào,</p>"
                 + "<p>Cảm ơn bạn đã đăng ký tài khoản với chúng tôi. Để hoàn tất quá trình đăng ký, vui lòng nhấp vào liên kết bên dưới để xác minh địa chỉ email của bạn:</p>"
                 + "<div style='text-align: center; margin: 20px;'>"
-                + "<a href='https://api.g42.biz/users/verify?token=" + token + "' style='background-color: #4a90e2; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;'>Xác minh email</a>"
+                + "<a href=' https://api.g42.biz/users/verify?token=" + token + "' style='background-color: #4a90e2; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;'>Xác minh email</a>"
                 + "</div>"
                 + "<p>Nếu bạn không thực hiện đăng ký này, vui lòng bỏ qua email này.</p>"
                 + "</div>"
