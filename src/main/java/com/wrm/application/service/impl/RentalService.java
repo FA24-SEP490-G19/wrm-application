@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -317,7 +318,7 @@ public class RentalService implements IRentalService {
     }
 
     @Scheduled(cron = "0 0 0 * * ?")
-    public void scheduleRentalPayments() throws MessagingException {
+    public void scheduleRentalPayments() throws MessagingException, UnsupportedEncodingException {
         RestTemplate restTemplate = new RestTemplate();
         // Lặp qua danh sách rentals để tạo thanh toán
         List<Rental> rentals = rentalRepository.findAll();
