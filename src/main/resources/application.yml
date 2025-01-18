@@ -29,15 +29,15 @@ spring:
       max-request-size: 100MB
       max-file-size: 100MB
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: datbthe170585@fpt.edu.vn
-    password: huqzcosekirojfub
+    host: mail.spacemail.com
+    port: 465
+    username: support@g42.biz
+    password: d1288556-6B10-4D92-B3d9-B6Ed88Ea74D7
     properties:
       mail:
         smtp:
           auth: true
-          starttls:
+          ssl:
             enable: true
 jwt:
   expiration: 2592000

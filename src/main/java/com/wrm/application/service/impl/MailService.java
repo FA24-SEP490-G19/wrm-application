@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,10 +27,10 @@ public class MailService implements IMailService {
     private final JavaMailSender mailSender;
     private final RentalRepository rentalRepository;
 
-    private void sendEmail(String to, String subject, String text) throws MessagingException {
+    private void sendEmail(String to, String subject, String text) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
+        helper.setFrom("support@g42.biz", "Warehouse Hub Support");
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(text, true);
@@ -39,7 +40,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendPasswordResetEmail(String to, String newPassword) throws MessagingException {
+    public void sendPasswordResetEmail(String to, String newPassword) throws MessagingException, UnsupportedEncodingException {
         String subject = "Đặt lại mật khẩu";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: #4a90e2;'>Đặt lại mật khẩu thành công</h2>"
@@ -59,7 +60,7 @@ public class MailService implements IMailService {
     @Async
     @Override
     @Scheduled(cron = "0 0 0 * * ?")
-    public void sendRentalExpirationReminders() throws MessagingException {
+    public void sendRentalExpirationReminders() throws MessagingException, UnsupportedEncodingException {
         LocalDateTime today = LocalDateTime.now();
         LocalDateTime reminderDate = today.plusDays(10);
 
@@ -88,7 +89,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendAppointmentConfirmationEmail(String to, Appointment appointment) throws MessagingException {
+    public void sendAppointmentConfirmationEmail(String to, Appointment appointment) throws MessagingException, UnsupportedEncodingException {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy 'lúc' HH:mm");
         String formattedDate = appointment.getAppointmentDate().format(formatter);
@@ -119,7 +120,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendTaskAssignmentNotification(String to, Appointment appointment) throws MessagingException {
+    public void sendTaskAssignmentNotification(String to, Appointment appointment) throws MessagingException, UnsupportedEncodingException {
         String subject = "Thông báo nhiệm vụ mới";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: #4a90e2;'>Thông báo nhiệm vụ mới</h2>"
@@ -144,7 +145,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendAppointmentUpdateNotification(String to, Appointment appointment) throws MessagingException {
+    public void sendAppointmentUpdateNotification(String to, Appointment appointment) throws MessagingException, UnsupportedEncodingException {
         String subject = "Cập nhật lịch hẹn";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: #4a90e2; text-align: center;'>Trạng thái lịch hẹn được cập nhật</h2>"
@@ -169,7 +170,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendRentalCreationNotification(String to, Rental rental) throws MessagingException {
+    public void sendRentalCreationNotification(String to, Rental rental) throws MessagingException, UnsupportedEncodingException {
         String subject = "Tạo hợp đồng thuê mới";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: #4a90e2;'>Hợp đồng thuê mới được tạo</h2>"
@@ -190,7 +191,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendRequestCreationNotification(String to, Request request) throws MessagingException {
+    public void sendRequestCreationNotification(String to, Request request) throws MessagingException, UnsupportedEncodingException {
         String subject = "Yêu cầu mới được tạo";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: #4a90e2;'>Yêu cầu mới được tạo</h2>"
@@ -214,7 +215,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendRequestUpdateNotification(String to, Request request) throws MessagingException {
+    public void sendRequestUpdateNotification(String to, Request request) throws MessagingException, UnsupportedEncodingException {
         String subject = "Cập nhật trạng thái yêu cầu";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: #4a90e2;'>Trạng thái yêu cầu được cập nhật</h2>"
@@ -236,7 +237,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendVerificationEmail(String email, String token) throws MessagingException {
+    public void sendVerificationEmail(String email, String token) throws MessagingException, UnsupportedEncodingException {
         String subject = "Xác minh địa chỉ email của bạn";
         String htmlContent = "<div style='font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;'>"
                 + "<div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;'>"
@@ -261,7 +262,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendPaymentDueNotification(String to, Rental rental) throws MessagingException {
+    public void sendPaymentDueNotification(String to, Rental rental) throws MessagingException, UnsupportedEncodingException {
         String subject = "Thông báo đến hạn thanh toán";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: #4a90e2;'>Thông báo đến hạn thanh toán</h2>"
@@ -285,7 +286,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendOverdueNotification(Rental rental) throws MessagingException {
+    public void sendOverdueNotification(Rental rental) throws MessagingException, UnsupportedEncodingException {
         String email = rental.getCustomer().getEmail();
         String subject = "Thông báo hợp đồng quá hạn";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
@@ -301,7 +302,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendAccountCreationEmail(User user, String password) throws MessagingException {
+    public void sendAccountCreationEmail(User user, String password) throws MessagingException, UnsupportedEncodingException {
         String email = user.getEmail();
         String subject = "Thông báo tài khoản mới";
         String htmlContent = "<div style='font-family: Arial, sans-serif;'>"
@@ -321,7 +322,7 @@ public class MailService implements IMailService {
 
     @Async
     @Override
-    public void sendAppointmentCancellationEmail(String email, Appointment appointment) throws MessagingException {
+    public void sendAppointmentCancellationEmail(String email, Appointment appointment) throws MessagingException, UnsupportedEncodingException {
         String subject = "Thông báo hủy lịch hẹn";
         String htmlContent = "<div style='font-family: Arial, sans-serif; color: #333;'>"
                 + "<h2 style='color: red;'>Lịch hẹn đã bị hủy</h2>"
