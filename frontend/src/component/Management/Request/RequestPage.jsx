@@ -389,8 +389,9 @@ const RequestList = () => {
                                         {new Date(request?.created_date).toLocaleString('vi-VN')}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {new Date(request?.admin_response_date).toLocaleString('vi-VN')}
-
+                                        {request?.admin_response_date
+                                            ? new Date(request.admin_response_date).toLocaleString('vi-VN')
+                                            : 'Chưa phản hồi'}
                                     </td>
                                     {isAdmin && (
                                         <td className="px-6 py-4 whitespace-nowrap">
