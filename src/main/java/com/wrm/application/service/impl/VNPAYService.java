@@ -197,7 +197,7 @@ public class VNPAYService {
         }
         payment = paymentRepository.save(payment);
 
-        response.sendRedirect("http://localhost:5173/payment-return" );
+        response.sendRedirect("https://g42.biz/payment-return" );
 
         return PaymentResponse.builder()
                 .orderInfo(payment.getOrderInfo())

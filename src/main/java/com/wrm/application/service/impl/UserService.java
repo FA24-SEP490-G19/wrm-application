@@ -113,7 +113,7 @@ public class UserService implements IUserService {
         }
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
-        response.sendRedirect("http://localhost:5173/active" );
+        response.sendRedirect("https://g42.biz/active" );
 
     }
 

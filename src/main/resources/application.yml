@@ -2,7 +2,7 @@ server:
   port: 8080
 contract:
   images:
-    path: C:/image
+    path: /uploads/images/
 cors:
   allowed-origins: "*"
   allowed-methods: "*"
