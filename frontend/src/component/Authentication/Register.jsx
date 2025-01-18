@@ -58,10 +58,7 @@ const RegisterPage = () => {
                 />
                 <div className="absolute inset-0 bg-blue-900 bg-opacity-50" />
 
-                <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-12 z-10">
-                    <h1 className="text-5xl font-bold mb-4 text-center">KhoLưuTrữVN</h1>
-                    <p className="text-2xl text-center">Dịch vụ cho thuê kho bãi hàng đầu Việt Nam</p>
-                </div>
+
             </div>
 
             {/* Right side with register form */}
