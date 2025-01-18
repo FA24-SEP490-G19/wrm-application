@@ -206,6 +206,9 @@ public class RentalService implements IRentalService {
                 .orElseThrow(() -> new DataNotFoundException("Không tìm thấy thông tin thuê"));
         rental.setDeleted(true);
         rental.setStatus(RentalStatus.TERMINATED);
+        Lot lot = rental.getLot();
+        lot.setStatus(LotStatus.AVAILABLE);
+        lotRepository.save(lot);
         rentalRepository.save(rental);
 
         Contract contract = rental.getContract();
