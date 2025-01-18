@@ -541,6 +541,7 @@ const MyRequestPage = () => {
 
 
                                             <>
+                                            {request.status !== 'APPROVED' && (
 
                                                 <button
                                                     onClick={() => handleDeleteRequest(request.id)}
@@ -549,6 +550,7 @@ const MyRequestPage = () => {
                                                 >
                                                     <Trash2 className="w-5 h-5"/>
                                                 </button>
+                                                )}
                                             </>
 
                                         </div>
