@@ -88,7 +88,7 @@ public class WarehouseController {
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {
-            Path path = Paths.get("C:\\image\\" + filename);
+            Path path = Paths.get("/uploads/images/" + filename);
             Resource resource = new UrlResource(path.toUri());
 
             if (resource.exists()) {

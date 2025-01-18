@@ -13,7 +13,7 @@ import {
 // Add this to your Contract.js service file
 const uploadContractImages = async (contractId, imageLinks) => {
     try {
-        const response = await fetch(`http://localhost:8080/contracts/${contractId}/add-images`, {
+        const response = await fetch(`https://api.g42.biz/contracts/${contractId}/add-images`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

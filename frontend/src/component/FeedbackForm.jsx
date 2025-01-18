@@ -14,7 +14,7 @@ const FeedbackForm = ({ warehouseId, onSubmit,feedbacks  }) => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('http://localhost:8080/feedback/add', {
+            const response = await fetch('https://api.g42.biz/feedback/add', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("access_token")}`,

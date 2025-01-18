@@ -40,7 +40,7 @@ const WarehouseLandingPage = () => {
     useEffect(() => {
         const fetchWarehouses = async () => {
             try {
-                const response = await fetch('http://localhost:8080/warehouses?page=0&limit=10');
+                const response = await fetch('https://api.g42.biz/warehouses?page=0&limit=10');
                 const data = await response.json();
                 setWarehouses(data.warehouses || []);
             } catch (error) {

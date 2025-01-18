@@ -192,7 +192,7 @@ public class WarehouseService implements IWarehouseService {
             throw new IllegalArgumentException("Kích thước ảnh vượt quá giới hạn tối đa 10MB.");
         }
         String fileName = UUID.randomUUID().toString() + ".png";
-        Path path = Paths.get("C:\\image\\" + fileName);
+        Path path = Paths.get("/uploads/images/" + fileName);
         Files.createDirectories(path.getParent());
         Files.write(path, imageBytes);
         return fileName;
@@ -345,7 +345,7 @@ public class WarehouseService implements IWarehouseService {
         }
 
         // Delete physical file
-        Path filePath = Paths.get("C:\\image\\" + imageId);
+        Path filePath = Paths.get("/uploads/images/" + imageId);
         Files.deleteIfExists(filePath);
 
         // Delete database record
@@ -361,7 +361,7 @@ public class WarehouseService implements IWarehouseService {
         // Delete existing images
         List<WarehouseImage> existingImages = warehouseImageRepository.findAllByWarehouseId(warehouseId);
         for (WarehouseImage img : existingImages) {
-            Path filePath = Paths.get("C:\\image\\" + img.getImageUrl());
+            Path filePath = Paths.get("/uploads/images/" + img.getImageUrl());
             Files.deleteIfExists(filePath);
         }
         warehouseImageRepository.deleteAllByWarehouseId(warehouseId);

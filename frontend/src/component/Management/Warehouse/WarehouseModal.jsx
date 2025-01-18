@@ -342,7 +342,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                 const addedImages = await warehouseImageService.addImages(warehouseData.id, newImages);
                 // Refresh existing images
                 const updatedImages = await warehouseImageService.getImages(warehouseData.id);
-                setExistingImages(updatedImages.map(img => `http://localhost:8080/warehouses/images/${img}`));
+                setExistingImages(updatedImages.map(img => `https://api.g42.biz/warehouses/images/${img}`));
                 showToast('Tải ảnh lên thành công', 'success');
             } else {
                 // In create mode, store images in formData
@@ -447,14 +447,14 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                     // Fetch images when opening in edit mode
                     const images = await warehouseImageService.getImages(warehouseData.id);
                     const imageUrls = images.map(img =>
-                        `http://localhost:8080/warehouses/images/${img}`
+                        `https://api.g42.biz/warehouses/images/${img}`
                     );
                     setExistingImages(imageUrls);
 
                     // Set thumbnail if exists
                     if (warehouseData.fullThumbnailPath) {
                         setThumbnailPreview(
-                            `http://localhost:8080/warehouses/images/${warehouseData.fullThumbnailPath.split('\\').pop()}`
+                            `https://api.g42.biz/warehouses/images/${warehouseData.fullThumbnailPath.split('\\').pop()}`
                         );
                     }
 
@@ -600,7 +600,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
 
                     // Fetch current thumbnail with auth if exists
                     if (warehouseData.thumbnail) {
-                        const thumbnailUrl = `http://localhost:8080/warehouses/images/${warehouseData.thumbnail.split('\\').pop()}`;
+                        const thumbnailUrl = `https://api.g42.biz/warehouses/images/${warehouseData.thumbnail.split('\\').pop()}`;
                         try {
                             // Verify the thumbnail exists and is accessible
                             await axios.head(thumbnailUrl, getAuthConfig());
@@ -614,7 +614,7 @@ const WarehouseModal = ({ isOpen, onClose, mode, warehouseData, onSubmit }) => {
                     // Fetch images if any
                     const images = await warehouseImageService.getImages(warehouseData.id);
                     const imageUrls = images.map(img =>
-                        `http://localhost:8080/warehouses/images/${img}`
+                        `https://api.g42.biz/warehouses/images/${img}`
                     );
                     setExistingImages(imageUrls);
 

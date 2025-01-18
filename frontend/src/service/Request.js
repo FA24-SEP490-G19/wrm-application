@@ -1,7 +1,7 @@
 // service/Request.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'https://api.g42.biz';
 
 const getAuthConfig = () => ({
     headers: {

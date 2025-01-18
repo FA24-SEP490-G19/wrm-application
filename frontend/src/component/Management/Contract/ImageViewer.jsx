@@ -30,7 +30,7 @@ const ImageViewer = ({ images, isOpen, onClose,contractId,onImagesUpdate}) => {
 
         try {
             await axios.delete(
-                `http://localhost:8080/contracts/${contractId}/images/${imageId}`,
+                `https://api.g42.biz/contracts/${contractId}/images/${imageId}`,
                 getAuthConfig()
             );
             showToast('Xóa ảnh thành công', 'success');
@@ -72,7 +72,7 @@ const ImageViewer = ({ images, isOpen, onClose,contractId,onImagesUpdate}) => {
 
             // Upload images
             await axios.post(
-                `http://localhost:8080/contracts/${contractId}/images`,
+                `https://api.g42.biz/contracts/${contractId}/images`,
                 base64Images,
                 getAuthConfig()
             );

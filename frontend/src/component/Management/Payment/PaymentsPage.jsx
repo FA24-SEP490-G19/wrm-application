@@ -24,7 +24,7 @@ export const Payment = () => {
     const [selectedItem, setSelectedItem] = useState(null);
 
     const axiosInstance = axios.create({
-        baseURL: 'http://localhost:8080/payment',
+        baseURL: 'https://api.g42.biz/payment',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem("access_token")}`,
             'Content-Type': 'application/json'

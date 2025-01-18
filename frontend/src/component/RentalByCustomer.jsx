@@ -43,13 +43,13 @@ const RentalByCustomer = () => {
     const fetchContractImages = async (contractId) => {
         try {
             const response = await axios.get(
-                `http://localhost:8080/contracts/${contractId}/images`,
+                `https://api.g42.biz/contracts/${contractId}/images`,
                 getAuthConfig()
             );
             const imageIds = response.data;
 
             const imageUrls = imageIds.map(imageId => ({
-                url: `http://localhost:8080/contracts/images/${imageId}`,
+                url: `https://api.g42.biz/contracts/images/${imageId}`,
                 config: getAuthConfig()
             }));
 

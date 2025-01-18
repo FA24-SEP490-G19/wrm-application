@@ -236,7 +236,7 @@ public class ContractService implements IContractService {
         }
 
         String fileName = UUID.randomUUID().toString() + ".png";
-        Path path = Paths.get("C:\\image\\" + fileName);
+        Path path = Paths.get("/uploads/images/" + fileName);
         Files.createDirectories(path.getParent());
         Files.write(path, imageBytes);
         return fileName;
